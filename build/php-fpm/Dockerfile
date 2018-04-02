@@ -1,0 +1,67 @@
+FROM php:7.2-fpm-alpine
+
+RUN apk add --no-cache \
+    libpq \
+    git \
+    libevent \
+    'su-exec>=0.2'
+
+RUN apk add --no-cache --virtual .build-deps \
+    libxml2-dev \
+    postgresql-dev \
+    autoconf \
+    gcc \
+    musl-dev \
+    make \
+    pcre-dev \
+    libevent-dev \
+ && docker-php-ext-install \
+    mbstring \
+    xml \
+    pdo \
+    pgsql \
+    pdo_pgsql \
+    zip \
+    opcache \
+    sockets \
+ && pecl install event && docker-php-ext-enable event \
+ && mv /usr/local/etc/php/conf.d/docker-php-ext-event.ini \
+       /usr/local/etc/php/conf.d/docker-php-ext-zz-event.ini \
+ && apk del .build-deps
+
+WORKDIR /var/www/app
+ENV COMPOSER_ALLOW_SUPERUSER 1
+
+COPY ./composer.*   /var/www/app/
+COPY ./symfony.lock /var/www/app/symfony.lock
+COPY ./public       /var/www/app/public
+
+# Установка вендоров на основании composer.lock
+RUN curl -sS https://getcomposer.org/installer | php \
+ && chmod +x composer.phar \
+ && php composer.phar install --no-dev --no-interaction --no-scripts --no-autoloader
+
+# Копирование кода приложения
+COPY ./bin /var/www/app/bin
+COPY ./config /var/www/app/config
+COPY ./src /var/www/app/src
+
+# Итоговое построение карты autoload
+#RUN php composer.phar dump-autoload --no-dev --optimize --classmap-authoritative
+
+VOLUME /var/www/app
+VOLUME /var/www/app/var
+
+ENV APP_ENV local
+
+EXPOSE 9000
+
+COPY ./build/php-fpm/php-fpm.conf           /usr/local/etc/php-fpm.conf
+COPY ./build/php-fpm/www.conf               /usr/local/etc/php-fpm.d/www.conf
+COPY ./build/php-fpm/docker-entry-point.sh  /usr/local/bin/docker-entry-point
+
+RUN chmod +x /usr/local/bin/docker-entry-point
+
+ENTRYPOINT ["docker-entry-point"]
+
+CMD ["php-fpm"]

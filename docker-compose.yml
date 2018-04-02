@@ -1,0 +1,26 @@
+version: '3'
+services:
+
+  php-fpm:
+    container_name: appsell_php_fpm
+    image: appsell_php_fpm
+    environment:
+      APP_CONFIG: local
+    build:
+      context: .
+      dockerfile: ./build/php-fpm/Dockerfile
+    volumes:
+      - ./:/var/www/app
+    ports:
+      - 9000
+
+  nginx:
+    container_name: appsell_nginx
+    image: appsell_nginx
+    build: ./build/nginx
+    links:
+      - php-fpm
+    ports:
+      - 80:80
+    volumes:
+      - ./:/var/www/app
