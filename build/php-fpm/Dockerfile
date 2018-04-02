@@ -47,12 +47,10 @@ COPY ./config /var/www/app/config
 COPY ./src /var/www/app/src
 
 # Итоговое построение карты autoload
-#RUN php composer.phar dump-autoload --no-dev --optimize --classmap-authoritative
+RUN php composer.phar dump-autoload --no-dev --optimize --classmap-authoritative
 
 VOLUME /var/www/app
 VOLUME /var/www/app/var
-
-ENV APP_ENV local
 
 EXPOSE 9000
 

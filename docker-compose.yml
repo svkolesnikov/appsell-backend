@@ -4,8 +4,6 @@ services:
   php-fpm:
     container_name: appsell_php_fpm
     image: appsell_php_fpm
-    environment:
-      APP_CONFIG: local
     build:
       context: .
       dockerfile: ./build/php-fpm/Dockerfile
