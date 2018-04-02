@@ -9,6 +9,7 @@ services:
       dockerfile: ./build/php-fpm/Dockerfile
     volumes:
       - ./:/var/www/app
+      - ./var:/var/www/app/var
     ports:
       - 9000
 
@@ -22,3 +23,4 @@ services:
       - 80:80
     volumes:
       - ./:/var/www/app
+      - ./var:/var/www/app/var

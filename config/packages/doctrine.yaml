@@ -7,11 +7,10 @@ doctrine:
         connections:
             appsell:
                 driver: 'pdo_pgsql'
-                charset: utf8mb4
-                default_table_options:
-                    charset: utf8mb4
-                    collate: utf8mb4_unicode_ci
+                charset: UTF8
                 url: '%env(DATABASE_URL)%'
+                options:
+                  20: true # PDO::ATTR_EMULATE_PREPARES is 20
     orm:
         auto_generate_proxy_classes: '%kernel.debug%'
         default_entity_manager: appsell
