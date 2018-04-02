@@ -1,4 +1,16 @@
 {
+    "doctrine/annotations": {
+        "version": "1.0",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "1.0",
+            "ref": "cb4152ebcadbe620ea2261da1a1c5a9b8cea7672"
+        }
+    },
+    "doctrine/lexer": {
+        "version": "v1.0.1"
+    },
     "psr/cache": {
         "version": "1.0.1"
     },
@@ -74,6 +86,9 @@
     "symfony/polyfill-mbstring": {
         "version": "v1.7.0"
     },
+    "symfony/polyfill-php72": {
+        "version": "v1.7.0"
+    },
     "symfony/routing": {
         "version": "4.0",
         "recipe": {
@@ -83,7 +98,13 @@
             "ref": "cda8b550123383d25827705d05a42acf6819fe4e"
         }
     },
+    "symfony/var-dumper": {
+        "version": "v4.0.6"
+    },
     "symfony/yaml": {
         "version": "v4.0.6"
+    },
+    "zircote/swagger-php": {
+        "version": "2.0.13"
     }
 }
