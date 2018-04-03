@@ -3,6 +3,9 @@
 parameters:
     locale: 'en'
 
+    access_token.secret:     'e2374ce25abcd4342ed59f24fd3d317bb01a9e01'
+    access_token.expires_in: 2592000 # 30 дней
+
 services:
     # default configuration for services in *this* file
     _defaults:
@@ -16,7 +19,7 @@ services:
     # this creates a service per class whose id is the fully-qualified class name
     App\:
         resource: '../src/*'
-        exclude: '../src/{Entity,Migrations,Tests,Kernel.php}'
+        exclude: '../src/{ORM,Security,Entity,Migrations,Tests,Kernel.php}'
 
     # controllers are imported separately to make sure services can be injected
     # as action arguments even if you don't extend any base controller class
@@ -26,3 +29,9 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+
+    App\Security\AccessToken:
+        arguments:
+            - '%access_token.secret%'
+            - '%access_token.expires_in%'
+
