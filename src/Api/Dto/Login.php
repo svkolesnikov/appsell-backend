@@ -3,6 +3,7 @@
 namespace App\Api\Dto;
 
 use ApiPlatform\Core\Annotation\ApiResource;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -12,30 +13,21 @@ use Symfony\Component\Validator\Constraints as Assert;
  *          "post" = {
  *              "path" = "/auth/login.{_format}",
  *              "swagger_context" = {
- *                  "responses" = {
- *                      201 = {
- *                          "description" = "Пользователь успешно аутентифицирован и получен токен доступа",
- *                          "content" = {
- *                              "application/json" = {
- *                                  "schema" = {
- *                                      "type" = "object",
- *                                      "properties" = {
- *                                          "token" = { "type" = "string" }
- *                                      }
- *                                  }
- *                              }
- *                          }
- *                      },
- *                      400 = { "description" = "Invalid input" }
- *                  }
+ *                  "tags" = { "Auth" }
  *              }
  *          }
+ *     },
+ *     attributes = {
+ *          "normalization_context" = {"groups" = {"read"}},
+ *          "denormalization_context" = {"groups" = {"write"}}
  *     }
  * )
  */
 final class Login
 {
     /**
+     * @Groups({ "write" })
+     *
      * @Assert\NotBlank
      * @Assert\Email
      *
@@ -44,9 +36,18 @@ final class Login
     public $email;
 
     /**
+     * @Groups({ "write" })
+     *
      * @Assert\NotBlank
      *
      * @var string
      */
     public $password;
+
+    /**
+     * @Groups({ "read" })
+     *
+     * @var string
+     */
+    public $token;
 }

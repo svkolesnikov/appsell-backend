@@ -11,7 +11,11 @@ use App\ORM\Id\UuidGenerator;
 /**
  * @ApiResource(
  *     collectionOperations = {},
- *     itemOperations = { "get" },
+ *     itemOperations = {
+ *          "get" = {
+ *              "access_control" = "object == user"
+ *          }
+ *     },
  *     attributes = {
  *          "normalization_context" = {"groups" = {"read"}}
  *     }

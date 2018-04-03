@@ -40,8 +40,9 @@ security:
     access_control:
 
         # REST API rules
-        - { path: ^/api/index.[^/], role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/auth/token, role: ROLE_USER }
         - { path: ^/api/auth,       role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/index.[^/], role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api.+,          role: ROLE_USER }
         - { path: ^/api,            role: IS_AUTHENTICATED_ANONYMOUSLY }
 
