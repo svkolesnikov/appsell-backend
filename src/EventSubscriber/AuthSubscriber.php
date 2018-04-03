@@ -5,7 +5,9 @@ namespace App\EventSubscriber;
 use ApiPlatform\Core\EventListener\EventPriorities;
 use App\Api\Dto\Login;
 use App\Api\Dto\Registration;
+use App\Api\Dto\Token;
 use App\Entity\User;
+use App\Exception\AccessTokenException;
 use App\Exception\AuthException;
 use App\Security\AccessToken;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
@@ -38,7 +40,8 @@ class AuthSubscriber implements EventSubscriberInterface
     {
         return [
             KernelEvents::VIEW => ['registerUser', EventPriorities::POST_VALIDATE],
-            KernelEvents::VIEW => ['authenticateUser', EventPriorities::POST_VALIDATE]
+            KernelEvents::VIEW => ['authenticateUser', EventPriorities::POST_VALIDATE],
+            KernelEvents::VIEW => ['refreshToken', EventPriorities::POST_VALIDATE]
         ];
     }
 
@@ -91,9 +94,39 @@ class AuthSubscriber implements EventSubscriberInterface
             throw new AuthException('Invalid credentials');
         }
 
-        $event->setResponse(new JsonResponse(
-            ['token' => $this->accessToken->create($user->getEmail())],
-            JsonResponse::HTTP_CREATED
-        ));
+        $token = new Token();
+        $token->token = $this->accessToken->create($user->getEmail());
+
+        $event->setResponse(new JsonResponse($token, JsonResponse::HTTP_CREATED));
+    }
+
+    /**
+     * @param GetResponseForControllerResultEvent $event
+     * @throws AuthException
+     */
+    public function refreshToken(GetResponseForControllerResultEvent $event): void
+    {
+        $request = $event->getRequest();
+        if ('api_tokens_post_collection' !== $request->attributes->get('_route')) {
+            return;
+        }
+
+        try {
+
+            /** @var Token $data */
+            $data = $event->getControllerResult();
+            $email = $this->accessToken->authorize($data->token);
+
+            $newToken = new Token();
+            $newToken->token = $this->accessToken->create($email);
+
+            $event->setResponse(new JsonResponse(
+                $newToken,
+                JsonResponse::HTTP_CREATED
+            ));
+
+        } catch (AccessTokenException $ex) {
+            throw new AuthException('Invalid access token', 0, $ex);
+        }
     }
 }
