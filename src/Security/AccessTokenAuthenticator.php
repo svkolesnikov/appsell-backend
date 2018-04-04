@@ -5,6 +5,7 @@ namespace App\Security;
 use App\Entity\User;
 use App\Exception\AccessTokenException;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Security\Core\Authentication\Token\AbstractToken;
 use Symfony\Component\Security\Core\Authentication\Token\AnonymousToken;
 use Symfony\Component\Security\Core\Authentication\Token\PreAuthenticatedToken;
@@ -21,6 +22,7 @@ class AccessTokenAuthenticator implements SimplePreAuthenticatorInterface
      * @param $providerKey
      * @return PreAuthenticatedToken
      * @throws \InvalidArgumentException
+     * @throws AccessTokenException
      */
     public function authenticateToken(TokenInterface $token, UserProviderInterface $userProvider, $providerKey): AbstractToken
     {
@@ -45,10 +47,7 @@ class AccessTokenAuthenticator implements SimplePreAuthenticatorInterface
             );
 
         } catch (AccessTokenException|UsernameNotFoundException $exception) {
-
-            // Если проблема с токеном или не нашли пользователя
-            // будем считать его анонимным
-            return new AnonymousToken('', new User());
+            throw new AccessTokenException($exception->getMessage(), $exception);
         }
     }
 
@@ -61,6 +60,10 @@ class AccessTokenAuthenticator implements SimplePreAuthenticatorInterface
     {
         $authorizationHeader = $request->headers->get('authorization', '');
         $accessToken = preg_replace('/^bearer /i', '', $authorizationHeader);
+
+        if (!$accessToken) {
+            return null;
+        }
 
         return new PreAuthenticatedToken('anon.', $accessToken, $providerKey);
     }

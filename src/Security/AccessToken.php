@@ -45,7 +45,7 @@ class AccessToken
         try {
             $decoded = JWT::decode($token, $this->secret, [$this->algorithm]);
         } catch (\Exception $ex) {
-            throw new AccessTokenException('Invalid access token', 0, $ex);
+            throw new AccessTokenException('Invalid access token', $ex);
         }
 
         if (!$decoded->exp || time() > (int) $decoded->exp) {

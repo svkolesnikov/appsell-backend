@@ -18,6 +18,9 @@ security:
             security: false
 
         api:
+            # Если не передан токен, то юзер будет аноним
+            # и если что, его отошъет фаервол дальше там
+            anonymous: true
             pattern: ^/api
             stateless: true
             provider: access_token_provider
