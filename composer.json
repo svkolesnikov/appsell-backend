@@ -7,6 +7,7 @@
         "api-platform/api-pack": "^1.1",
         "firebase/php-jwt": "^5.0",
         "ramsey/uuid": "^3.7",
+        "sonata-project/admin-bundle": "^3.33",
         "symfony/console": "^4.0",
         "symfony/flex": "^1.0",
         "symfony/framework-bundle": "^4.0",
