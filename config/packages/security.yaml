@@ -27,6 +27,20 @@ security:
             simple_preauth:
                 authenticator: App\Security\AccessTokenAuthenticator
 
+        admin:
+            switch_user:      false
+            context:          user
+            pattern:          ^/admin.*
+            form_login:
+                provider:     database_provider
+                login_path:     /admin/login
+                check_path:     /admin/login
+                default_target_path: /admin/dashboard
+            logout:
+                path:           /admin/logout
+                target:         /admin/login
+            anonymous:        true
+
         main:
             anonymous: true
 
@@ -48,6 +62,17 @@ security:
         - { path: ^/api/index.[^/], role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api.+,          role: ROLE_USER }
         - { path: ^/api,            role: IS_AUTHENTICATED_ANONYMOUSLY }
+
+        # Admin login page needs to be accessed without credential
+        - { path: ^/admin/login$,       role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/admin/logout$,      role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/admin/login_check$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/admin/resetting,    role: IS_AUTHENTICATED_ANONYMOUSLY }
+
+        # Secured part of the site
+        # This config requires being logged for the whole site and having the admin role for the admin part.
+        # Change these rules to adapt them to your needs
+        - { path: ^/admin/, role: [ROLE_USER] }
 
         # - { path: ^/admin, roles: ROLE_ADMIN }
         # - { path: ^/profile, roles: ROLE_USER }
