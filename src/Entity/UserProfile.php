@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="userdata.user_profile")
+ * @ORM\Table(name="userdata.profile")
  * @ORM\HasLifecycleCallbacks
  */
 class UserProfile
