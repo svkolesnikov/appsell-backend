@@ -5,6 +5,7 @@ namespace App\EventSubscriber;
 use ApiPlatform\Core\EventListener\EventPriorities;
 use App\Api\Dto\Registration;
 use App\Entity\User;
+use App\Entity\UserProfile;
 use App\Exception\AuthException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
@@ -60,10 +61,15 @@ class RegistrationSubscriber implements EventSubscriberInterface
         $user->setEmail($data->email);
         $user->setPassword($this->passwordEncoder->encodePassword($user, $data->password));
 
+        $profile = new UserProfile();
+        $profile->setUser($user);
+
         try {
 
+            $this->entityManager->persist($profile);
             $this->entityManager->persist($user);
             $this->entityManager->flush();
+
             $event->setResponse(new JsonResponse(null, JsonResponse::HTTP_CREATED));
 
         } catch (UniqueConstraintViolationException $ex) {

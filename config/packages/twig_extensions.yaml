@@ -1,8 +1,4 @@
-services:
-    _defaults:
-        public: false
-        autowire: true
-        autoconfigure: true
+services: ~
 
     #Twig\Extensions\ArrayExtension: ~
     #Twig\Extensions\DateExtension: ~

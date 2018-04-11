@@ -61,6 +61,20 @@ class User implements UserInterface, \Serializable
      */
     protected $mtime;
 
+    /**
+     * @var UserProfile
+     * @ORM\OneToOne(
+     *     targetEntity = "UserProfile",
+     *     mappedBy = "user"
+     * )
+     */
+    protected $profile;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    protected $is_active;
+
     public function getRoles(): array
     {
         return ['ROLE_USER'];
@@ -148,5 +162,25 @@ class User implements UserInterface, \Serializable
     public function onPreUpdate()
     {
         $this->mtime = new \DateTime();
+    }
+
+    public function getProfile(): UserProfile
+    {
+        return $this->profile;
+    }
+
+    public function setProfile(UserProfile $profile): void
+    {
+        $this->profile = $profile;
+    }
+
+    public function isActive(): bool
+    {
+        return $this->is_active;
+    }
+
+    public function setActive(bool $active): void
+    {
+        $this->is_active = $active;
     }
 }

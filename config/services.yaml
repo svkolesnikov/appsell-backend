@@ -1,8 +1,6 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
-    locale: 'en'
-
     access_token.secret:     'e2374ce25abcd4342ed59f24fd3d317bb01a9e01'
     access_token.expires_in: 2592000 # 30 дней
 
