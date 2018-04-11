@@ -11,9 +11,9 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *     itemOperations = {},
  *     collectionOperations = {
  *          "post" = {
- *              "path" = "/auth/registration.{_format}",
+ *              "path" = "/registration/employees.{_format}",
  *              "swagger_context" = {
- *                  "tags" = { "Auth" }
+ *                  "tags" = { "Registration" }
  *              }
  *          }
  *     },
@@ -23,7 +23,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *     }
  * )
  */
-final class Registration
+final class Employee
 {
     /**
      * @Groups({ "write" })
@@ -43,4 +43,13 @@ final class Registration
      * @var string
      */
     public $password;
+
+    /**
+     * @Groups({ "write" })
+     *
+     * @Assert\NotBlank
+     *
+     * @var string
+     */
+    public $code;
 }
