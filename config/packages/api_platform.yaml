@@ -164,6 +164,7 @@ api_platform:
     exception_to_status:
         Symfony\Component\Serializer\Exception\ExceptionInterface: 400
         Symfony\Component\Security\Core\Exception\InsufficientAuthenticationException: 401
+        Symfony\Component\Security\Core\Exception\UsernameNotFoundException: 403
         App\Exception\AccessTokenException: 403
         App\Exception\AuthException: 400
 
