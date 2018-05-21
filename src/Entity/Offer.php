@@ -78,6 +78,12 @@ class Offer
      */
     protected $actions;
 
+    /**
+     * @var OfferApp[]|ArrayCollection
+     * @ORM\OneToMany(targetEntity="OfferApp", mappedBy="offer")
+     */
+    protected $apps;
+
     public function __construct()
     {
         $this->actions = new ArrayCollection();
@@ -191,5 +197,13 @@ class Offer
     public function getActions()
     {
         return $this->actions;
+    }
+
+    /**
+     * @return OfferApp[]|ArrayCollection
+     */
+    public function getApps()
+    {
+        return $this->apps;
     }
 }
