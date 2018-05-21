@@ -3,7 +3,6 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use App\ORM\Id\UuidGenerator;
 
 /**
  * @ORM\Entity
@@ -14,9 +13,8 @@ class SellerOfferLink
 {
     /**
      * @ORM\Id
-     * @ORM\Column(type="guid")
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     * @ORM\CustomIdGenerator(class=UuidGenerator::class)
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="AUTO")
      */
     protected $id;
 
@@ -63,7 +61,7 @@ class SellerOfferLink
         $this->mtime = new \DateTime();
     }
 
-    public function getId(): string
+    public function getId(): int
     {
         return $this->id;
     }

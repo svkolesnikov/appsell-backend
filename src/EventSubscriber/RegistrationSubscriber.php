@@ -5,7 +5,6 @@ namespace App\EventSubscriber;
 use ApiPlatform\Core\EventListener\EventPriorities;
 use App\Api\Dto\Employee;
 use App\Api\Dto\Owner;
-use App\Api\Dto\Registration;
 use App\Api\Dto\Seller;
 use App\Entity\User;
 use App\Entity\UserProfile;
