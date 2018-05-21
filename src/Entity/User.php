@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -65,7 +66,8 @@ class User implements UserInterface, \Serializable
      * @var UserProfile
      * @ORM\OneToOne(
      *     targetEntity = "UserProfile",
-     *     mappedBy = "user"
+     *     mappedBy = "user",
+     *     cascade={"persist", "remove"}
      * )
      */
     protected $profile;
@@ -75,12 +77,40 @@ class User implements UserInterface, \Serializable
      */
     protected $is_active;
 
-    public function getRoles(): array
+    /**
+     * @var Group[]|ArrayCollection
+     *
+     * @ORM\ManyToMany(targetEntity="Group")
+     * @ORM\JoinTable(name="userdata.user2group",
+     *      joinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="group_id", referencedColumnName="id")}
+     * )
+     */
+    protected $groups;
+
+    public function __construct()
     {
-        return ['ROLE_USER'];
+        $this->profile = new UserProfile();
+        $this->profile->setUser($this);
     }
 
-    public function getPassword(): string
+    public function getGroups()
+    {
+        return $this->groups ?: $this->groups = new ArrayCollection();
+    }
+
+    public function getRoles(): array
+    {
+        $roles = ['ROLE_USER'];
+
+        foreach ($this->getGroups() as $group) {
+            $roles = array_merge($roles, $group->getRoles());
+        }
+
+        return array_unique($roles);
+    }
+
+    public function getPassword(): ?string
     {
         return $this->password;
     }
@@ -95,7 +125,7 @@ class User implements UserInterface, \Serializable
         return null;
     }
 
-    public function getUsername(): string
+    public function getUsername(): ?string
     {
         return $this->email;
     }
@@ -164,7 +194,7 @@ class User implements UserInterface, \Serializable
         $this->mtime = new \DateTime();
     }
 
-    public function getProfile(): UserProfile
+    public function getProfile(): ?UserProfile
     {
         return $this->profile;
     }
@@ -176,11 +206,16 @@ class User implements UserInterface, \Serializable
 
     public function isActive(): bool
     {
-        return $this->is_active;
+        return (bool) $this->is_active;
     }
 
     public function setActive(bool $active): void
     {
         $this->is_active = $active;
+    }
+
+    public function __toString()
+    {
+        return (string) $this->getUsername();
     }
 }

@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+    <file source-language="en" datatype="plaintext" original="" >
+        <body>
+            <trans-unit id="Name">
+                <source>Name</source>
+                <target>Наименование</target>
+            </trans-unit>
+            <trans-unit id="Group List">
+                <source>Group List</source>
+                <target>Группы</target>
+            </trans-unit>
+            <trans-unit id="Groups">
+                <source>Groups</source>
+                <target>Группы</target>
+            </trans-unit>
+            <trans-unit id="Group Create">
+                <source>Group Create</source>
+                <target>Создание группы</target>
+            </trans-unit>
+            <trans-unit id="User List">
+                <source>User List</source>
+                <target>Пользователи</target>
+            </trans-unit>
+            <trans-unit id="User Create">
+                <source>User Create</source>
+                <target>Создание пользователя</target>
+            </trans-unit>
+            <trans-unit id="Roles">
+                <source>Roles</source>
+                <target>Роли</target>
+            </trans-unit>
+            <trans-unit id="Username">
+                <source>Username</source>
+                <target>Наименование</target>
+            </trans-unit>
+            <trans-unit id="Email">
+                <source>Email</source>
+                <target>Адрес электронной почты</target>
+            </trans-unit>
+            <trans-unit id="First Name">
+                <source>First Name</source>
+                <target>Имя</target>
+            </trans-unit>
+            <trans-unit id="Last Name">
+                <source>Last Name</source>
+                <target>Фамилия</target>
+            </trans-unit>
+            <trans-unit id="Phone">
+                <source>Phone</source>
+                <target>Номер телефона</target>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>

@@ -64,7 +64,7 @@ class UserProfile
         $this->mtime = new \DateTime();
     }
 
-    public function getPhone(): int
+    public function getPhone(): ?int
     {
         return $this->phone;
     }

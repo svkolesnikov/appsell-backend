@@ -1,0 +1,31 @@
+services:
+
+    app.sonata.admin.user:
+        class: App\Admin\UserAdmin
+        tags:
+          - { name: sonata.admin, manager_type: orm, group: "Settings", label: "User List" }
+        arguments:
+          - ~
+          - App\Entity\User
+          - ~
+        public: true
+
+    app.sonata.admin.user_profile:
+        class: App\Admin\UserProfileAdmin
+        tags:
+          - { name: sonata.admin, manager_type: orm, group: "Settings", label: "User Profile List" }
+        arguments:
+          - ~
+          - App\Entity\UserProfile
+          - ~
+        public: true
+
+    app.sonata.admin.group:
+        class: App\Admin\GroupAdmin
+        tags:
+          - { name: sonata.admin, manager_type: orm, group: "Settings", label: "Group List" }
+        arguments:
+          - ~
+          - App\Entity\Group
+          - ~
+        public: true

@@ -1,10 +1,33 @@
+sonata_block:
+    default_contexts: [sonata_page_bundle]
+    blocks:
+        sonata.admin.block.admin_list:
+            contexts:   [admin]
+        sonata.user.block.menu:  # used to display the menu in profile pages
+        sonata.user.block.account: # used to display menu option (login option)
+
 sonata_admin:
-    title: 'Sonata Admin'
+    show_mosaic_button: false
+
+    title: 'AppSell'
+    options:
+        title_mode: 'single_text'
+
+    security:
+        handler: sonata.admin.security.handler.role
+
     dashboard:
+        groups:
+            settings:
+                label: Настройки
+                label_catalogue: ~
+                icon: '<i class="fa fa-wrench"></i>'
+                items:
+                    - app.sonata.admin.group
+                    - app.sonata.admin.user
+                roles: [ ROLE_USER ]
         blocks:
             - { type: sonata.admin.block.admin_list, position: left }
 
-sonata_block:
-    blocks:
-        sonata.admin.block.admin_list:
-            contexts: [admin]
+    templates:
+        layout:  'standard_layout.html.twig'
