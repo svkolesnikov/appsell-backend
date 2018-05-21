@@ -5,8 +5,24 @@ namespace App\Entity;
 use App\Enum\StoreEnum;
 use Doctrine\ORM\Mapping as ORM;
 use App\ORM\Id\UuidGenerator;
+use ApiPlatform\Core\Annotation\ApiResource;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
+ * @ApiResource(
+ *     itemOperations = {
+ *          "get" = {
+ *              "swagger_context" = {
+ *                  "tags" = { "Offers" }
+ *              }
+ *          }
+ *     },
+ *     collectionOperations = {},
+ *     attributes = {
+ *          "normalization_context" = {"groups" = {"read"}}
+ *     }
+ * )
+ *
  * @ORM\Entity
  * @ORM\Table(name="offerdata.offer_app")
  * @ORM\HasLifecycleCallbacks
@@ -29,11 +45,15 @@ class OfferApp
     protected $offer;
 
     /**
+     * @Groups({ "read" })
+     *
      * @ORM\Column(type="string")
      */
     protected $store;
 
     /**
+     * @Groups({ "read" })
+     *
      * @ORM\Column(type="string")
      */
     protected $url;

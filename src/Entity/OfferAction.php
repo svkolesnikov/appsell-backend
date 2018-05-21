@@ -4,8 +4,24 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use App\ORM\Id\UuidGenerator;
+use ApiPlatform\Core\Annotation\ApiResource;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
+ * @ApiResource(
+ *     itemOperations = {
+ *          "get" = {
+ *              "swagger_context" = {
+ *                  "tags" = { "Offers" }
+ *              }
+ *          }
+ *     },
+ *     collectionOperations = {},
+ *     attributes = {
+ *          "normalization_context" = {"groups" = {"read"}}
+ *     }
+ * )
+ *
  * @ORM\Entity
  * @ORM\Table(name="offerdata.offer_action")
  * @ORM\HasLifecycleCallbacks
@@ -28,11 +44,15 @@ class OfferAction
     protected $offer;
 
     /**
+     * @Groups({ "read" })
+     *
      * @ORM\Column(type="string")
      */
     protected $code;
 
     /**
+     * @Groups({ "read" })
+     *
      * @ORM\Column(type="string")
      */
     protected $title;

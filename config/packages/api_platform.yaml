@@ -13,7 +13,7 @@ api_platform:
     name_converter: ~
 
     # Specify a path name generator to use.
-    path_segment_name_generator: 'api_platform.path_segment_name_generator.underscore'
+    path_segment_name_generator: 'api_platform.path_segment_name_generator.dash'
 
     eager_loading:
         # To enable or disable eager loading.
@@ -173,11 +173,11 @@ api_platform:
 #        jsonld:
 #            mime_types: ['application/ld+json']
 
-        jsonhal:
-            mime_types: ['application/hal+json']
+#        jsonhal:
+#            mime_types: ['application/hal+json']
 
-#        json:
-#            mime_types: ['application/json']
+        json:
+            mime_types: ['application/json']
 
         html:
             mime_types: ['text/html']

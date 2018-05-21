@@ -6,8 +6,31 @@ use App\Enum\CurrencyEnum;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use App\ORM\Id\UuidGenerator;
+use ApiPlatform\Core\Annotation\ApiResource;
+use Symfony\Component\Serializer\Annotation\Groups;
+use ApiPlatform\Core\Annotation\ApiSubresource;
 
 /**
+ * @ApiResource(
+ *     itemOperations = {
+ *          "get" = {
+ *              "swagger_context" = {
+ *                  "tags" = { "Offers" }
+ *              }
+ *          }
+ *     },
+ *     collectionOperations = {
+ *          "get" = {
+ *              "swagger_context" = {
+ *                  "tags" = { "Offers" }
+ *              }
+ *          }
+ *     },
+ *     attributes = {
+ *          "normalization_context" = {"groups" = {"read"}}
+ *     }
+ * )
+ *
  * @ORM\Entity
  * @ORM\Table(name="offerdata.offer")
  * @ORM\HasLifecycleCallbacks
@@ -15,6 +38,8 @@ use App\ORM\Id\UuidGenerator;
 class Offer
 {
     /**
+     * @Groups({ "read" })
+     *
      * @ORM\Id
      * @ORM\Column(type="guid")
      * @ORM\GeneratedValue(strategy="CUSTOM")
@@ -30,33 +55,45 @@ class Offer
     protected $owner;
 
     /**
+     * @Groups({ "read" })
+     *
      * @ORM\Column(type="string")
      */
     protected $title;
 
     /**
+     * @Groups({ "read" })
+     *
      * @ORM\Column(type="string")
      */
     protected $description;
 
     /**
+     * @Groups({ "read" })
+     *
      * @var \DateTime
      * @ORM\Column(type="datetime")
      */
     protected $active_from;
 
     /**
+     * @Groups({ "read" })
+     *
      * @var \DateTime
      * @ORM\Column(type="datetime")
      */
     protected $active_to;
 
     /**
+     * @Groups({ "read" })
+     *
      * @ORM\Column(type="integer")
      */
     protected $price;
 
     /**
+     * @Groups({ "read" })
+     *
      * @ORM\Column(type="string")
      */
     protected $currency;
@@ -74,12 +111,16 @@ class Offer
     protected $mtime;
 
     /**
+     * @Groups({ "read" })
+     *
      * @var OfferAction[]|ArrayCollection
      * @ORM\OneToMany(targetEntity="OfferAction", mappedBy="offer")
      */
     protected $actions;
 
     /**
+     * @Groups({ "read" })
+     *
      * @var OfferApp[]|ArrayCollection
      * @ORM\OneToMany(targetEntity="OfferApp", mappedBy="offer")
      */

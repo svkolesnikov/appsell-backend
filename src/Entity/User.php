@@ -115,11 +115,11 @@ class User implements UserInterface, \Serializable
 
     public function unserialize($serialized): void
     {
-        list (
+        [
             $this->id,
             $this->email,
             $this->password
-        ) = json_decode($serialized, true);
+        ] = json_decode($serialized, true);
     }
 
     public function getEmail()
