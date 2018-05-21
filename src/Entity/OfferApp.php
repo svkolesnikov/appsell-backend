@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Enum\StoreEnum;
 use Doctrine\ORM\Mapping as ORM;
 use App\ORM\Id\UuidGenerator;
 
@@ -81,14 +82,18 @@ class OfferApp
         $this->offer = $offer;
     }
 
-    public function getStore(): string
+    /**
+     * @return StoreEnum
+     * @throws \UnexpectedValueException
+     */
+    public function getStore(): StoreEnum
     {
-        return $this->store;
+        return new StoreEnum($this->store);
     }
 
-    public function setStore(string $store): void
+    public function setStore(StoreEnum $store): void
     {
-        $this->store = $store;
+        $this->store = $store->getValue();
     }
 
     public function getUrl(): string

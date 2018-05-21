@@ -71,6 +71,9 @@
     "knplabs/knp-menu-bundle": {
         "version": "v2.2.1"
     },
+    "myclabs/php-enum": {
+        "version": "1.6.1"
+    },
     "nelmio/cors-bundle": {
         "version": "1.5",
         "recipe": {

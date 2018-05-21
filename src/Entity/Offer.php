@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Enum\CurrencyEnum;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use App\ORM\Id\UuidGenerator;
@@ -171,14 +172,17 @@ class Offer
         $this->price = $price;
     }
 
-    public function getCurrency(): string
+    /**
+     * @throws \UnexpectedValueException
+     */
+    public function getCurrency(): CurrencyEnum
     {
-        return $this->currency;
+        return new CurrencyEnum($this->currency);
     }
 
-    public function setCurrency(string $currency): void
+    public function setCurrency(CurrencyEnum $currency): void
     {
-        $this->currency = $currency;
+        $this->currency = $currency->getValue();
     }
 
     public function getCtime(): \DateTime
