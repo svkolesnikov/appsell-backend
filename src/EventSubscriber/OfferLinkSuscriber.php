@@ -7,9 +7,10 @@ use App\Entity\OfferApp;
 use App\Entity\SellerOfferLink;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Routing\Router;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\HttpKernel\Event\GetResponseForControllerResultEvent;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -19,45 +20,22 @@ class OfferLinkSuscriber implements EventSubscriberInterface
     /** @var EntityManagerInterface */
     protected $entityManager;
 
-    public function __construct(EntityManagerInterface $em)
+    /** @var Router */
+    protected $router;
+
+    public function __construct(EntityManagerInterface $em, ContainerInterface $container)
     {
         $this->entityManager = $em;
+        $this->router = $container->get('router');
     }
 
     public static function getSubscribedEvents(): array
     {
         return [
             KernelEvents::VIEW => [
-                ['createOrFetchLink', EventPriorities::POST_VALIDATE],
-                ['redirectToStore', EventPriorities::PRE_VALIDATE]
+                ['createOrFetchLink', EventPriorities::POST_VALIDATE]
             ]
         ];
-    }
-
-    /**
-     * @param GetResponseForControllerResultEvent $event
-     * @throws NotFoundHttpException
-     */
-    public function redirectToStore(GetResponseForControllerResultEvent $event): void
-    {
-        $request = $event->getRequest();
-
-        print_r($request->attributes->all());
-        die();
-//        echo $request->attributes->get('_route');
-//        die();
-
-        if ('api_seller_offer_links_redirect_to_store_item' === $request->attributes->get('_route')) {
-
-            /** @var SellerOfferLink $link */
-            $link = $this->entityManager->getRepository('App:SellerOfferLink')->find($request->get('id'));
-
-            if (null === $link) {
-                throw new NotFoundHttpException('Link not found');
-            }
-
-            die('123');
-        }
     }
 
     /**
@@ -98,7 +76,11 @@ class OfferLinkSuscriber implements EventSubscriberInterface
 
             /** @var \App\Api\Dto\SellerOfferLink $response */
             $response = $event->getControllerResult();
-            $response->url = $link->getId();
+            $response->url = $this->router->generate(
+                'api_seller_offer_links_redirect_item',
+                ['id' => $link->getId(), '_format' => 'json'],
+                Router::ABSOLUTE_URL
+            );
 
             $event->setResponse(new JsonResponse($response, JsonResponse::HTTP_CREATED));
         }

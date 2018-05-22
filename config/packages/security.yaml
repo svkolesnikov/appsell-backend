@@ -57,12 +57,13 @@ security:
     access_control:
 
         # REST API rules
-        - { path: ^/api/auth/token,   role: ROLE_USER }
-        - { path: ^/api/auth,         role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/api/registration, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/api/index.[^/],   role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/api.+,            role: ROLE_USER }
-        - { path: ^/api,              role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/auth/token,       role: ROLE_USER }
+        - { path: ^/api/apps/\d+/install, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/auth,             role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/registration,     role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/index.[^/],       role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api.+,                role: ROLE_USER }
+        - { path: ^/api,                  role: IS_AUTHENTICATED_ANONYMOUSLY }
 
         # Admin login page needs to be accessed without credential
         - { path: ^/admin/login$,       role: IS_AUTHENTICATED_ANONYMOUSLY }

@@ -7,23 +7,11 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ApiResource(
- *     itemOperations = {
- *          "redirect_to_store" = {
- *              "method" = "GET",
- *              "path" = "/download-apps/{id}",
- *              "swagger_context" = {
- *                  "tags" = { "Offers" },
- *                  "responses" = {
- *                      "302" = { "description" = "Ссылка найдена, переход в стор к приложению" },
- *                      "404" = { "description" = "Resource not found" }
- *                  }
- *              }
- *          }
- *     },
+ *     itemOperations = {},
  *     collectionOperations = {
  *          "create_link" = {
  *              "method" = "POST",
- *              "path" = "/offer-apps/{id}/sellers/{seller_id}/links",
+ *              "path" = "/offer-apps/{id}/sellers/{seller_id}/links.{_format}",
  *              "swagger_context" = {
  *                  "tags" = { "Offers" }
  *              }

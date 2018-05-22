@@ -3,8 +3,28 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use ApiPlatform\Core\Annotation\ApiResource;
+use App\Controller\Api\RedirectToStoreController;
 
 /**
+ * @ApiResource(
+ *     itemOperations = {
+ *          "redirect" = {
+ *              "method" = "GET",
+ *              "path" = "/apps/{id}/install.{_format}",
+ *              "controller" = RedirectToStoreController::class,
+ *              "swagger_context" = {
+ *                  "tags" = { "Offers" },
+ *                  "responses" = {
+ *                      "302" = { "description" = "Ссылка найдена, переход в стор к приложению" },
+ *                      "404" = { "description" = "Resource not found" }
+ *                  }
+ *              }
+ *          }
+ *     },
+ *     collectionOperations = {}
+ * )
+ *
  * @ORM\Entity
  * @ORM\Table(name="offerdata.seller_offer_link")
  * @ORM\HasLifecycleCallbacks
