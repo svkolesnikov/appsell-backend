@@ -6,6 +6,7 @@
         "ext-iconv": "*",
         "api-platform/api-pack": "^1.1",
         "firebase/php-jwt": "^5.0",
+        "martin-georgiev/postgresql-for-doctrine": "~0.9",
         "myclabs/php-enum": "^1.6",
         "ramsey/uuid": "^3.7",
         "sonata-project/admin-bundle": "^3.33",

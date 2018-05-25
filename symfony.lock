@@ -71,6 +71,9 @@
     "knplabs/knp-menu-bundle": {
         "version": "v2.2.1"
     },
+    "martin-georgiev/postgresql-for-doctrine": {
+        "version": "0.10"
+    },
     "myclabs/php-enum": {
         "version": "1.6.1"
     },

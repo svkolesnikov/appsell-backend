@@ -10,7 +10,13 @@ doctrine:
                 charset: UTF8
                 url: '%env(DATABASE_URL)%'
                 options:
-                  20: true # PDO::ATTR_EMULATE_PREPARES is 20
+                    20: true # PDO::ATTR_EMULATE_PREPARES is 20
+        types:
+            bigint[]: MartinGeorgiev\Doctrine\DBAL\Types\BigIntArray
+            text[]: MartinGeorgiev\Doctrine\DBAL\Types\TextArray
+            jsonb: MartinGeorgiev\Doctrine\DBAL\Types\Jsonb
+            jsonb[]: MartinGeorgiev\Doctrine\DBAL\Types\JsonbArray
+
     orm:
         auto_generate_proxy_classes: '%kernel.debug%'
         default_entity_manager: appsell

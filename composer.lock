@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "08aafbfdcc4edbffe88dd773b7da4646",
+    "content-hash": "d3a642c5fd8ef19bdb0b4c06dcad24c1",
     "packages": [
         {
             "name": "api-platform/api-pack",
@@ -1229,6 +1229,63 @@
                 "menu"
             ],
             "time": "2017-12-24T16:32:39+00:00"
+        },
+        {
+            "name": "martin-georgiev/postgresql-for-doctrine",
+            "version": "0.10",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/martin-georgiev/postgresql-for-doctrine.git",
+                "reference": "2b8d47b55a14198fc7f4ef103995372a922e58a0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/martin-georgiev/postgresql-for-doctrine/zipball/2b8d47b55a14198fc7f4ef103995372a922e58a0",
+                "reference": "2b8d47b55a14198fc7f4ef103995372a922e58a0",
+                "shasum": ""
+            },
+            "require": {
+                "doctrine/dbal": "~2.5",
+                "doctrine/orm": "~2.5",
+                "php": ">=5.5"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~4.0",
+                "squizlabs/php_codesniffer": "*"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "MartinGeorgiev\\": "src/MartinGeorgiev/",
+                    "MartinGeorgiev\\Tests\\": "tests/MartinGeorgiev/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Martin Georgiev",
+                    "email": "martin.georgiev@gmail.com"
+                }
+            ],
+            "description": "PostgreSQL enhancements for Doctrine2. Provides support for JSONB and array data types and operators and other specific functions.",
+            "keywords": [
+                "array data types",
+                "dbal",
+                "doctrine2",
+                "jsonb",
+                "martin georgiev",
+                "postgres",
+                "postgresql"
+            ],
+            "time": "2017-03-21T12:48:21+00:00"
         },
         {
             "name": "myclabs/php-enum",
