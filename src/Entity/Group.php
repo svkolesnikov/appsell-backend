@@ -46,7 +46,7 @@ class Group
     /**
      * @Groups({ "read" })
      *
-     * @ORM\Column(type="array")
+     * @ORM\Column(type="text[]")
      */
     protected $roles;
 
