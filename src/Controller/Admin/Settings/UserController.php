@@ -128,6 +128,7 @@ class UserController extends BaseController
         $groups = $this->em->getRepository(Group::class)->findAll();
 
         return $this->render('pages/settings/user/edit.html.twig', [
+            'form' => $form->createView(),
             'action' => 'create',
             'groups' => $groups
         ]);
