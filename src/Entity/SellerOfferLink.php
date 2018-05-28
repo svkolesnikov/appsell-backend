@@ -11,7 +11,7 @@ use App\Controller\Api\RedirectToStoreController;
  *     itemOperations = {
  *          "redirect" = {
  *              "method" = "GET",
- *              "path" = "/apps/{id}/install.{_format}",
+ *              "path" = "/seller-offer-links/{id}/go.{_format}",
  *              "controller" = RedirectToStoreController::class,
  *              "swagger_context" = {
  *                  "tags" = { "Offers" },

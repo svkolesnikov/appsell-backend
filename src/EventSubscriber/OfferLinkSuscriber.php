@@ -76,11 +76,7 @@ class OfferLinkSuscriber implements EventSubscriberInterface
 
             /** @var \App\Api\Dto\SellerOfferLink $response */
             $response = $event->getControllerResult();
-            $response->url = $this->router->generate(
-                'api_seller_offer_links_redirect_item',
-                ['id' => $link->getId(), '_format' => 'json'],
-                Router::ABSOLUTE_URL
-            );
+            $response->url = sprintf('%s://%s/usl/%d', $_SERVER['REQUEST_SCHEME'], $_SERVER['HTTP_HOST'], $link->getId());
 
             $event->setResponse(new JsonResponse($response, JsonResponse::HTTP_CREATED));
         }
