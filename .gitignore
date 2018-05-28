@@ -2,5 +2,6 @@
 /composer.phar
 /.env
 /public/bundles/
+/public/assets/vendors/
 /var/
 /vendor/

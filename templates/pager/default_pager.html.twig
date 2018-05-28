@@ -1,0 +1,51 @@
+<div class="form-inline clearfix">
+    <div class="pull-left">
+        {% if actions is defined %}
+            {% for action in actions %}
+                <button
+                        type="submit"
+                        data-id="{{ action.id }}"
+                        class="{{ action.class }}"
+                        {{ action.additional_attributes }}
+                        name="{{ action.name }}"
+                        value="{{ action.value }}">
+                    <i class="{{ action.icon }}" aria-hidden="true"></i> {{ action.description }}
+                </button>
+            {% endfor %}
+        {% endif %}
+    </div>
+    <div class="pull-right">
+        <div class="btn-group">
+            <label class="control-label" for="_per_page">Записей на страницу: </label>
+            <div class="select2-container per-page small">
+                <select style="width: 100%" id="_per_page" name="_per_page">
+                    <option value="{{ path(app.request.attributes.get('_route'), { _page: 1, _per_page: 16, filter: filter is defined ? filter : [] }) }}" {% if pager._per_page == 16 %}selected{% endif %}>16</option>
+                    <option value="{{ path(app.request.attributes.get('_route'), { _page: 1, _per_page: 32, filter: filter is defined ? filter : [] }) }}" {% if pager._per_page == 32 %}selected{% endif %}>32</option>
+                    <option value="{{ path(app.request.attributes.get('_route'), { _page: 1, _per_page: 64, filter: filter is defined ? filter : [] }) }}" {% if pager._per_page == 64 %}selected{% endif %}>64</option>
+                    <option value="{{ path(app.request.attributes.get('_route'), { _page: 1, _per_page: 128, filter: filter is defined ? filter : [] }) }}" {% if pager._per_page == 128 %}selected{% endif %}>128</option>
+                    <option value="{{ path(app.request.attributes.get('_route'), { _page: 1, _per_page: 192, filter: filter is defined ? filter : [] }) }}" {% if pager._per_page == 192 %}selected{% endif %}>192</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+<hr/>
+<div class="text-center">
+    <div class="btn-group">
+        <a href="{{ path(app.request.attributes.get('_route'), { _page: pager._page-1, _per_page: pager._per_page, filter: filter is defined ? filter : [] }) }}"
+           class="btn btn-default" title="Предыдущая"
+           {% if 1 == pager._page %}disabled{% endif %}
+        >
+            <i class="fa fa-hand-o-left" aria-hidden="true"></i>
+            Предыдущая
+        </a>
+
+        <a href="{{ path(app.request.attributes.get('_route'), { _page: pager._page+1, _per_page: pager._per_page, filter: filter is defined ? filter : [] }) }}"
+           class="btn btn-default" title="Следующая"
+           {% if false == pager._has_more %}disabled{% endif %}
+        >
+            <i class="fa fa-hand-o-right" aria-hidden="true"></i>
+            Следующая
+        </a>
+    </div>
+</div>

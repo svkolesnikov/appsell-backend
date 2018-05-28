@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- Meta, title, CSS, favicons, etc. -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>{{ 'AppSell'|trans }}</title>
+
+{% block stylesheets %}
+    <link href="{{ asset('assets/vendors/admin-lte/dist/css/skins/skin-black.css') }}" rel="stylesheet">
+    <link href="{{ asset('assets/vendors/font-awesome/css/font-awesome.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('assets/vendors/bootstrap/dist/css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('assets/vendors/select2/dist/css/select2.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('assets/vendors/admin-lte/dist/css/AdminLTE.css') }}" rel="stylesheet">
+    <link href="{{ asset('assets/vendors/bootstrap-datepicker/dist/css/bootstrap-datepicker3.css') }}" rel="stylesheet">
+    <link href="{{ asset('assets/vendors/admin-lte/plugins/iCheck/square/blue.css') }}" rel="stylesheet">
+    <link href="{{ asset('assets/vendors/select2-bootstrap-theme/dist/select2-bootstrap.css') }}" rel="stylesheet">
+    <link href="{{ asset('assets/vendors/x-editable/dist/bootstrap3-editable/css/bootstrap-editable.css') }}" rel="stylesheet">
+{% endblock stylesheets %}
+
+</head>
+<body class="skin-black sidebar-mini">
+    <div class="wrapper" style="height: auto; min-height: 100%;">
+
+        {% include 'topnav.html.twig' %}
+
+        {% include 'sidebar.html.twig' %}
+
+        <div class="content-wrapper">
+
+            <!-- page content -->
+            <section class="content">
+
+                {% block top_nav_menu %}
+
+                <div class="sticky-wrapper"><div class="sticky-wrapper"><nav class="navbar navbar-default" role="navigation">
+                    <div class="container-fluid">
+                        <div class="navbar-collapse">
+                            {% if _navbar_title is defined and _navbar_title is not empty %}
+                                <div class="navbar-header">
+                                    <a class="navbar-brand" href="#">{{ _navbar_title|raw }}</a>
+                                </div>
+                            {% endif %}
+
+                            {% block top_nav_menu_buttons %}{% endblock %}
+                        </div>
+                    </div>
+                </nav></div></div>
+
+                {% endblock %}
+
+                {% set arr = ['error', 'success', 'info', 'warning'] %}
+                {% block notice %}
+                    <div>
+                        {% for type in arr %}
+                            {% for message in app.session.flashbag.get(type) %}
+                                <div class="x_content bs-example-popovers">
+                                    <div class="alert alert-{{ type }} alert-dismissible fade in" role="alert">
+                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span>
+                                        </button>
+                                        {{ message|raw }}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% endfor %}
+                    </div>
+                {% endblock notice %}
+
+                <div class="row">
+                    {% block page_filters %}{% endblock %}
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        {% block page_content %}{% endblock %}
+                    </div>
+                </div>
+            </section>
+            <!-- /page content -->
+
+            {% include 'footer.html.twig' %}
+        </div>
+    </div>
+
+    {% block javascripts %}
+
+        <script src="{{ asset('assets/vendors/jquery/dist/jquery.min.js') }}"></script>
+        <script src="{{ asset('assets/vendors/jquery-ui/jquery-ui.min.js') }}"></script>
+        <script src="{{ asset('assets/vendors/jquery-tmpl/jquery.tmpl.js') }}"></script>
+        <script src="{{ asset('assets/vendors/bootstrap/dist/js/bootstrap.min.js') }}"></script>
+        <script src="{{ asset('assets/vendors/fastclick/lib/fastclick.js') }}"></script>
+        <script src="{{ asset('assets/vendors/admin-lte/dist/js/adminlte.js') }}"></script>
+        <script src="{{ asset('assets/vendors/select2/dist/js/select2.full.min.js') }}"></script>
+        <script src="{{ asset('assets/vendors/select2/dist/js/i18n/ru.js') }}"></script>
+        <script src="{{ asset('assets/vendors/moment/min/moment.min.js') }}"></script>
+        <script src="{{ asset('assets/vendors/bootstrap-datepicker/dist/js/bootstrap-datepicker.js') }}"></script>
+        <script src="{{ asset('assets/vendors/bootstrap-datepicker/dist/locales/bootstrap-datepicker.ru.min.js') }}"></script>
+        <script src="{{ asset('assets/vendors/admin-lte/plugins/iCheck/icheck.min.js') }}"></script>
+        <script src="{{ asset('assets/vendors/x-editable/dist/bootstrap3-editable/js/bootstrap-editable.min.js') }}"></script>
+        <script src="{{ asset('assets/js/main.js') }}"></script>
+
+    {% endblock javascripts %}
+
+    {% block modals %}{% endblock modals %}
+
+</body>
+</html>

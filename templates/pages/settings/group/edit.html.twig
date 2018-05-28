@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% set _navbar_title = 'create' == action ? 'Создание группы' : 'Редактирование группы' %}
+
+{% block top_nav_menu_buttons %}
+    <ul class="nav navbar-nav navbar-right">
+        <li>
+            <a href="{{ path('app_settings_groups_list') }}"><i class="fa fa-list" aria-hidden="true"></i>
+                Вернуться к списку
+            </a>
+        </li>
+    </ul>
+{% endblock %}
+
+{% block page_content %}
+
+    {{ form_start(form) }}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-body">
+                        {{ form_row(form.name) }}
+                        {{ form_row(form.roles) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="well well-small form-actions">
+            <button type="submit" class="btn btn-success">
+                {% if 'create' == action %}Создать{% else %}Обновить{% endif %} группу
+            </button>
+        </div>
+    {{ form_end(form) }}
+
+{% endblock %}

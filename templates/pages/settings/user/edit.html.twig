@@ -1,0 +1,68 @@
+{% extends 'base.html.twig' %}
+
+{% set _navbar_title = 'create' == action ? 'Создание пользователя' : 'Редактирование пользователя' %}
+
+{% block top_nav_menu_buttons %}
+    <ul class="nav navbar-nav navbar-right">
+        <li>
+            <a href="{{ path('app_settings_users_list') }}"><i class="fa fa-list" aria-hidden="true"></i>
+                Вернуться к списку
+            </a>
+        </li>
+    </ul>
+{% endblock %}
+
+{% block page_content %}
+    {{ form_start(form) }}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h4 class="box-title">Данные пользователя</h4>
+                    </div>
+                    <div class="box-body">
+                        {{ form_row(form.email) }}
+                        {{ form_row(form.password) }}
+                        {{ form_row(form.plainPassword) }}
+                        {{ form_row(form.profile.lastname) }}
+                        {{ form_row(form.profile.firstname) }}
+                        {{ form_row(form.profile.phone) }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h4 class="box-title">Группы</h4>
+                    </div>
+                    <div class="box-body">
+                        <div class="form-group">
+                            {% for group in groups %}
+                                <div class="checkbox">
+                                    <label>
+                                        <input name="_groups[]"
+                                               type="checkbox"
+                                               class="flat"
+                                               value="{{ group.id }}"
+                                               {% for item in user.groups %}{% if group.id == item.id %}checked="checked"{% endif %}{% endfor %}
+                                        >
+                                        <span class="control-label">{{ group.name }}</span>
+                                        <br/>
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="well well-small form-actions">
+            <button type="submit" class="btn btn-success">
+                {% if 'create' == action %}Создать{% else %}Обновить{% endif %} пользователя
+            </button>
+        </div>
+    {{ form_end(form) }}
+
+{% endblock %}

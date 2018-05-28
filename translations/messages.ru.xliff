@@ -50,6 +50,34 @@
                 <source>Phone</source>
                 <target>Номер телефона</target>
             </trans-unit>
+            <trans-unit id="Offer List">
+                <source>Offer List</source>
+                <target>Офферы</target>
+            </trans-unit>
+            <trans-unit id="Owner Name">
+                <source>Owner Name</source>
+                <target>Владелец</target>
+            </trans-unit>
+            <trans-unit id="Title">
+                <source>Title</source>
+                <target>Наименование</target>
+            </trans-unit>
+            <trans-unit id="Description">
+                <source>Description</source>
+                <target>Описание</target>
+            </trans-unit>
+            <trans-unit id="Active From">
+                <source>Active From</source>
+                <target>Дата начала</target>
+            </trans-unit>
+            <trans-unit id="Active To">
+                <source>Active To</source>
+                <target>Дата завершения</target>
+            </trans-unit>
+            <trans-unit id="Id">
+                <source>Id</source>
+                <target>Идентификатор</target>
+            </trans-unit>
         </body>
     </file>
 </xliff>

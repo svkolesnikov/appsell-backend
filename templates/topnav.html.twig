@@ -1,0 +1,40 @@
+<header class="main-header">
+    <a href="{{ path('app_dashboard') }}" class="logo">
+        <span class="logo-mini"><b>BO</b></span>
+        <span class="logo-lg"><b>Back Office</b></span>
+    </a>
+
+    <nav class="navbar navbar-static-top">
+        <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
+            <span class="sr-only">Скрыть/Показать меню</span>
+        </a>
+        <div class="navbar-custom-menu">
+            <ul class="nav navbar-nav">
+                <li class="dropdown user user-menu">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        <img src="{{ asset('assets/images/user.png') }}" class="user-image" alt="User Image">
+                        <span class="hidden-xs">{{ app.user.username }}</span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li class="user-header">
+                            <img src="{{ asset('assets/images/user.png') }}" class="img-circle" alt="User Image">
+                            <p>
+                                {{ app.user.username }}
+                            </p>
+                        </li>
+                        <li class="user-footer">
+                            {#<div class="pull-left">#}
+                                {#<a href="{{ path('app_profile')}}" class="btn btn-default btn-flat">Профиль</a>#}
+                            {#</div>#}
+                            <div class="pull-right">
+                                <a href="{{ path('app_admin_logout') }}" class="btn btn-default btn-flat">
+                                    <i class="fa fa-sign-out fa-fw"></i>Выход
+                                </a>
+                            </div>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </nav>
+</header>

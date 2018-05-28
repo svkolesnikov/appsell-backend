@@ -1,0 +1,29 @@
+{
+  "name": "bo-new",
+  "description": "",
+  "main": "",
+  "authors": [],
+  "license": "MIT",
+  "homepage": "https://github.com/ZedMusic/backoffice",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "3.3.7",
+    "animate.css": "^3.5.2",
+    "font-awesome": "4.7.0",
+    "select2": "^4.0.5",
+    "bootstrap-datepicker": "^1.8.0",
+    "bootstrap-daterangepicker": "^2.1.27",
+    "moment": "^2.22.0",
+    "jquery-tmpl": "*",
+    "admin-lte": "^2.4.3",
+    "select2-bootstrap-theme": "^0.1.0-beta.10",
+    "x-editable": "^1.5.1",
+    "bootstrap-html5sortable": "^1.0.0"
+  }
+}

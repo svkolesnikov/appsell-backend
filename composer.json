@@ -9,12 +9,14 @@
         "martin-georgiev/postgresql-for-doctrine": "~0.9",
         "myclabs/php-enum": "^1.6",
         "ramsey/uuid": "^3.7",
-        "sonata-project/admin-bundle": "^3.33",
-        "sonata-project/doctrine-orm-admin-bundle": "^3.6",
+        "sensio/framework-extra-bundle": "^5.1",
         "symfony/console": "^4.0",
         "symfony/flex": "^1.0",
+        "symfony/form": "^4.0",
         "symfony/framework-bundle": "^4.0",
         "symfony/lts": "^4@dev",
+        "symfony/templating": "^4.0",
+        "symfony/twig-bundle": "^4.0",
         "symfony/yaml": "^4.0"
     },
     "require-dev": {
