@@ -3,8 +3,10 @@ FROM php:7.2-fpm-alpine
 RUN apk add --no-cache \
     libpq \
     git \
+    git nodejs \
     libevent \
-    'su-exec>=0.2'
+    'su-exec>=0.2' \
+    && npm install -g bower
 
 RUN apk add --no-cache --virtual .build-deps \
     libxml2-dev \
@@ -35,6 +37,8 @@ ENV COMPOSER_ALLOW_SUPERUSER 1
 COPY ./composer.*   /var/www/app/
 COPY ./symfony.lock /var/www/app/symfony.lock
 COPY ./public       /var/www/app/public
+COPY ./.bowerrc     /var/www/app/
+COPY ./bower.json   /var/www/app/
 
 # Установка вендоров на основании composer.lock
 RUN curl -sS https://getcomposer.org/installer | php \
@@ -48,6 +52,8 @@ COPY ./src /var/www/app/src
 
 # Итоговое построение карты autoload
 RUN php composer.phar dump-autoload --no-dev --optimize --classmap-authoritative
+
+RUN bower install --allow-root
 
 VOLUME /var/www/app
 VOLUME /var/www/app/var

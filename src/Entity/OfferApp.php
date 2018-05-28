@@ -70,6 +70,12 @@ class OfferApp
      */
     protected $mtime;
 
+    public function __construct()
+    {
+        $this->store    = StoreEnum::APPLE;
+        $this->url      = '';
+    }
+
     /**
      * @ORM\PrePersist
      */

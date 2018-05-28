@@ -128,7 +128,13 @@ class Offer
 
     public function __construct()
     {
-        $this->actions = new ArrayCollection();
+        $this->actions      = new ArrayCollection();
+        $this->apps         = new ArrayCollection();
+        $this->title        = '';
+        $this->active_from  = new \DateTime();
+        $this->active_to    = new \DateTime();
+        $this->price        = 0;
+        $this->currency     = CurrencyEnum::RUB;
     }
 
     /**
@@ -163,12 +169,12 @@ class Offer
         $this->owner = $owner;
     }
 
-    public function getTitle(): string
+    public function getTitle(): ?string
     {
         return $this->title;
     }
 
-    public function setTitle(string $title): void
+    public function setTitle(?string $title): void
     {
         $this->title = $title;
     }
@@ -221,9 +227,9 @@ class Offer
         return new CurrencyEnum($this->currency);
     }
 
-    public function setCurrency(CurrencyEnum $currency): void
+    public function setCurrency($currency): void
     {
-        $this->currency = $currency->getValue();
+        $this->currency = $currency;
     }
 
     public function getCtime(): \DateTime
@@ -250,5 +256,27 @@ class Offer
     public function getApps()
     {
         return $this->apps;
+    }
+
+    public function setApps($apps)
+    {
+        $this->apps = $apps;
+        return $this;
+    }
+
+    public function addApp(OfferApp $app)
+    {
+        $app->setOffer($this);
+        $this->apps->add($app);
+
+        return $this;
+    }
+
+    public function removeApp(OfferApp $app)
+    {
+        $app->setOffer(null);
+        $this->apps->removeElement($app);
+
+        return $this;
     }
 }
