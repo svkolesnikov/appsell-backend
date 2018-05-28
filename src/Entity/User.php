@@ -99,6 +99,12 @@ class User implements UserInterface, \Serializable
         return $this->groups ?: $this->groups = new ArrayCollection();
     }
 
+    public function setGroups($groups)
+    {
+        $this->groups = $groups;
+        return $this;
+    }
+
     public function getRoles(): array
     {
         $roles = ['ROLE_USER'];

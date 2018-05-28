@@ -35,6 +35,7 @@ class UserType extends AbstractType
             ->add('email', TextType::class, ['required' => true])
             ->add('password', HiddenType::class)
             ->add('profile', UserProfileType::class)
+            ->add('groups')
         ;
 
         $builder->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {

@@ -1,0 +1,30 @@
+security:
+
+    role_hierarchy:
+
+        ROLE_ADMIN:
+            - ROLE_USER
+            - ROLE_ALLOWED_TO_SWITCH
+
+            - ROLE_APP_OFFER_EDIT
+            - ROLE_APP_OFFER_LIST
+            - ROLE_APP_OFFER_CREATE
+            - ROLE_APP_OFFER_DELETE
+
+        ROLE_SUPER_ADMIN:
+            - ROLE_ADMIN
+
+            - ROLE_APP_USER_EDIT
+            - ROLE_APP_USER_LIST
+            - ROLE_APP_USER_CREATE
+            - ROLE_APP_USER_DELETE
+
+            - ROLE_APP_GROUP_EDIT
+            - ROLE_APP_GROUP_LIST
+            - ROLE_APP_GROUP_CREATE
+            - ROLE_APP_GROUP_DELETE
+
+            - ROLE_APP_USER_PROFILE_EDIT
+            - ROLE_APP_USER_PROFILE_LIST
+            - ROLE_APP_USER_PROFILE_CREATE
+            - ROLE_APP_USER_PROFILE_DELETE

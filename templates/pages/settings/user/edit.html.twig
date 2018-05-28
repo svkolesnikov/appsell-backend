@@ -27,36 +27,10 @@
                         {{ form_row(form.profile.lastname) }}
                         {{ form_row(form.profile.firstname) }}
                         {{ form_row(form.profile.phone) }}
+                        {{ form_row(form.groups) }}
                     </div>
                 </div>
             </div>
-
-            <div class="col-md-12">
-                <div class="box box-primary">
-                    <div class="box-header with-border">
-                        <h4 class="box-title">Группы</h4>
-                    </div>
-                    <div class="box-body">
-                        <div class="form-group">
-                            {% for group in groups %}
-                                <div class="checkbox">
-                                    <label>
-                                        <input name="_groups[]"
-                                               type="checkbox"
-                                               class="flat"
-                                               value="{{ group.id }}"
-                                               {% for item in user.groups %}{% if group.id == item.id %}checked="checked"{% endif %}{% endfor %}
-                                        >
-                                        <span class="control-label">{{ group.name }}</span>
-                                        <br/>
-                                    </label>
-                                </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-
         </div>
         <div class="well well-small form-actions">
             <button type="submit" class="btn btn-success">

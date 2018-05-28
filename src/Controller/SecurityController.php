@@ -3,15 +3,13 @@
 namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\Routing\Annotation\Route;
-
 
 class SecurityController extends Controller
 {
     /**
-     * @Route("/admin/login", name="sonata_admin_login")
+     * @Route("/admin/login", name="app_admin_login")
      * @param AuthenticationUtils $authenticationUtils
      * @return \Symfony\Component\HttpFoundation\Response
      */
@@ -26,7 +24,7 @@ class SecurityController extends Controller
     }
 
     /**
-     * @Route("/admin/logout", name="sonata_admin_logout")
+     * @Route("/admin/logout", name="app_admin_logout")
      */
     public function logout()
     {
