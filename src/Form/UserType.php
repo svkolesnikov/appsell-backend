@@ -22,20 +22,13 @@ class UserType extends AbstractType
         $this->passwordEncoder = $passwordEncoder;
     }
 
-    public function configureOptions(OptionsResolver $resolver)
-    {
-        $resolver->setDefaults(array(
-            'data_class' => User::class,
-        ));
-    }
-
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('email', TextType::class, ['required' => true])
-            ->add('password', HiddenType::class)
-            ->add('profile', UserProfileType::class)
-            ->add('groups')
+            ->add('email',      TextType::class,        ['required' => true])
+            ->add('password',   HiddenType::class)
+            ->add('profile',    UserProfileType::class)
+            ->add('groups',     null,                   ['label' => 'Группы'])
         ;
 
         $builder->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
@@ -55,9 +48,9 @@ class UserType extends AbstractType
             $form = $event->getForm();
 
             if ( !$user || null === $user->getId()) {
-                $form->add('plainPassword', PasswordType::class, ['required' => true, 'mapped' => false]);
+                $form->add('plainPassword', PasswordType::class, ['required' => true, 'mapped' => false, 'label' => 'Пароль']);
             } else {
-                $form->add('plainPassword', PasswordType::class, ['required' => false, 'mapped' => false]);
+                $form->add('plainPassword', PasswordType::class, ['required' => false, 'mapped' => false, 'label' => 'Пароль']);
             }
         });
     }

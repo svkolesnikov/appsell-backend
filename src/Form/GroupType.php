@@ -19,8 +19,15 @@ class GroupType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('name', TextType::class, ['required' => true])
-            ->add('roles', ChoiceType::class, [
+            ->add('name',   TextType::class,    [
+                'required' => true,
+                'label' => 'Наименование'
+            ])
+            ->add('roles',  ChoiceType::class,  [
+                'required' => true, 'label' => 'Роли',
+                'label_attr' => [
+                    'style' => 'font-size:14px;font-weight:700'
+                ],
                 'choices' => array_flip($this->roles),
                 'expanded' => true,
                 'multiple' => true
