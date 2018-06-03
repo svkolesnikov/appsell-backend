@@ -103,7 +103,7 @@ class OfferApp
         return $this->offer;
     }
 
-    public function setOffer(Offer $offer): void
+    public function setOffer(?Offer $offer): void
     {
         $this->offer = $offer;
     }

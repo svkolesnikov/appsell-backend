@@ -96,12 +96,12 @@ class OfferAction
         return $this->offer;
     }
 
-    public function setOffer(Offer $offer): void
+    public function setOffer(?Offer $offer): void
     {
         $this->offer = $offer;
     }
 
-    public function getCode(): string
+    public function getCode(): ?string
     {
         return $this->code;
     }

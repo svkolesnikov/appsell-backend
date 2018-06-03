@@ -114,7 +114,7 @@ class Offer
      * @Groups({ "read" })
      *
      * @var OfferAction[]|ArrayCollection
-     * @ORM\OneToMany(targetEntity="OfferAction", mappedBy="offer")
+     * @ORM\OneToMany(targetEntity="OfferAction", mappedBy="offer", cascade={"persist", "remove"}, orphanRemoval=true)
      */
     protected $actions;
 
@@ -122,7 +122,7 @@ class Offer
      * @Groups({ "read" })
      *
      * @var OfferApp[]|ArrayCollection
-     * @ORM\OneToMany(targetEntity="OfferApp", mappedBy="offer")
+     * @ORM\OneToMany(targetEntity="OfferApp", mappedBy="offer", cascade={"persist", "remove"}, orphanRemoval=true)
      */
     protected $apps;
 
@@ -169,12 +169,12 @@ class Offer
         $this->owner = $owner;
     }
 
-    public function getTitle(): ?string
+    public function getTitle(): string
     {
         return $this->title;
     }
 
-    public function setTitle(?string $title): void
+    public function setTitle(string $title): void
     {
         $this->title = $title;
     }
@@ -227,7 +227,7 @@ class Offer
         return new CurrencyEnum($this->currency);
     }
 
-    public function setCurrency($currency): void
+    public function setCurrency(CurrencyEnum $currency): void
     {
         $this->currency = $currency;
     }
@@ -248,6 +248,28 @@ class Offer
     public function getActions()
     {
         return $this->actions;
+    }
+
+    public function setActions($actions)
+    {
+        $this->actions = $actions;
+        return $this;
+    }
+
+    public function addAction(OfferAction $action)
+    {
+        $action->setOffer($this);
+        $this->actions->add($action);
+
+        return $this;
+    }
+
+    public function removeAction(OfferAction $action)
+    {
+        $action->setOffer(null);
+        $this->actions->removeElement($action);
+
+        return $this;
     }
 
     /**
