@@ -54,7 +54,7 @@ COPY ./src /var/www/app/src
 RUN php composer.phar dump-autoload --no-dev --optimize --classmap-authoritative
 
 RUN npm install -g bower
-RUN bower install --allow-root
+#RUN bower install --allow-root
 
 VOLUME /var/www/app
 VOLUME /var/www/app/var

@@ -38,8 +38,8 @@ rm -rf ${DOCKER_DIR}
 if ${PUSH_CONTAINERS}
 then
 echo "Отправка контейнеров в репозиторий"
-docker push ${API_TAG}
-docker push ${SERVICES_TAG}
+docker push ${APP_TAG}
+docker push ${NGINX_TAG}
 fi
 
 echo "Готово"
