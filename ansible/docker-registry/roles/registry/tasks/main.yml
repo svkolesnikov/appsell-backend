@@ -1,0 +1,26 @@
+---
+
+- file:
+    state: directory
+    name: /datadrive/docker/registry
+
+- copy:
+    src: config.yml
+    dest: /datadrive/docker/registry-config.yml
+  notify:
+    - restart registry
+
+- name: Запуск docker registry
+  docker_container:
+    pull: yes
+    name: docker_registry
+    image: registry:2
+    state: started
+    restart_policy: unless-stopped
+    env:
+      SERVICE_NAME: docker-registry
+    ports:
+      - 5000:5000
+    volumes:
+      - /datadrive/docker/registry:/var/lib/registry
+      - /datadrive/docker/registry-config.yml:/etc/docker/registry/config.yml:ro

@@ -1,0 +1,35 @@
+---
+
+- name: Создание каталогов
+  file: state=directory name={{ item }}
+  with_items:
+    - "{{ data_dir }}"
+
+- name: Конфигурация VPN
+  copy:
+    src: "vpn.env"
+    dest: "{{ data_dir }}/vpn.env"
+
+- name: Загрузка модуля af_key
+  shell: modprobe af_key
+
+- name: Добавление модуля af_key в автозапуск
+  copy:
+    src: af_key.conf
+    dest: /etc/modules-load.d
+
+- name: Запуск VPN
+  docker_container:
+    name: vpn
+    image: fcojean/l2tp-ipsec-vpn-server
+    state: started
+    restart_policy: unless-stopped
+    ports:
+      - 500:500/udp
+      - 4500:4500/udp
+    volumes:
+      - /lib/modules:/lib/modules:ro
+    env_file: "{{ data_dir }}/vpn.env"
+    privileged: yes
+    env:
+      SERVICE_IGNORE: true

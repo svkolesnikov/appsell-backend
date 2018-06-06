@@ -1,0 +1,7 @@
+---
+
+- name: Начальная конфигурация сервера
+  hosts: all
+  become_user: '{{ root_user }}'
+  roles:
+    - server

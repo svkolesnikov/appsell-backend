@@ -1,0 +1,14 @@
+---
+
+- hosts: all
+  tasks:
+
+  - name: Остановка docker registry
+    docker_container:
+      name: docker_registry
+      state: absent
+
+  - name: Удаление образа docker registry
+    docker_image:
+      name: registry:2
+      state: absent

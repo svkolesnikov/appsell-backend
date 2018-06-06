@@ -1,0 +1,7 @@
+---
+
+- name: Конфигурация Docker Host
+  hosts: all
+  become_user: '{{ root_user }}'
+  roles:
+    - docker

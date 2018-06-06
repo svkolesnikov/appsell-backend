@@ -1,0 +1,11 @@
+Host *
+    ForwardAgent yes
+    ServerAliveInterval 300
+    ServerAliveCountMax 2
+
+Host app-dev-1
+    Hostname 95.163.215.170
+
+
+#Host infra-app-dev-1
+#    HostName 10.1.1.20

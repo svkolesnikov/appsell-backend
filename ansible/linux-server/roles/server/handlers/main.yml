@@ -1,0 +1,7 @@
+---
+
+- name: restart zabbix-agent
+  service: name=zabbix-agent state=restarted
+
+- name: restart sshd
+  service: name=sshd state=restarted

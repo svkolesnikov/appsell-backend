@@ -1,0 +1,48 @@
+---
+
+- name: Отключение входа по паролю
+  lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: "^PasswordAuthentication"
+    line: "PasswordAuthentication no"
+    state: present
+  notify: restart sshd
+
+- name: Отключение selinux
+  selinux: state=disabled
+
+- name: Общие зависимости
+  yum: name={{ item }} state=installed
+  with_items:
+    - epel-release
+    - libselinux-python
+    - libsemanage-python
+    - yum-utils
+
+- name: Утилиты
+  yum: name={{ item }} state=installed
+  with_items:
+    - htop
+    - screen
+    - iotop
+    - sshfs
+    - telnet
+    - lsof
+
+- lineinfile:
+    path: /etc/sysctl.conf
+    line: "{{ item }} = 1"
+  with_items:
+    - net.ipv6.conf.all.disable_ipv6
+    - net.ipv6.conf.default.disable_ipv6
+
+- shell: sysctl -p
+
+- lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: AddressFamily
+    line: "AddressFamily inet"
+
+- service:
+    name: sshd
+    state: restarted

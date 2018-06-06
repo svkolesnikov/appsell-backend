@@ -1,0 +1,58 @@
+---
+
+- name: Установка необходимых зависимостей
+  yum: name={{ item }} state=installed
+  with_items:
+    - yum-utils
+    - device-mapper-persistent-data
+    - lvm2
+    - python2-pip
+
+- name: Установка необходимых python-библиотек
+  pip: name={{ item }}
+  with_items:
+    - python-consul
+    - docker-py
+
+- name: Добавление GPG ключа к репозиторию Docker CE
+  rpm_key:
+    key: https://download.docker.com/linux/centos/gpg
+    state: present
+
+- name: Добавление репозитория Docker CE
+  get_url:
+    url: https://download.docker.com/linux/centos/docker-ce.repo
+    dest: /etc/yum.repos.d/docker-ce.repo
+    force: yes
+    owner: '{{ root_user }}'
+    group: '{{ root_user }}'
+    mode: 0644
+
+- name: Установка Docker CE
+  yum:
+    name: docker-ce
+    state: installed
+    update_cache: yes
+
+- name: Автостарт docker при запуске машины
+  service: name=docker enabled=yes
+
+- name: Запуск docker
+  service: name=docker state=started
+
+- name: Изменение конфигурации запуска dockerd
+  copy: src=daemon.json dest=/etc/docker/daemon.json
+  notify:
+    - restart docker
+
+- name: Изменение system.d unit для запуска сервиса docker
+  shell: cp /lib/systemd/system/docker.service /etc/systemd/system/docker.service
+  args:
+    creates: /etc/systemd/system/docker.service
+
+- lineinfile:
+    path: /etc/systemd/system/docker.service
+    regexp: "^ExecStart=/usr/bin/dockerd"
+    line: "ExecStart=/usr/bin/dockerd --mtu={{ ansible_eth0.mtu }}"
+  notify:
+    - restart docker

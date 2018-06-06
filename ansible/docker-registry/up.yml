@@ -1,0 +1,7 @@
+---
+
+- name: Настройка docker registry
+  hosts: all
+  become_user: '{{ root_user }}'
+  roles:
+    - registry
