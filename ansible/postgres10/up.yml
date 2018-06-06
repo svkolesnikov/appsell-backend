@@ -1,0 +1,29 @@
+---
+
+- hosts: all
+  become_user: root
+
+  vars:
+    data_dir: /datadrive/db/pg10/data
+
+  tasks:
+
+    - name: Создание каталогов БД
+      file:
+        state: directory
+        name: "{{ item }}"
+      with_items:
+        - "{{ data_dir }}"
+
+    - name: Запуск Postgres 10
+      docker_container:
+        name: postgres10
+        image: postgres:10.3-alpine
+        state: started
+        restart_policy: unless-stopped
+        env:
+          SERVICE_IGNORE: true
+        ports:
+          - 5432:5432
+        volumes:
+          - "{{ data_dir }}:/var/lib/postgresql/data"

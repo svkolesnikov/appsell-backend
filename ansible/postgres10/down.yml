@@ -1,0 +1,9 @@
+---
+
+- hosts: all
+  tasks:
+
+    - name: Остановка Postgres
+      docker_container:
+        name: postgres10
+        state: absent
