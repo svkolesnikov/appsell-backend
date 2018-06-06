@@ -56,7 +56,7 @@ COPY ./translations  /var/www/app/translations
 RUN php composer.phar dump-autoload --optimize --classmap-authoritative
 
 RUN npm install -g bower
-#RUN bower install --allow-root
+RUN bower install --allow-root
 
 VOLUME /var/www/app
 VOLUME /var/www/app/var

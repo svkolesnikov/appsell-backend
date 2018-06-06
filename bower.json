@@ -13,7 +13,6 @@
     "tests"
   ],
   "dependencies": {
-    "jquery": "^2.0",
     "bootstrap": "3.3.7",
     "animate.css": "^3.5.2",
     "font-awesome": "4.7.0",
@@ -26,5 +25,8 @@
     "select2-bootstrap-theme": "^0.1.0-beta.10",
     "x-editable": "^1.5.1",
     "bootstrap-html5sortable": "^1.0.0"
+  },
+  "resolutions": {
+    "jquery": ">= 1.2.6"
   }
 }
