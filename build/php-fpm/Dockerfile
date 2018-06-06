@@ -37,8 +37,6 @@ ENV COMPOSER_ALLOW_SUPERUSER 1
 COPY ./composer.*   /var/www/app/
 COPY ./symfony.lock /var/www/app/symfony.lock
 COPY ./public       /var/www/app/public
-COPY ./.bowerrc     /var/www/app/
-COPY ./bower.json   /var/www/app/
 
 # Установка вендоров на основании composer.lock
 RUN curl -sS https://getcomposer.org/installer | php \
@@ -46,9 +44,13 @@ RUN curl -sS https://getcomposer.org/installer | php \
  && php composer.phar install --no-interaction --no-scripts --no-autoloader
 
 # Копирование кода приложения
-COPY ./bin /var/www/app/bin
-COPY ./config /var/www/app/config
-COPY ./src /var/www/app/src
+COPY ./.bowerrc      /var/www/app/
+COPY ./bower.json    /var/www/app/
+COPY ./bin           /var/www/app/bin
+COPY ./config        /var/www/app/config
+COPY ./src           /var/www/app/src
+COPY ./templates     /var/www/app/templates
+COPY ./translations  /var/www/app/translations
 
 # Итоговое построение карты autoload
 RUN php composer.phar dump-autoload --optimize --classmap-authoritative
