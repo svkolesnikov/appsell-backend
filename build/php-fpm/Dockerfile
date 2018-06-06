@@ -3,10 +3,10 @@ FROM php:7.2-fpm-alpine
 RUN apk add --no-cache \
     libpq \
     git \
-    git nodejs \
+    nodejs \
+    nodejs-npm \
     libevent \
-    'su-exec>=0.2' \
-    && npm install -g bower
+    'su-exec>=0.2'
 
 RUN apk add --no-cache --virtual .build-deps \
     libxml2-dev \
@@ -53,6 +53,7 @@ COPY ./src /var/www/app/src
 # Итоговое построение карты autoload
 RUN php composer.phar dump-autoload --no-dev --optimize --classmap-authoritative
 
+RUN npm install -g bower
 RUN bower install --allow-root
 
 VOLUME /var/www/app

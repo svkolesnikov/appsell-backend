@@ -1,5 +1,5 @@
-FROM nginx:1.13-alpine
+FROM nginx:1.15-alpine
 
-COPY default.conf /etc/nginx/conf.d/default.conf
+COPY ./build/nginx/default.conf /etc/nginx/conf.d/default.conf
 
 CMD ["nginx", "-g", "daemon off;"]

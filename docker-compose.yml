@@ -16,7 +16,9 @@ services:
   nginx:
     container_name: appsell_nginx
     image: appsell_nginx
-    build: ./build/nginx
+    build:
+      context: .
+      dockerfile: ./build/nginx/Dockerfile
     links:
       - php-fpm
     ports:
