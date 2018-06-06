@@ -1,0 +1,13 @@
+---
+
+- hosts: all
+
+  tasks:
+
+    - name: Остановка контейнеров
+      docker_container:
+        name: "{{ item }}"
+        state: absent
+      with_items:
+        - appsell_backend_nginx
+        - appsell_backend_fpm

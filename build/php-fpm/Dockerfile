@@ -43,7 +43,7 @@ COPY ./bower.json   /var/www/app/
 # Установка вендоров на основании composer.lock
 RUN curl -sS https://getcomposer.org/installer | php \
  && chmod +x composer.phar \
- && php composer.phar install --no-dev --no-interaction --no-scripts --no-autoloader
+ && php composer.phar install --no-interaction --no-scripts --no-autoloader
 
 # Копирование кода приложения
 COPY ./bin /var/www/app/bin
@@ -51,7 +51,7 @@ COPY ./config /var/www/app/config
 COPY ./src /var/www/app/src
 
 # Итоговое построение карты autoload
-RUN php composer.phar dump-autoload --no-dev --optimize --classmap-authoritative
+RUN php composer.phar dump-autoload --optimize --classmap-authoritative
 
 RUN npm install -g bower
 #RUN bower install --allow-root
