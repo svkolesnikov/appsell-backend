@@ -6,6 +6,5 @@ Host *
 Host app-dev-1
     Hostname 95.163.215.170
 
-
-#Host infra-app-dev-1
-#    HostName 10.1.1.20
+Host app-dev-tmp
+    Hostname 95.163.215.203

@@ -24,7 +24,7 @@ cp -R ./ ${DOCKER_DIR}
 
 echo "Скомпилируем контейнер приложения"
 
-TAG_PREFIX="10.5.5.8:5000/backend"
+TAG_PREFIX="10.1.4.5:5000/backend"
 
 APP_TAG="${TAG_PREFIX}/app:latest"
 NGINX_TAG="${TAG_PREFIX}/nginx:latest"
