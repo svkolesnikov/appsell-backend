@@ -48,7 +48,7 @@
         restart_policy: unless-stopped
         recreate: yes
         ports:
-          - 80:80
+          - 8001:80
         #dns_servers: ["{{ ansible_docker0.ipv4.address }}"]
         volumes_from:
           - appsell_backend_fpm
