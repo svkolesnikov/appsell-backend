@@ -10,7 +10,7 @@
       private: no
 
   vars:
-    registry_host: 10.5.5.8
+    registry_host: 10.1.4.5
     registry_port: 5000
     var_dir: /datadrive/app/backend/var
 
