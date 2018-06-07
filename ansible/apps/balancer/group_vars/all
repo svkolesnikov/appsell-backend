@@ -1,0 +1,6 @@
+---
+
+root_user: root
+nginx_dir: /datadrive/app/nginx
+nginx_conf: /datadrive/app/nginx/nginx.conf
+nginx_vhosts_dir: /datadrive/app/nginx/vhosts

@@ -1,0 +1,7 @@
+---
+
+- name: Настройка балансировщика
+  hosts: all
+  become_user: '{{ root_user }}'
+  roles:
+    - nginx

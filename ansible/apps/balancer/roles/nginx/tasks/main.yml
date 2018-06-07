@@ -1,0 +1,23 @@
+---
+
+- name: Создание каталога для конфигов
+  file:
+    state: directory
+    name: "{{ nginx_vhosts_dir }}"
+
+- name: Копирование виртуальных хостов
+  copy:
+    src: default.conf
+    dest: "{{ nginx_vhosts_dir }}/default.conf"
+
+- name: Запуск nginx
+  docker_container:
+    name: nginx
+    image: nginx:1.15-alpine
+    state: started
+    restart: yes
+    restart_policy: unless-stopped
+    hostname: "{{ ansible_hostname }}.nginx"
+    network_mode: host
+    volumes:
+      - "{{ nginx_vhosts_dir }}:/etc/nginx/conf.d"

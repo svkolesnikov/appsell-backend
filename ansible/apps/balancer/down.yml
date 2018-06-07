@@ -1,0 +1,9 @@
+---
+
+- hosts: all
+  tasks:
+
+    - name: Остановка Nginx
+      docker_container:
+        name: nginx
+        state: absent
