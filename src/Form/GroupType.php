@@ -19,6 +19,10 @@ class GroupType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
+            ->add('code',   TextType::class,    [
+                'required' => true,
+                'label' => 'Код'
+            ])
             ->add('name',   TextType::class,    [
                 'required' => true,
                 'label' => 'Наименование'
