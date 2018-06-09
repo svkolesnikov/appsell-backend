@@ -8,18 +8,6 @@ use Doctrine\ORM\Mapping as ORM;
 use App\ORM\Id\UuidGenerator;
 
 /**
- * @ApiResource(
- *     collectionOperations = {},
- *     itemOperations = {
- *          "get" = {
- *              "access_control" = "object == group"
- *          }
- *     },
- *     attributes = {
- *          "normalization_context" = {"groups" = {"read"}}
- *     }
- * )
- *
  * @ORM\Entity
  * @ORM\Table(name="userdata.group")
  * @ORM\HasLifecycleCallbacks

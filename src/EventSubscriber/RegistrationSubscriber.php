@@ -75,8 +75,8 @@ class RegistrationSubscriber implements EventSubscriberInterface
      */
     protected function registerOwner(Owner $form): void
     {
-        // todo: отправлять письмо с подтверждением email?
         // todo: добавить в группу "Владельцы приложения"
+        // todo: генерить уведомление о новом заказчике?!
 
         $user = new User();
         $user->setEmail($form->email);
