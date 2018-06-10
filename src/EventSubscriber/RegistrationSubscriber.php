@@ -8,7 +8,9 @@ use App\Api\Dto\Owner;
 use App\Api\Dto\Seller;
 use App\Entity\User;
 use App\Entity\UserProfile;
+use App\Enum\NotificationTypeEnum;
 use App\Exception\AuthException;
+use App\Notification\Producer\SystemProducer;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -29,11 +31,15 @@ class RegistrationSubscriber implements EventSubscriberInterface
     /** @var TokenStorageInterface */
     protected $tokenStorage;
 
-    public function __construct(UserPasswordEncoderInterface $encoder, EntityManagerInterface $em, TokenStorageInterface $ts)
+    /** @var SystemProducer */
+    protected $systemProducer;
+
+    public function __construct(UserPasswordEncoderInterface $encoder, EntityManagerInterface $em, TokenStorageInterface $ts, SystemProducer $sp)
     {
         $this->passwordEncoder = $encoder;
         $this->entityManager = $em;
         $this->tokenStorage = $ts;
+        $this->systemProducer = $sp;
     }
 
     public static function getSubscribedEvents(): array
@@ -70,14 +76,14 @@ class RegistrationSubscriber implements EventSubscriberInterface
     }
 
     /**
+     * Регистрация "заказчика"
+     * Это компания-владелец некоего приложения, которая хочет,
+     * чтобы ее приложение пиарили и устанавливаели
+     *
      * @param Owner $form
-     * @throws AuthException
      */
     protected function registerOwner(Owner $form): void
     {
-        // todo: добавить в группу "Владельцы приложения"
-        // todo: генерить уведомление о новом заказчике?!
-
         $user = new User();
         $user->setEmail($form->email);
 
@@ -85,7 +91,19 @@ class RegistrationSubscriber implements EventSubscriberInterface
         $profile->setUser($user);
         $profile->setPhone($form->phone);
 
-        $this->save($profile);
+        try {
+            $this->save($profile);
+        } catch (AuthException $ex) {
+            // В данном случае может возникнуть ситуация, что про заявку все забыли
+            // а чувак снова пытается зарегаться - так что, если у нас уже есть
+            // этот пользователь - вышлем уведомление повторно
+        }
+
+        $this->systemProducer->produce(NotificationTypeEnum::NEW_OWNER(), [
+            'subject' => 'Зарегистрировался новый заказчик',
+            'email'   => $form->email,
+            'phone'   => $form->phone
+        ]);
     }
 
     /**
