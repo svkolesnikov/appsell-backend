@@ -53,6 +53,11 @@ class UserProfile
     protected $company_id;
 
     /**
+     * @ORM\Column(type="string")
+     */
+    protected $company_title;
+
+    /**
      * @var User
      *
      * @ORM\ManyToOne(targetEntity = "User")
@@ -146,6 +151,17 @@ class UserProfile
     public function setEmployer(?User $user)
     {
         $this->employer = $user;
+        return $this;
+    }
+
+    public function getCompanyTitle(): string
+    {
+        return $this->company_title;
+    }
+
+    public function setCompanyTitle($title)
+    {
+        $this->company_title = $title;
         return $this;
     }
 }

@@ -4,27 +4,29 @@ namespace App\EventSubscriber;
 
 use ApiPlatform\Core\EventListener\EventPriorities;
 use App\Api\Dto\EmailConfirmation;
-use App\Api\Dto\Login;
-use App\Api\Dto\Token;
 use App\Entity\ConfirmationCode;
 use App\Entity\User;
+use App\Enum\NotificationTypeEnum;
 use App\Exception\AuthException;
-use App\Security\AccessToken;
+use App\Notification\Producer\SystemProducer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\GetResponseForControllerResultEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class EmailConfirmationSubscriber implements EventSubscriberInterface
 {
     /** @var EntityManagerInterface */
     protected $entityManager;
 
-    public function __construct(EntityManagerInterface $em)
+    /** @var SystemProducer */
+    protected $systemProducer;
+
+    public function __construct(EntityManagerInterface $em, SystemProducer $sp)
     {
         $this->entityManager = $em;
+        $this->systemProducer = $sp;
     }
 
     public static function getSubscribedEvents(): array
@@ -71,6 +73,16 @@ class EmailConfirmationSubscriber implements EventSubscriberInterface
         $this->entityManager->persist($confirmations[0]);
         $this->entityManager->persist($user);
         $this->entityManager->flush();
+
+        // Отправим уведомление о регистрации сотрудника
+
+        $employer = $user->getProfile()->getEmployer();
+
+        $this->systemProducer->produce(NotificationTypeEnum::NEW_EMPLOYEE(), [
+            'subject' => 'Зарегистрировался новый сотрудник продавца',
+            'email'   => $data->email,
+            'company' => $employer ? $employer->getProfile()->getCompanyTitle() : null
+        ]);
 
         $event->setResponse(new JsonResponse(null, JsonResponse::HTTP_CREATED));
     }

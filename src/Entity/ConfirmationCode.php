@@ -35,6 +35,12 @@ class ConfirmationCode
     protected $ctime;
 
     /**
+     * @var \DateTime
+     * @ORM\Column(type="datetime")
+     */
+    protected $mtime;
+
+    /**
      * @ORM\Column(type="boolean")
      */
     protected $is_confirmed;
@@ -50,6 +56,15 @@ class ConfirmationCode
     public function onPrePersist(): void
     {
         $this->ctime = new \DateTime();
+        $this->mtime = new \DateTime();
+    }
+
+    /**
+     * @ORM\PreUpdate
+     */
+    public function onPreUpdate(): void
+    {
+        $this->mtime = new \DateTime();
     }
 
     public function getId(): int
