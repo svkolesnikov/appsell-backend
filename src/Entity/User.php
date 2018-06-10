@@ -90,13 +90,19 @@ class User implements UserInterface, \Serializable
 
     public function __construct()
     {
+        $this->is_active = false;
+        $this->groups    = new ArrayCollection();
+
         $this->profile = new UserProfile();
         $this->profile->setUser($this);
     }
 
+    /**
+     * @return Group[]|ArrayCollection
+     */
     public function getGroups()
     {
-        return $this->groups ?: $this->groups = new ArrayCollection();
+        return $this->groups;
     }
 
     public function setGroups($groups)
@@ -200,7 +206,7 @@ class User implements UserInterface, \Serializable
         $this->mtime = new \DateTime();
     }
 
-    public function getProfile(): ?UserProfile
+    public function getProfile(): UserProfile
     {
         return $this->profile;
     }

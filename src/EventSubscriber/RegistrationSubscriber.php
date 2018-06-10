@@ -87,8 +87,7 @@ class RegistrationSubscriber implements EventSubscriberInterface
         $user = new User();
         $user->setEmail($form->email);
 
-        $profile = new UserProfile();
-        $profile->setUser($user);
+        $profile = $user->getProfile();
         $profile->setPhone($form->phone);
 
         try {
@@ -108,21 +107,28 @@ class RegistrationSubscriber implements EventSubscriberInterface
 
     /**
      * @param Seller $form
-     * @throws AuthException
      */
     protected function registerSeller(Seller $form): void
     {
-        // todo: отправлять письмо с подтверждением email?
-        // todo: добавить в группу "Продавцы"
-
         $user = new User();
         $user->setEmail($form->email);
 
-        $profile = new UserProfile();
-        $profile->setUser($user);
+        $profile = $user->getProfile();
         $profile->setPhone($form->phone);
 
-        $this->save($profile);
+        try {
+            $this->save($profile);
+        } catch (AuthException $ex) {
+            // В данном случае может возникнуть ситуация, что про заявку все забыли
+            // а чувак снова пытается зарегаться - так что, если у нас уже есть
+            // этот пользователь - вышлем уведомление повторно
+        }
+
+        $this->systemProducer->produce(NotificationTypeEnum::NEW_SELLER(), [
+            'subject' => 'Зарегистрировался новый продавец',
+            'email'   => $form->email,
+            'phone'   => $form->phone
+        ]);
     }
 
     /**
