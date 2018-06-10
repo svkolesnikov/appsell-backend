@@ -2,8 +2,6 @@
 
 namespace App\Entity;
 
-use Symfony\Component\Serializer\Annotation\Groups;
-use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\ORM\Mapping as ORM;
 use App\ORM\Id\UuidGenerator;
 
@@ -15,8 +13,6 @@ use App\ORM\Id\UuidGenerator;
 class Group
 {
     /**
-     * @Groups({ "read" })
-     *
      * @ORM\Id
      * @ORM\Column(type="guid")
      * @ORM\GeneratedValue(strategy="CUSTOM")
@@ -25,23 +21,24 @@ class Group
     protected $id;
 
     /**
-     * @Groups({ "read" })
-     *
      * @ORM\Column(type="string")
      */
     protected $name;
 
     /**
-     * @Groups({ "read" })
-     *
+     * @ORM\Column(type="string")
+     */
+    protected $code;
+
+    /**
      * @ORM\Column(type="text[]")
      */
     protected $roles;
 
-    public function __construct($name = '', $roles = [])
+    public function __construct()
     {
-        $this->name = $name;
-        $this->roles = $roles;
+        $this->name  = '';
+        $this->roles = [];
     }
 
     public function addRole($role)
@@ -58,22 +55,22 @@ class Group
         return $this->id;
     }
 
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
 
-    public function hasRole($role)
+    public function hasRole($role): bool
     {
-        return in_array(strtoupper($role), $this->roles, true);
+        return \in_array(strtoupper($role), $this->roles, true);
     }
 
-    public function getRoles()
+    public function getRoles(): array
     {
         return $this->roles;
     }
 
-    public function removeRole($role)
+    public function removeRole(string $role)
     {
         if (false !== $key = array_search(strtoupper($role), $this->roles, true)) {
             unset($this->roles[$key]);
@@ -83,22 +80,31 @@ class Group
         return $this;
     }
 
-    public function setName($name)
+    public function setName(string $name)
     {
         $this->name = $name;
-
         return $this;
     }
 
     public function setRoles(array $roles)
     {
         $this->roles = $roles;
-
         return $this;
     }
 
     public function __toString()
     {
         return $this->getName();
+    }
+
+    public function getCode(): ?string
+    {
+        return $this->code;
+    }
+
+    public function setCode(?string $code)
+    {
+        $this->code = $code;
+        return $this;
     }
 }
