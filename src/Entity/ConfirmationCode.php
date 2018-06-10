@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use App\ORM\Id\UuidGenerator;
 
 /**
  * @ORM\Entity
@@ -13,8 +14,9 @@ class ConfirmationCode
 {
     /**
      * @ORM\Id
-     * @ORM\Column(type="integer")
-     * @ORM\GeneratedValue(strategy="AUTO")
+     * @ORM\Column(type="guid")
+     * @ORM\GeneratedValue(strategy="CUSTOM")
+     * @ORM\CustomIdGenerator(class=UuidGenerator::class)
      */
     protected $id;
 
@@ -67,7 +69,7 @@ class ConfirmationCode
         $this->mtime = new \DateTime();
     }
 
-    public function getId(): int
+    public function getId(): string
     {
         return $this->id;
     }
