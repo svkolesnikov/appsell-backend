@@ -48,6 +48,19 @@ class UserProfile
     protected $mtime;
 
     /**
+     * @ORM\Column(type="string")
+     */
+    protected $company_id;
+
+    /**
+     * @var User
+     *
+     * @ORM\ManyToOne(targetEntity = "User")
+     * @ORM\JoinColumn(name = "employer_id", referencedColumnName = "id")
+     */
+    protected $employer;
+
+    /**
      * @ORM\PrePersist
      */
     public function onPrePersist(): void
@@ -112,5 +125,27 @@ class UserProfile
     public function setUser(User $user): void
     {
         $this->user = $user;
+    }
+
+    public function getCompanyId(): ?string
+    {
+        return $this->company_id;
+    }
+
+    public function setCompanyId(?string $id)
+    {
+        $this->company_id = $id;
+        return $this;
+    }
+
+    public function getEmployer(): ?User
+    {
+        return $this->employer;
+    }
+
+    public function setEmployer(?User $user)
+    {
+        $this->employer = $user;
+        return $this;
     }
 }

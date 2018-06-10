@@ -111,6 +111,13 @@ class User implements UserInterface, \Serializable
         return $this;
     }
 
+    public function addGroup(Group $group)
+    {
+        if (!$this->groups->contains($group)) {
+            $this->groups->add($group);
+        }
+    }
+
     public function getRoles(): array
     {
         $roles = ['ROLE_USER'];

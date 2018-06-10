@@ -51,5 +51,5 @@ final class Employee
      *
      * @var string
      */
-    public $code;
+    public $company_id;
 }

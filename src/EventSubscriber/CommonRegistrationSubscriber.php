@@ -3,7 +3,6 @@
 namespace App\EventSubscriber;
 
 use ApiPlatform\Core\EventListener\EventPriorities;
-use App\Api\Dto\Employee;
 use App\Api\Dto\Owner;
 use App\Api\Dto\Seller;
 use App\Entity\User;
@@ -17,28 +16,18 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\GetResponseForControllerResultEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
-class RegistrationSubscriber implements EventSubscriberInterface
+class CommonRegistrationSubscriber implements EventSubscriberInterface
 {
-    /** @var UserPasswordEncoderInterface */
-    protected $passwordEncoder;
-
     /** @var EntityManagerInterface */
     protected $entityManager;
-
-    /** @var TokenStorageInterface */
-    protected $tokenStorage;
 
     /** @var SystemProducer */
     protected $systemProducer;
 
-    public function __construct(UserPasswordEncoderInterface $encoder, EntityManagerInterface $em, TokenStorageInterface $ts, SystemProducer $sp)
+    public function __construct(EntityManagerInterface $em, SystemProducer $sp)
     {
-        $this->passwordEncoder = $encoder;
         $this->entityManager = $em;
-        $this->tokenStorage = $ts;
         $this->systemProducer = $sp;
     }
 
@@ -51,18 +40,9 @@ class RegistrationSubscriber implements EventSubscriberInterface
         ];
     }
 
-    /**
-     * @param GetResponseForControllerResultEvent $event
-     * @throws AuthException
-     */
     public function registerUser(GetResponseForControllerResultEvent $event): void
     {
         $request = $event->getRequest();
-
-        if ('api_employees_post_collection' === $request->attributes->get('_route')) {
-            $this->registerEmployee($event->getControllerResult());
-            $event->setResponse(new JsonResponse(null, JsonResponse::HTTP_CREATED));
-        }
 
         if ('api_sellers_post_collection' === $request->attributes->get('_route')) {
             $this->registerSeller($event->getControllerResult());
@@ -129,26 +109,6 @@ class RegistrationSubscriber implements EventSubscriberInterface
             'email'   => $form->email,
             'phone'   => $form->phone
         ]);
-    }
-
-    /**
-     * @param Employee $form
-     * @throws AuthException
-     */
-    protected function registerEmployee(Employee $form): void
-    {
-        // todo: что-то делать с $form->code
-        // todo: отправлять письмо с кодом проверки email
-        // todo: добавить в группу "Продавцы" и привязать к конторе
-
-        $user = new User();
-        $user->setEmail($form->email);
-        $user->setPassword($this->passwordEncoder->encodePassword($user, $form->password));
-
-        $profile = new UserProfile();
-        $profile->setUser($user);
-
-        $this->save($profile);
     }
 
     /**
