@@ -89,7 +89,7 @@ class ConfirmationCode
         return $this->is_confirmed;
     }
 
-    public function setIsConfirmed(bool $isConfirmed)
+    public function setConfirmed(bool $isConfirmed)
     {
         $this->is_confirmed = $isConfirmed;
         return $this;
