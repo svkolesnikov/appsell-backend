@@ -96,13 +96,13 @@ class Offer
      */
     protected $mtime;
 
-//    /**
-//     * @Groups({ "read" })
-//     *
-//     * @var OfferAction[]|ArrayCollection
-//     * @ORM\OneToMany(targetEntity="OfferAction", mappedBy="offer", cascade={"persist", "remove"}, orphanRemoval=true)
-//     */
-//    protected $actions;
+    /**
+     * @Groups({ "read" })
+     *
+     * @var Compensation[]|ArrayCollection
+     * @ORM\OneToMany(targetEntity="Compensation", mappedBy="offer", cascade={"persist", "remove"}, orphanRemoval=true)
+     */
+    protected $compensations;
 
     /**
      * @Groups({ "read" })
@@ -114,13 +114,11 @@ class Offer
 
     public function __construct()
     {
-//        $this->actions      = new ArrayCollection();
+        $this->compensations = new ArrayCollection();
         $this->links         = new ArrayCollection();
-        $this->title        = '';
-        $this->active_from  = new \DateTime();
-        $this->active_to    = new \DateTime();
-        $this->price        = 0;
-        $this->currency     = CurrencyEnum::RUB;
+        $this->title         = '';
+        $this->active_from   = new \DateTime();
+        $this->active_to     = new \DateTime();
     }
 
     /**
@@ -205,35 +203,13 @@ class Offer
         return $this->mtime;
     }
 
-//    /**
-//     * @return OfferAction[]|ArrayCollection
-//     */
-//    public function getActions()
-//    {
-//        return $this->actions;
-//    }
-//
-//    public function setActions($actions)
-//    {
-//        $this->actions = $actions;
-//        return $this;
-//    }
-
-//    public function addAction(OfferAction $action)
-//    {
-//        $action->setOffer($this);
-//        $this->actions->add($action);
-//
-//        return $this;
-//    }
-//
-//    public function removeAction(OfferAction $action)
-//    {
-//        $action->setOffer(null);
-//        $this->actions->removeElement($action);
-//
-//        return $this;
-//    }
+    /**
+     * @return Compensation[]|ArrayCollection
+     */
+    public function getCompensations()
+    {
+        return $this->compensations;
+    }
 
     /**
      * @return OfferLink[]|ArrayCollection

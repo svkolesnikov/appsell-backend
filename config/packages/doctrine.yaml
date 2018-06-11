@@ -1,34 +1,34 @@
 parameters:
-    env(DATABASE_URL): ''
+  env(DATABASE_URL): ''
 
 doctrine:
-    dbal:
-        default_connection: appsell
-        connections:
-            appsell:
-                driver: 'pdo_pgsql'
-                charset: UTF8
-                url: '%env(DATABASE_URL)%'
-                options:
-                    20: true # PDO::ATTR_EMULATE_PREPARES is 20
-        types:
-            bigint[]: MartinGeorgiev\Doctrine\DBAL\Types\BigIntArray
-            text[]: MartinGeorgiev\Doctrine\DBAL\Types\TextArray
-            jsonb: MartinGeorgiev\Doctrine\DBAL\Types\Jsonb
-            jsonb[]: MartinGeorgiev\Doctrine\DBAL\Types\JsonbArray
+  dbal:
+    default_connection: appsell
+    connections:
+      appsell:
+        driver: 'pdo_pgsql'
+        charset: UTF8
+        url: '%env(DATABASE_URL)%'
+        options:
+          20: true # PDO::ATTR_EMULATE_PREPARES is 20
+    types:
+      bigint[]: MartinGeorgiev\Doctrine\DBAL\Types\BigIntArray
+      text[]: MartinGeorgiev\Doctrine\DBAL\Types\TextArray
+      jsonb: MartinGeorgiev\Doctrine\DBAL\Types\Jsonb
+      jsonb[]: MartinGeorgiev\Doctrine\DBAL\Types\JsonbArray
 
-    orm:
-        auto_generate_proxy_classes: '%kernel.debug%'
-        default_entity_manager: appsell
-        entity_managers:
-            appsell:
-                naming_strategy: doctrine.orm.naming_strategy.underscore
-                auto_mapping: true
-                connection: appsell
-                mappings:
-                    App:
-                        is_bundle: false
-                        type: annotation
-                        dir: '%kernel.project_dir%/src/Entity'
-                        prefix: 'App\Entity'
-                        alias: App
+  orm:
+    auto_generate_proxy_classes: '%kernel.debug%'
+    default_entity_manager: appsell
+    entity_managers:
+      appsell:
+        naming_strategy: doctrine.orm.naming_strategy.underscore
+        auto_mapping: true
+        connection: appsell
+        mappings:
+          App:
+            is_bundle: false
+            type: annotation
+            dir: '%kernel.project_dir%/src/Entity'
+            prefix: 'App\Entity'
+            alias: App
