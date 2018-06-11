@@ -85,20 +85,6 @@ class Offer
     protected $active_to;
 
     /**
-     * @Groups({ "read" })
-     *
-     * @ORM\Column(type="integer")
-     */
-    protected $price;
-
-    /**
-     * @Groups({ "read" })
-     *
-     * @ORM\Column(type="string")
-     */
-    protected $currency;
-
-    /**
      * @var \DateTime
      * @ORM\Column(type="datetime")
      */
@@ -110,26 +96,26 @@ class Offer
      */
     protected $mtime;
 
-    /**
-     * @Groups({ "read" })
-     *
-     * @var OfferAction[]|ArrayCollection
-     * @ORM\OneToMany(targetEntity="OfferAction", mappedBy="offer", cascade={"persist", "remove"}, orphanRemoval=true)
-     */
-    protected $actions;
+//    /**
+//     * @Groups({ "read" })
+//     *
+//     * @var OfferAction[]|ArrayCollection
+//     * @ORM\OneToMany(targetEntity="OfferAction", mappedBy="offer", cascade={"persist", "remove"}, orphanRemoval=true)
+//     */
+//    protected $actions;
 
     /**
      * @Groups({ "read" })
      *
-     * @var OfferApp[]|ArrayCollection
-     * @ORM\OneToMany(targetEntity="OfferApp", mappedBy="offer", cascade={"persist", "remove"}, orphanRemoval=true)
+     * @var OfferLink[]|ArrayCollection
+     * @ORM\OneToMany(targetEntity="OfferLink", mappedBy="offer", cascade={"persist", "remove"}, orphanRemoval=true)
      */
-    protected $apps;
+    protected $links;
 
     public function __construct()
     {
-        $this->actions      = new ArrayCollection();
-        $this->apps         = new ArrayCollection();
+//        $this->actions      = new ArrayCollection();
+        $this->links         = new ArrayCollection();
         $this->title        = '';
         $this->active_from  = new \DateTime();
         $this->active_to    = new \DateTime();
@@ -209,29 +195,6 @@ class Offer
         $this->active_to = $date;
     }
 
-    public function getPrice(): int
-    {
-        return $this->price;
-    }
-
-    public function setPrice(int $price): void
-    {
-        $this->price = $price;
-    }
-
-    /**
-     * @throws \UnexpectedValueException
-     */
-    public function getCurrency(): CurrencyEnum
-    {
-        return new CurrencyEnum($this->currency);
-    }
-
-    public function setCurrency(CurrencyEnum $currency): void
-    {
-        $this->currency = $currency;
-    }
-
     public function getCtime(): \DateTime
     {
         return $this->ctime;
@@ -242,62 +205,65 @@ class Offer
         return $this->mtime;
     }
 
+//    /**
+//     * @return OfferAction[]|ArrayCollection
+//     */
+//    public function getActions()
+//    {
+//        return $this->actions;
+//    }
+//
+//    public function setActions($actions)
+//    {
+//        $this->actions = $actions;
+//        return $this;
+//    }
+
+//    public function addAction(OfferAction $action)
+//    {
+//        $action->setOffer($this);
+//        $this->actions->add($action);
+//
+//        return $this;
+//    }
+//
+//    public function removeAction(OfferAction $action)
+//    {
+//        $action->setOffer(null);
+//        $this->actions->removeElement($action);
+//
+//        return $this;
+//    }
+
     /**
-     * @return OfferAction[]|ArrayCollection
+     * @return OfferLink[]|ArrayCollection
      */
-    public function getActions()
+    public function getLinks()
     {
-        return $this->actions;
+        return $this->links;
     }
 
-    public function setActions($actions)
+    public function setLinks($links)
     {
-        $this->actions = $actions;
+        $this->links = $links;
         return $this;
     }
 
-    public function addAction(OfferAction $action)
+    public function addLink(OfferLink $link)
     {
-        $action->setOffer($this);
-        $this->actions->add($action);
-
-        return $this;
-    }
-
-    public function removeAction(OfferAction $action)
-    {
-        $action->setOffer(null);
-        $this->actions->removeElement($action);
+        if (!$this->links->contains($link)) {
+            $link->setOffer($this);
+            $this->links->add($link);
+        }
 
         return $this;
     }
 
-    /**
-     * @return OfferApp[]|ArrayCollection
-     */
-    public function getApps()
+    public function removeLink(OfferLink $link)
     {
-        return $this->apps;
-    }
-
-    public function setApps($apps)
-    {
-        $this->apps = $apps;
-        return $this;
-    }
-
-    public function addApp(OfferApp $app)
-    {
-        $app->setOffer($this);
-        $this->apps->add($app);
-
-        return $this;
-    }
-
-    public function removeApp(OfferApp $app)
-    {
-        $app->setOffer(null);
-        $this->apps->removeElement($app);
+        if (!$this->links->contains($link)) {
+            $this->links->removeElement($link);
+        }
 
         return $this;
     }
