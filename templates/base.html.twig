@@ -74,6 +74,26 @@
 
                 <div class="row">
                     <div class="col-md-12 col-sm-12 col-xs-12">
+
+                        <div class="modal fade" id="modal-remove-record">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">×</span></button>
+                                        <h4 class="modal-title">Подтверждение действия</h4>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>Вы действительно хотите удалить запись?</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">Отменить</button>
+                                        <button type="button" class="btn btn-primary" data-id="remove-btn">Удалить</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         {% block page_content %}{% endblock %}
                     </div>
                 </div>
@@ -100,6 +120,21 @@
         <script src="{{ asset('assets/vendors/admin-lte/plugins/iCheck/icheck.min.js') }}"></script>
         <script src="{{ asset('assets/vendors/x-editable/dist/bootstrap3-editable/js/bootstrap-editable.min.js') }}"></script>
         <script src="{{ asset('assets/js/main.js') }}"></script>
+
+        <script type="text/javascript">
+            $(function() {
+
+                $('#modal-remove-record').on('show.bs.modal', function (event) {
+                    var url = $(event.relatedTarget).data('url');
+                    $(this).find('[data-id=remove-btn]').attr('data-url', url);
+                });
+
+                $('#modal-remove-record [data-id=remove-btn]').on('click', function (e) {
+                    location.href = e.currentTarget.getAttribute('data-url');
+                })
+
+            });
+        </script>
 
     {% endblock javascripts %}
 
