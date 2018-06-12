@@ -78,6 +78,10 @@
                 <source>Id</source>
                 <target>Идентификатор</target>
             </trans-unit>
+            <trans-unit id="Is active">
+                <source>Is active</source>
+                <target>Активен</target>
+            </trans-unit>
         </body>
     </file>
 </xliff>
