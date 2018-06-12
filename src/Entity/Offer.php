@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use App\ORM\Id\UuidGenerator;
 use ApiPlatform\Core\Annotation\ApiResource;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
 use ApiPlatform\Core\Annotation\ApiSubresource;
 
@@ -112,6 +113,11 @@ class Offer
      */
     protected $links;
 
+    /**
+     * @ORM\Column(type="string")
+     */
+    protected $developer_key;
+
     public function __construct()
     {
         $this->compensations = new ArrayCollection();
@@ -119,6 +125,7 @@ class Offer
         $this->title         = '';
         $this->active_from   = new \DateTime();
         $this->active_to     = new \DateTime();
+        $this->developer_key = Uuid::uuid4()->toString();
     }
 
     /**
@@ -242,5 +249,10 @@ class Offer
         }
 
         return $this;
+    }
+
+    public function getDeveloperKey(): ?string
+    {
+        return $this->developer_key;
     }
 }
