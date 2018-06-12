@@ -35,6 +35,12 @@ class EventType
      */
     protected $mtime;
 
+    public function __construct()
+    {
+        $this->code = '';
+        $this->title = '';
+    }
+
     /**
      * @ORM\PrePersist
      */

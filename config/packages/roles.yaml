@@ -11,6 +11,11 @@ security:
             - ROLE_APP_OFFER_CREATE
             - ROLE_APP_OFFER_DELETE
 
+            - ROLE_APP_EVENT_TYPE_EDIT
+            - ROLE_APP_EVENT_TYPE_LIST
+            - ROLE_APP_EVENT_TYPE_CREATE
+            - ROLE_APP_EVENT_TYPE_DELETE
+
         ROLE_SUPER_ADMIN:
             - ROLE_ADMIN
 
