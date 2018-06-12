@@ -12,6 +12,7 @@ use Symfony\Component\HttpKernel\Event\GetResponseForControllerResultEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use App\Entity;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class UserOfferLinkSubscriber implements EventSubscriberInterface
 {
@@ -21,10 +22,14 @@ class UserOfferLinkSubscriber implements EventSubscriberInterface
     /** @var RouterInterface */
     protected $router;
 
-    public function __construct(EntityManagerInterface $em, RouterInterface $router)
+    /** @var TokenStorageInterface */
+    protected $tokenStorage;
+
+    public function __construct(EntityManagerInterface $em, RouterInterface $router, TokenStorageInterface $ts)
     {
         $this->entityManager = $em;
         $this->router = $router;
+        $this->tokenStorage = $ts;
     }
 
     public static function getSubscribedEvents(): array
@@ -55,10 +60,9 @@ class UserOfferLinkSubscriber implements EventSubscriberInterface
         }
 
         /** @var Entity\User $user */
-        $user = $this->entityManager->find('App:User', $data->user_id);
-        if (null === $user) {
-            throw new AppException(sprintf('Пользователь %s не найден', $data->user_id));
-        }
+        $user = $this->tokenStorage->getToken()->getUser();
+
+        // Получим ссылку на оффер или создадим новую
 
         $offerLink = $this->entityManager->getRepository('App:UserOfferLink')->findOneBy([
             'user'  => $user,

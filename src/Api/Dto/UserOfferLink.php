@@ -31,13 +31,6 @@ final class UserOfferLink
     public $offer_id;
 
     /**
-     * @Groups("write")
-     *
-     * @var string
-     */
-    public $user_id;
-
-    /**
      * @Groups("read")
      *
      * @var string
