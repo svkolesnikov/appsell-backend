@@ -11,15 +11,20 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\GetResponseForControllerResultEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use App\Entity;
+use Symfony\Component\Routing\RouterInterface;
 
 class UserOfferLinkSubscriber implements EventSubscriberInterface
 {
     /** @var EntityManagerInterface */
     protected $entityManager;
 
-    public function __construct(EntityManagerInterface $em)
+    /** @var RouterInterface */
+    protected $router;
+
+    public function __construct(EntityManagerInterface $em, RouterInterface $router)
     {
         $this->entityManager = $em;
+        $this->router = $router;
     }
 
     public static function getSubscribedEvents(): array
@@ -69,8 +74,14 @@ class UserOfferLinkSubscriber implements EventSubscriberInterface
             $this->entityManager->flush();
         }
 
+        $data->url = $this->router->generate(
+            'follow_user_offer_link',
+            ['id' => $offerLink->getId()],
+            RouterInterface::ABSOLUTE_URL
+        );
+
         $event->setResponse(new JsonResponse(
-            ['url' => $offerLink->getId()],
+            ['url' => $data->url],
             JsonResponse::HTTP_CREATED)
         );
     }

@@ -322,5 +322,8 @@
     },
     "willdurand/negotiation": {
         "version": "v2.3.1"
+    },
+    "wolfcast/browser-detection": {
+        "version": "2.5.1"
     }
 }
