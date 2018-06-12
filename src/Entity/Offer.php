@@ -209,6 +209,31 @@ class Offer
         return $this->compensations;
     }
 
+    public function setCompensations($compensations)
+    {
+        $this->compensations = $compensations;
+        return $this;
+    }
+
+    public function addCompensation(Compensation $compensation)
+    {
+        if (!$this->compensations->contains($compensation)) {
+            $compensation->setOffer($this);
+            $this->compensations->add($compensation);
+        }
+
+        return $this;
+    }
+
+    public function removeCompensation(Compensation $compensation)
+    {
+        if (!$this->compensations->contains($compensation)) {
+            $this->compensations->removeElement($compensation);
+        }
+
+        return $this;
+    }
+
     /**
      * @return OfferLink[]|ArrayCollection
      */

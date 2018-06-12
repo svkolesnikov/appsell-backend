@@ -24,7 +24,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * )
  *
  * @ORM\Entity
- * @ORM\Table(name="offerdata.offer_app")
+ * @ORM\Table(name="offerdata.offer_link")
  * @ORM\HasLifecycleCallbacks
  */
 class OfferLink

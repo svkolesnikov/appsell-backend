@@ -2,23 +2,23 @@
 
 namespace App\Form\DataTransformer;
 
-use App\Enum\CurrencyEnum;
+use App\Enum\OfferLinkTypeEnum;
 use Symfony\Component\Form\DataTransformerInterface;
 
-class StringToCurrencyEnumDataTransformer implements DataTransformerInterface
+class StringToOfferLinkTypeDataTransformer implements DataTransformerInterface
 {
     public function transform($value)
     {
-        return $value instanceof CurrencyEnum ? $value->getValue() : $value;
+        return $value instanceof OfferLinkTypeEnum ? $value->getValue() : $value;
     }
 
     /**
      * @param mixed $value
-     * @return CurrencyEnum|mixed
+     * @return OfferLinkTypeEnum|mixed
      * @throws \UnexpectedValueException
      */
     public function reverseTransform($value)
     {
-        return new CurrencyEnum($value);
+        return new OfferLinkTypeEnum($value);
     }
 }

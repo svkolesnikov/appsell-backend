@@ -2,23 +2,23 @@
 
 namespace App\Form\DataTransformer;
 
-use App\Enum\StoreEnum;
+use App\Enum\CompensationTypeEnum;
 use Symfony\Component\Form\DataTransformerInterface;
 
-class StringToStoreEnumDataTransformer implements DataTransformerInterface
+class StringToCompensationTypeDataTransformer implements DataTransformerInterface
 {
     public function transform($value)
     {
-        return $value instanceof StoreEnum ? $value->getValue() : $value;
+        return $value instanceof CompensationTypeEnum ? $value->getValue() : $value;
     }
 
     /**
      * @param mixed $value
-     * @return StoreEnum|mixed
+     * @return CompensationTypeEnum|mixed
      * @throws \UnexpectedValueException
      */
     public function reverseTransform($value)
     {
-        return new StoreEnum($value);
+        return new CompensationTypeEnum($value);
     }
 }

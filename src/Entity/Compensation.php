@@ -95,6 +95,15 @@ class Compensation
      */
     protected $mtime;
 
+
+    public function __construct()
+    {
+        $this->type         = CompensationTypeEnum::BASE;
+        $this->description  = '';
+        $this->price        = 0;
+        $this->currency     = CurrencyEnum::RUB;
+    }
+
     /**
      * @ORM\PrePersist
      */

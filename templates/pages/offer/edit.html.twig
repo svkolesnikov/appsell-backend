@@ -13,13 +13,13 @@
 {% endblock %}
 
 {% import _self as self %}
-{% macro widget_app_prototype(widget) %}
+{% macro widget_link_prototype(widget) %}
     <tr>
-        <td>{{ form_widget(widget.store) }}</td>
+        <td>{{ form_widget(widget.type) }}</td>
         <td>{{ form_widget(widget.url, {'required':'true'}) }}</td>
         <td class="actions">
             <div class="btn-group">
-                <a href="#" class="btn btn-sm btn-danger remove_app_link">
+                <a href="#" class="btn btn-sm btn-danger remove_link_link">
                     <i class="fa fa-trash-o"></i>
                     Удалить
                 </a>
@@ -28,16 +28,19 @@
     </tr>
 {% endmacro %}
 
-{% macro widget_action_prototype(widget) %}
+{% macro widget_compensation_prototype(widget) %}
     <tr>
-        <td>{{ form_widget(widget.code, {'required':'true'}) }}</td>
-        <td>{{ form_widget(widget.title, {'required':'false'}) }}</td>
+        <td>{{ form_widget(widget.type,         {'required':'true'}) }}</td>
+        <td>{{ form_widget(widget.description,  {'required':'false'}) }}</td>
+        <td>{{ form_widget(widget.event_type,   {'required':'true'}) }}</td>
+        <td>{{ form_widget(widget.price,        {'required':'true'}) }}</td>
+        <td>{{ form_widget(widget.currency,     {'required':'true'}) }}</td>
         <td class="actions">
             <div class="btn-group">
-                <a href="#" class="btn btn-sm btn-danger remove_action_link">
+                <button type="button" class="btn btn-sm btn-danger remove_compensation_link">
                     <i class="fa fa-trash-o"></i>
                     Удалить
-                </a>
+                </button>
             </div>
         </td>
     </tr>
@@ -51,30 +54,30 @@
     <script id="tmpl_new_record_form" type="text/x-jquery-tmpl">{{html form}}</script>
     {% endverbatim %}
 
-    <script id="tmpl_new_action_btn" type="text/x-jquery-tmpl">
-        <tr name='new_action_btn_container'>
-            <td colspan="3"><a href="#" class="btn btn-primary add_action_link">Добавить</a></td>
+    <script id="tmpl_new_compensation_btn" type="text/x-jquery-tmpl">
+        <tr name='new_compensation_btn_container'>
+            <td colspan="6"><a href="#" class="btn btn-primary add_compensation_link">Добавить</a></td>
         </tr>
     </script>
 
-    <script id="tmpl_new_app_btn" type="text/x-jquery-tmpl">
-        <tr name='new_app_btn_container'>
-            <td colspan="3"><a href="#" class="btn btn-primary add_app_link">Добавить</a></td>
+    <script id="tmpl_new_link_btn" type="text/x-jquery-tmpl">
+        <tr name='new_link_btn_container'>
+            <td colspan="3"><a href="#" class="btn btn-primary add_link_link">Добавить</a></td>
         </tr>
     </script>
 
-    <script id="tmpl_remove_app_btn" type="text/x-jquery-tmpl">
+    <script id="tmpl_remove_link_btn" type="text/x-jquery-tmpl">
         <div class="btn-group">
-            <a href="#" class="btn btn-sm btn-danger remove_app_link">
+            <a href="#" class="btn btn-sm btn-danger remove_link_link">
                 <i class="fa fa-trash-o"></i>
             Удалить
             </a>
         </div>
     </script>
 
-    <script id="tmpl_remove_action_btn" type="text/x-jquery-tmpl">
+    <script id="tmpl_remove_compensation_btn" type="text/x-jquery-tmpl">
         <div class="btn-group">
-            <a href="#" class="btn btn-sm btn-danger remove_action_link">
+            <a href="#" class="btn btn-sm btn-danger remove_compensation_link">
                 <i class="fa fa-trash-o"></i>
             Удалить
             </a>
@@ -84,29 +87,29 @@
     <script type="text/javascript">
         $(function() {
 
-            var appCollectionHolder = $('table.apps');
-            var actionCollectionHolder = $('table.actions');
+            var linkCollectionHolder = $('table.links');
+            var compensationCollectionHolder = $('table.compensations');
 
-            $('#tmpl_new_app_btn').tmpl().appendTo(appCollectionHolder);
-            $('#tmpl_new_action_btn').tmpl().appendTo(actionCollectionHolder);
+            $('#tmpl_new_link_btn').tmpl().appendTo(linkCollectionHolder);
+            $('#tmpl_new_compensation_btn').tmpl().appendTo(compensationCollectionHolder);
 
-            $('.add_app_link').on('click', function(e) {
+            $('.add_link_link').on('click', function(e) {
                 e.preventDefault();
-                addForm(appCollectionHolder, $('[name=new_app_btn_container]'));
+                addForm(linkCollectionHolder, $('[name=new_link_btn_container]'));
             });
 
-            $('.add_action_link').on('click', function(e) {
+            $('.add_compensation_link').on('click', function(e) {
                 e.preventDefault();
-                addForm(actionCollectionHolder, $('[name=new_action_btn_container]'));
+                addForm(compensationCollectionHolder, $('[name=new_compensation_btn_container]'));
             });
 
-            $(document).on('click', '.remove_app_link.remove_action_link', function(e) {
+            $(document).on('click', '.remove_link_link, .remove_compensation_link', function(e) {
                 e.preventDefault();
                 this.closest('tr').remove();
             });
 
-            appCollectionHolder.data('index', appCollectionHolder.find(':input').length);
-            actionCollectionHolder.data('index', actionCollectionHolder.find(':input').length);
+            linkCollectionHolder.data('index', linkCollectionHolder.find(':input').length);
+            compensationCollectionHolder.data('index', compensationCollectionHolder.find(':input').length);
 
             function addForm(collectionHolder, newContainer) {
 
@@ -123,7 +126,7 @@
                 // instead be a number based on how many items we have
                 newForm = newForm.replace(/__name__/g, index);
 
-                appCollectionHolder.data('index', index + 1);
+                linkCollectionHolder.data('index', index + 1);
 
                 var newFormTr = $('#tmpl_new_record_form').tmpl({ form: newForm });
                 newContainer.before(newFormTr);
@@ -168,20 +171,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        <div class="form-group">
-                            <label class="form-control-label">Стоимость</label>
-                            <div class="row">
-                                <div class="col-sm-6">
-                                    <div style="float:left; width:118px">
-                                        {{ form_widget(form.price) }}
-                                    </div>
-                                    <div style="float:left;">
-                                        {{ form_widget(form.currency) }}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
                 <div class="box box-primary">
@@ -189,31 +178,34 @@
                         <h3 class="box-title">Приложения</h3>
                     </div>
                     <div class="box-body">
-                        <table class="table table-striped table-bordered apps" data-prototype="{{ self.widget_app_prototype(form.apps.vars.prototype)|e }}">
+                        <table class="table table-striped table-bordered links" data-prototype="{{ self.widget_link_prototype(form.links.vars.prototype)|e }}">
                             <tr>
-                                <td width="200px">Платформа</td>
-                                <td>Url</td>
+                                <td width="200px">Тип</td>
+                                <td>Ссылка</td>
                                 <td>Действия</td>
                             </tr>
-                            {% for app in form.apps %}
-                                {{ self.widget_app_prototype(app) }}
+                            {% for link in form.links %}
+                                {{ self.widget_link_prototype(link) }}
                             {% endfor %}
                         </table>
                     </div>
                 </div>
                 <div class="box box-primary">
                     <div class="box-header with-border">
-                        <h3 class="box-title">Шаги выполнения</h3>
+                        <h3 class="box-title">Компенсация</h3>
                     </div>
                     <div class="box-body">
-                        <table class="table table-striped table-bordered actions" data-prototype="{{ self.widget_action_prototype(form.actions.vars.prototype)|e }}">
+                        <table class="table table-striped table-bordered compensations" data-prototype="{{ self.widget_compensation_prototype(form.compensations.vars.prototype)|e }}">
                             <tr>
-                                <td width="200px">Код</td>
-                                <td>Наименование</td>
+                                <td width="15%">Тип</td>
+                                <td width="25%">Описание</td>
+                                <td width="25%">Событие</td>
+                                <td width="15%">Стоимость</td>
+                                <td width="10%">Валюта</td>
                                 <td>Действия</td>
                             </tr>
-                            {% for action in form.actions %}
-                                {{ self.widget_action_prototype(action) }}
+                            {% for compensation in form.compensations %}
+                                {{ self.widget_compensation_prototype(compensation) }}
                             {% endfor %}
                         </table>
                     </div>

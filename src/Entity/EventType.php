@@ -89,4 +89,9 @@ class EventType
     {
         return $this->mtime;
     }
+
+    public function __toString()
+    {
+        return sprintf('%s: %s', $this->getCode(), $this->getTitle());
+    }
 }

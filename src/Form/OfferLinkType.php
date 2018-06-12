@@ -2,36 +2,36 @@
 
 namespace App\Form;
 
-use App\Entity\OfferApp;
-use App\Enum\StoreEnum;
-use App\Form\DataTransformer\StringToStoreEnumDataTransformer;
+use App\Entity\OfferLink;
+use App\Enum\OfferLinkTypeEnum;
+use App\Form\DataTransformer\StringToOfferLinkTypeDataTransformer;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class OfferAppType extends AbstractType
+class OfferLinkType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
             ->add('url',        TextType::class,    ['required' => true, 'label' => false])
-            ->add('store',      ChoiceType::class,  [
+            ->add('type',       ChoiceType::class,  [
                 'required'      => true,
                 'label'         => false,
                 'label_attr'    => ['style' => 'font-size:14px;font-weight:700'],
-                'choices'       => StoreEnum::toArray()
+                'choices'       => OfferLinkTypeEnum::toArray()
             ])
         ;
 
-        $builder->get('store')->addModelTransformer(new StringToStoreEnumDataTransformer());
+        $builder->get('type')->addModelTransformer(new StringToOfferLinkTypeDataTransformer());
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => OfferApp::class,
+            'data_class' => OfferLink::class,
         ));
     }
 }

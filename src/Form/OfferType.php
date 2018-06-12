@@ -3,10 +3,7 @@
 namespace App\Form;
 
 use App\Entity\Offer;
-use App\Enum\CurrencyEnum;
-use App\Form\DataTransformer\StringToCurrencyEnumDataTransformer;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -37,21 +34,9 @@ class OfferType extends AbstractType
                 'attr'          => ['style' => 'width:135px', 'class' => 'datepick-input'],
                 'html5'         => false
             ])
-            ->add('price',          TextType::class,        [
-                'required'      => true,
-                'label'         => 'Стоимость',
-                'attr'          => ['style' => 'width:112px;'],
-            ])
-            ->add('currency',       ChoiceType::class,      [
-                'required'      => true,
-                'label'         => 'Валюта',
-                'label_attr'    => ['style' => 'font-size:14px; font-weight:700'],
-                'choices'       => CurrencyEnum::toArray(),
-                'attr'          => ['style' => 'width:150px;'],
-            ])
-            ->add('apps',           CollectionType::class,  [
+            ->add('links',          CollectionType::class,  [
                 'label'         => false,
-                'entry_type'    => OfferAppType::class,
+                'entry_type'    => OfferLinkType::class,
                 'entry_options' => ['label' => false],
                 'allow_add'     => true,
                 'allow_delete'  => true,
@@ -60,9 +45,10 @@ class OfferType extends AbstractType
                 'by_reference'  => false,
                 'delete_empty'  => true
             ])
-            ->add('actions',        CollectionType::class,  [
+
+            ->add('compensations',  CollectionType::class,  [
                 'label'         => false,
-                'entry_type'    => OfferActionType::class,
+                'entry_type'    => OfferCompensationType::class,
                 'entry_options' => ['label' => false],
                 'allow_add'     => true,
                 'allow_delete'  => true,
@@ -72,8 +58,6 @@ class OfferType extends AbstractType
                 'delete_empty'  => true
             ])
         ;
-
-        $builder->get('currency')->addModelTransformer(new StringToCurrencyEnumDataTransformer());
     }
 
     public function configureOptions(OptionsResolver $resolver)
