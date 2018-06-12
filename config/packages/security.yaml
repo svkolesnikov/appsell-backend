@@ -58,7 +58,6 @@ security:
 
         # REST API rules
         - { path: ^/api/auth/token,                 role: ROLE_USER }
-        - { path: ^/api/seller-offer-links/\d+/go,  role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api/auth,                       role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api/registration,               role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api/index.[^/],                 role: IS_AUTHENTICATED_ANONYMOUSLY }

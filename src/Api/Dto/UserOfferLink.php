@@ -9,9 +9,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * @ApiResource(
  *     itemOperations = {},
  *     collectionOperations = {
- *          "create_link" = {
- *              "method" = "POST",
- *              "path" = "/offer-apps/{id}/sellers/{seller_id}/links.{_format}",
+ *          "post" = {
  *              "swagger_context" = {
  *                  "tags" = { "Offers" }
  *              }
@@ -23,8 +21,22 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *     }
  * )
  */
-final class SellerOfferLink
+final class UserOfferLink
 {
+    /**
+     * @Groups("write")
+     *
+     * @var string
+     */
+    public $offer_id;
+
+    /**
+     * @Groups("write")
+     *
+     * @var string
+     */
+    public $user_id;
+
     /**
      * @Groups("read")
      *
