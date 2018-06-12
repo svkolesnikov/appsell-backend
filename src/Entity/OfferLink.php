@@ -72,6 +72,13 @@ class OfferLink
      */
     protected $mtime;
 
+    /**
+     * Идентификатор приложения в AppStore или GooglePlay
+     *
+     * @ORM\Column(type="string")
+     */
+    protected $external_id;
+
     public function __construct()
     {
         $this->type = OfferLinkTypeEnum::WEB;
@@ -142,6 +149,17 @@ class OfferLink
     public function setType(OfferLinkTypeEnum $type)
     {
         $this->type = $type->getValue();
+        return $this;
+    }
+
+    public function getExternalId(): ?string
+    {
+        return $this->external_id;
+    }
+
+    public function setExternalId(?string $id)
+    {
+        $this->external_id = $id;
         return $this;
     }
 }

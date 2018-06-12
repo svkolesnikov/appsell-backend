@@ -114,6 +114,8 @@ class Offer
     protected $links;
 
     /**
+     * Уникальный ключ оффера для SDK
+     *
      * @ORM\Column(type="string")
      */
     protected $developer_key;
