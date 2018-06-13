@@ -15,7 +15,7 @@
 {% block page_content %}
     {{ form_start(form) }}
         <div class="row">
-            <div class="col-md-12">
+            <div class="col-md-6">
                 <div class="box box-primary">
                     <div class="box-header with-border">
                         <h4 class="box-title">Данные пользователя</h4>
@@ -29,6 +29,19 @@
                         {{ form_row(form.profile.phone) }}
                         {{ form_row(form.is_active) }}
                         {{ form_row(form.groups) }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h4 class="box-title">Данные компании</h4>
+                    </div>
+                    <div class="box-body">
+                        {{ form_row(form.profile.company_id) }}
+                        {{ form_row(form.profile.company_title) }}
+                        {{ form_row(form.profile.employer) }}
                     </div>
                 </div>
             </div>

@@ -1,7 +1,10 @@
 <?php
 namespace App\Form;
 
+use App\Entity\User;
 use App\Entity\UserProfile;
+use Doctrine\ORM\EntityRepository;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -20,9 +23,24 @@ class UserProfileType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('lastname',   TextType::class,    ['required' => false, 'label' => 'Фамилия'])
-            ->add('firstname',  TextType::class,    ['required' => false, 'label' => 'Имя'])
-            ->add('phone',      IntegerType::class, ['required' => false, 'label' => 'Телефон'])
+            ->add('lastname',       TextType::class,    ['required' => true, 'label' => 'Фамилия'])
+            ->add('firstname',      TextType::class,    ['required' => true, 'label' => 'Имя'])
+            ->add('phone',          IntegerType::class, ['required' => false, 'label' => 'Телефон'])
+            ->add('company_id',     TextType::class,    ['required' => false, 'label' => 'Идентификатор компании'])
+            ->add('company_title',  TextType::class,    ['required' => false, 'label' => 'Наименование компания'])
+            ->add('employer',       EntityType::class,  [
+                'class'             => User::class,
+                'required'          => false,
+                'label'             => 'Работодатель',
+                'query_builder'     => function (EntityRepository $er) {
+                    return $er
+                        ->createQueryBuilder('u')
+                        ->innerJoin('u.groups', 'g')
+                        ->where('g.code = :code')
+                        ->setParameter(':code', 'seller');
+                },
+            ])
         ;
     }
+
 }

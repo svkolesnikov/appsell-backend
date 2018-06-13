@@ -23,6 +23,9 @@
                         <th class="column-title">Имя</th>
                         <th class="column-title">Фамилия</th>
                         <th class="column-title">Телефон</th>
+                        <th class="column-title">ID Компании</th>
+                        <th class="column-title">Наименование компании</th>
+                        <th class="column-title">Работодатель</th>
                         <th class="column-title">Действия</th>
                     </tr>
                     </thead>
@@ -34,6 +37,9 @@
                         <td>{{ user.profile.firstname }}</td>
                         <td>{{ user.profile.lastname }}</td>
                         <td>{{ user.profile.phone }}</td>
+                        <td>{{ user.profile.companyId }}</td>
+                        <td>{{ user.profile.companyTitle }}</td>
+                        <td>{{ user.profile.employer }}</td>
                         <td>
                             <div class="btn-group">
                                 {% if is_granted('ROLE_APP_USER_EDIT') %}
@@ -43,10 +49,16 @@
                                 </a>
                                 {% endif %}
                                 {% if is_granted('ROLE_APP_USER_DELETE') %}
-                                <a href="{{ path('app_settings_users_remove', { id: user.id}) }}" class="btn btn-sm btn-default">
+                                <button
+                                        type="button"
+                                        class="btn btn-sm btn-default"
+                                        data-toggle="modal"
+                                        data-target="#modal-remove-record"
+                                        data-url="{{ path('app_settings_users_remove', { id: user.id}) }}"
+                                >
                                     <i class="fa fa-trash-o"></i>
                                     Удалить
-                                </a>
+                                </button>
                                 {% endif %}
                             </div>
                         </td>

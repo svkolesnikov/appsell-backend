@@ -154,7 +154,7 @@ class UserProfile
         return $this;
     }
 
-    public function getCompanyTitle(): string
+    public function getCompanyTitle(): ?string
     {
         return $this->company_title;
     }
