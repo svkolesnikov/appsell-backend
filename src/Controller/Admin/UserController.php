@@ -2,10 +2,12 @@
 
 namespace App\Controller\Admin;
 
-use App\Controller\Admin\BaseController;
 use App\Entity\Group;
 use App\Entity\User;
+use App\Enum\UserGroupEnum;
 use App\Form\UserType;
+use App\Manager\UserManager;
+use App\Security\UserGroupManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -17,9 +19,21 @@ class UserController extends BaseController
     /** @var  EntityManagerInterface */
     protected $em;
 
-    public function __construct(EntityManagerInterface $em)
+    /** @var  UserManager  */
+    protected $userManager;
+
+    /** @var  UserGroupManager  */
+    protected $userGroupManager;
+
+    public function __construct(
+        EntityManagerInterface $em,
+        UserManager $userManager,
+        UserGroupManager $userGroupManager
+    )
     {
         $this->em = $em;
+        $this->userManager = $userManager;
+        $this->userGroupManager = $userGroupManager;
     }
 
     /**
@@ -34,11 +48,13 @@ class UserController extends BaseController
      */
     public function listAction(Request $request): Response
     {
-        $page = $request->get('_page', 1);
-        $perPage = $request->get('_per_page', 16);
-        $offset =  ($page-1) * $perPage;
+        $page       = $request->get('_page', 1);
+        $perPage    = $request->get('_per_page', 16);
+        $offset     =  ($page-1) * $perPage;
 
-        $users = $this->em->getRepository(User::class)->findBy([], [], $perPage, $offset);
+        $criteria   = [];
+
+        $users      = $this->userManager->getList($this->getUser(), $criteria, $perPage, $offset);
 
         return $this->render('pages/user/list.html.twig', [
             'users' => $users,
@@ -97,10 +113,16 @@ class UserController extends BaseController
      * @param Request $request
      * @return Response
      * @throws \LogicException
+     * @throws \App\Exception\AppException
      */
     public function createAction(Request $request): Response
     {
         $user = new User();
+
+        if ($this->userGroupManager->hasGroup($this->getUser(), UserGroupEnum::SELLER())) {
+            $user->getProfile()->setEmployer($this->getUser());
+            $this->userGroupManager->addGroup($user, UserGroupEnum::EMPLOYEE());
+        }
 
         $form = $this->createForm(UserType::class, $user);
 

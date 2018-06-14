@@ -5,7 +5,7 @@
         <li class="dropdown">
             <a class="" href="{{ path('app_settings_users_create') }}">
                 <i class="fa fa-plus-circle" aria-hidden="true"></i>
-                Добавить новый
+                Добавить
             </a>
         </li>
     </ul>
@@ -23,9 +23,11 @@
                         <th class="column-title">Имя</th>
                         <th class="column-title">Фамилия</th>
                         <th class="column-title">Телефон</th>
+                        {% if is_granted(['ROLE_ADMIN', 'ROLE_SUPER_ADMIN']) %}
                         <th class="column-title">ID Компании</th>
                         <th class="column-title">Наименование компании</th>
                         <th class="column-title">Работодатель</th>
+                        {% endif %}
                         <th class="column-title">Действия</th>
                     </tr>
                     </thead>
@@ -37,9 +39,13 @@
                         <td>{{ user.profile.firstname }}</td>
                         <td>{{ user.profile.lastname }}</td>
                         <td>{{ user.profile.phone }}</td>
+
+                        {% if is_granted(['ROLE_ADMIN', 'ROLE_SUPER_ADMIN']) %}
                         <td>{{ user.profile.companyId }}</td>
                         <td>{{ user.profile.companyTitle }}</td>
                         <td>{{ user.profile.employer }}</td>
+                        {% endif %}
+
                         <td>
                             <div class="btn-group">
                                 {% if is_granted('ROLE_APP_USER_EDIT') %}
