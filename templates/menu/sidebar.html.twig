@@ -24,4 +24,10 @@
         </li>
     {% endif %}
 
+    {% if is_granted(['ROLE_APP_STAT_LIST']) %}
+        <li>
+            <a href="{{ path('app_stat_list') }}"><i class="fa fa-pie-chart"></i>Статистика</a>
+        </li>
+    {% endif %}
+
 {% endblock %}
