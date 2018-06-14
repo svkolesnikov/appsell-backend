@@ -20,6 +20,6 @@ class DashboardController extends BaseController
      */
     public function indexAction(Request $request): Response
     {
-        return $this->render('pages/dashboard.html.twig', []);
+        return $this->redirectToRoute('app_offer_list');
     }
 }
