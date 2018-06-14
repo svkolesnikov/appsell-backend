@@ -1,0 +1,6 @@
+{% if is_granted('ROLE_APP_OFFER_EDIT') %}
+    <a href="{{ path('app_offer_edit', { id: offer.id}) }}" class="btn btn-sm btn-default">
+        <i class="fa fa-pencil"></i>
+        Редактировать
+    </a>
+{% endif %}
