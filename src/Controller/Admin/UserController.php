@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\Admin\Settings;
+namespace App\Controller\Admin;
 
 use App\Controller\Admin\BaseController;
 use App\Entity\Group;
@@ -40,7 +40,7 @@ class UserController extends BaseController
 
         $users = $this->em->getRepository(User::class)->findBy([], [], $perPage, $offset);
 
-        return $this->render('pages/settings/user/list.html.twig', [
+        return $this->render('pages/user/list.html.twig', [
             'users' => $users,
             'pager' => [
                 '_per_page' => $perPage,
@@ -82,7 +82,7 @@ class UserController extends BaseController
 
         $groups = $this->em->getRepository(Group::class)->findAll();
 
-        return $this->render('pages/settings/user/edit.html.twig', [
+        return $this->render('pages/user/edit.html.twig', [
             'form' => $form->createView(),
             'action' => 'edit',
             'groups' => $groups
@@ -122,7 +122,7 @@ class UserController extends BaseController
 
         $groups = $this->em->getRepository(Group::class)->findAll();
 
-        return $this->render('pages/settings/user/edit.html.twig', [
+        return $this->render('pages/user/edit.html.twig', [
             'form' => $form->createView(),
             'action' => 'create',
             'groups' => $groups

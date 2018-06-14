@@ -2,20 +2,13 @@
 
     {% if is_granted(['ROLE_APP_USER_LIST', 'ROLE_APP_GROUP_LIST']) %}
         <li class="treeview">
-            <a href="#">
-                <i class="fa fa-wrench"></i>
-                <span>Настройки</span>
-                <span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span>
-            </a>
-            <ul class="treeview-menu">
-                {% if is_granted('ROLE_APP_USER_LIST') %}
-                    <li><a href="{{ path('app_settings_users_list') }}"><i class="fa fa-angle-double-right"></i>Пользователи</a></li>
-                {% endif %}
+        {% if is_granted('ROLE_APP_USER_LIST') %}
+            <li><a href="{{ path('app_settings_users_list') }}"><i class="fa fa-user"></i>Пользователи</a></li>
+        {% endif %}
 
-                {% if is_granted('ROLE_APP_GROUP_LIST') %}
-                    <li><a href="{{ path('app_settings_groups_list') }}"><i class="fa fa-angle-double-right"></i>Группы</a></li>
-                {% endif %}
-            </ul>
+        {% if is_granted('ROLE_APP_GROUP_LIST') %}
+            <li><a href="{{ path('app_settings_groups_list') }}"><i class="fa fa-group"></i>Группы</a></li>
+        {% endif %}
         </li>
     {% endif %}
 
