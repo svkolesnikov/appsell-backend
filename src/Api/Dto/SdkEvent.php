@@ -4,6 +4,7 @@ namespace App\Api\Dto;
 
 use ApiPlatform\Core\Annotation\ApiResource;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ApiResource(
@@ -25,6 +26,7 @@ final class SdkEvent
 {
     /**
      * @Groups("write")
+     * @Assert\NotBlank
      *
      * @var string
      */
@@ -32,6 +34,7 @@ final class SdkEvent
 
     /**
      * @Groups("write")
+     * @Assert\NotBlank
      *
      * @var string
      */
@@ -39,6 +42,7 @@ final class SdkEvent
 
     /**
      * @Groups("write")
+     * @Assert\NotBlank
      *
      * @var string
      */
@@ -46,6 +50,7 @@ final class SdkEvent
 
     /**
      * @Groups("write")
+     * @Assert\NotBlank
      *
      * @var string
      */
