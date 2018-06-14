@@ -9,6 +9,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class SecurityController extends Controller
 {
     /**
+     * @Route("/admin", name="app_admin")
      * @Route("/admin/login", name="app_admin_login")
      * @param AuthenticationUtils $authenticationUtils
      * @return \Symfony\Component\HttpFoundation\Response
