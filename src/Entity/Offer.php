@@ -110,6 +110,17 @@ class Offer
      */
     protected $links;
 
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    protected $is_active;
+
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    protected $is_deleted;
+
     public function __construct()
     {
         $this->compensations = new ArrayCollection();
@@ -117,6 +128,8 @@ class Offer
         $this->title         = '';
         $this->active_from   = new \DateTime();
         $this->active_to     = new \DateTime();
+        $this->is_active     = false;
+        $this->is_deleted    = false;
     }
 
     /**
@@ -264,6 +277,28 @@ class Offer
             $this->links->removeElement($link);
         }
 
+        return $this;
+    }
+
+    public function isActive(): bool
+    {
+        return $this->is_active;
+    }
+
+    public function setActive(bool $active)
+    {
+        $this->is_active = $active;
+        return $this;
+    }
+
+    public function isDeleted(): bool
+    {
+        return $this->is_deleted;
+    }
+
+    public function setDeleted(bool $deleted)
+    {
+        $this->is_deleted = $deleted;
         return $this;
     }
 }

@@ -3,23 +3,29 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Offer;
-use App\Enum\StoreEnum;
 use App\Form\OfferType;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Manager\OfferManager;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class OfferController extends BaseController
 {
-    /** @var  EntityManagerInterface */
-    protected $em;
+    /** @var  OfferManager */
+    protected $offerManager;
 
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(OfferManager $offerManager)
     {
-        $this->em = $em;
+        $this->offerManager = $offerManager;
+    }
+
+    protected function checkAccess(Offer $offer)
+    {
+        if ( ! $this->isGranted('ROLE_SUPER_ADMIN') && $offer->getOwner() !== $this->getUser()) {
+            $this->addFlash('error', 'Доступ запрещен!');
+            return $this->redirectToRoute('app_offer_list');
+        }
     }
 
     /**
@@ -30,6 +36,7 @@ class OfferController extends BaseController
      * @param Request $request
      *
      * @return Response
+     * @throws \LogicException
      * @throws \UnexpectedValueException
      */
     public function listAction(Request $request): Response
@@ -37,15 +44,16 @@ class OfferController extends BaseController
         $page       = $request->get('_page', 1);
         $perPage    = $request->get('_per_page', 16);
         $offset     = ($page-1) * $perPage;
+        $criteria   = [];
 
-        $items      = $this->em->getRepository(Offer::class)->findBy([], [], $perPage, $offset);
+        $items = $this->offerManager->getList($this->getUser(), $criteria, $perPage, $offset);
 
         return $this->render('pages/offer/list.html.twig', [
             'offers' => $items,
             'pager' => [
                 '_per_page' => $perPage,
                 '_page'     => $page,
-                '_has_more' => count($items) >= $perPage
+                '_has_more' => \count($items) >= $perPage
             ]
         ]);
     }
@@ -62,6 +70,11 @@ class OfferController extends BaseController
      */
     public function editAction(Request $request, Offer $offer): Response
     {
+        if ( ! $this->isGranted('ROLE_SUPER_ADMIN') && $offer->getOwner() !== $this->getUser()) {
+            $this->addFlash('error', 'Доступ запрещен!');
+            return $this->redirectToRoute('app_offer_list');
+        }
+
         $form = $this->createForm(OfferType::class, $offer);
 
         $form->handleRequest($request);
@@ -70,8 +83,7 @@ class OfferController extends BaseController
 
             try {
 
-                $this->em->persist($offer);
-                $this->em->flush();
+                $this->offerManager->save($offer);
 
                 $this->addFlash('success', 'Запись обновлена');
 
@@ -110,8 +122,7 @@ class OfferController extends BaseController
 
             try {
 
-                $this->em->persist($offer);
-                $this->em->flush();
+                $this->offerManager->save($offer);
 
                 $this->addFlash('success', 'Запись создана');
 
@@ -138,10 +149,52 @@ class OfferController extends BaseController
      */
     public function removeAction(Offer $offer): Response
     {
-        $this->em->remove($offer);
-        $this->em->flush();
+        if ( ! $this->isGranted('ROLE_SUPER_ADMIN') && $offer->getOwner() !== $this->getUser()) {
+            $this->addFlash('error', 'Доступ запрещен!');
+            return $this->redirectToRoute('app_offer_list');
+        }
+
+        $this->offerManager->remove($offer);
 
         $this->addFlash('success', 'Запись успешно удалена');
+
+        return $this->redirectToRoute('app_offer_list');
+    }
+
+    /**
+     * @Route("/admin/offers/{id}/activity", name="app_offer_change_activity")
+     *
+     * @Security("has_role('ROLE_APP_OFFER_CHANGE_ACTIVITY')")
+     *
+     * @param Offer $offer
+     * @return Response
+     */
+    public function changeActivityAction(Request $request, Offer $offer): Response
+    {
+        $this->checkAccess($offer);
+
+        $this->offerManager->changeActivity($offer, $request->get('active'));
+
+        $this->addFlash('success', 'Активность оффера изменена');
+
+        return $this->redirectToRoute('app_offer_list');
+    }
+
+    /**
+     * @Route("/admin/offers/{id}/hide", name="app_offer_hide")
+     *
+     * @Security("has_role('ROLE_APP_OFFER_HIDE')")
+     *
+     * @param Offer $offer
+     * @return Response
+     */
+    public function hideAction(Offer $offer): Response
+    {
+        $this->checkAccess($offer);
+
+        $this->offerManager->hide($offer);
+
+        $this->addFlash('success', 'Активность оффера изменена');
 
         return $this->redirectToRoute('app_offer_list');
     }
