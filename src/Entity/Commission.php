@@ -37,6 +37,11 @@ class Commission
     protected $mtime;
 
     /**
+     * @ORM\Column(type="integer")
+     */
+    protected $percent;
+
+    /**
      * @ORM\PrePersist
      */
     public function onPrePersist(): void
@@ -87,5 +92,16 @@ class Commission
     public function getMtime(): \DateTime
     {
         return $this->mtime;
+    }
+
+    public function getPercent(): int
+    {
+        return $this->percent;
+    }
+
+    public function setPercent(int $percent)
+    {
+        $this->percent = $percent;
+        return $this;
     }
 }
