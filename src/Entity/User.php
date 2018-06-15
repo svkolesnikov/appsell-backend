@@ -67,6 +67,8 @@ class User implements UserInterface, \Serializable
     protected $mtime;
 
     /**
+     * @Groups({ "read" })
+     *
      * @var UserProfile
      * @ORM\OneToOne(targetEntity = "UserProfile", mappedBy = "user", cascade={"persist", "remove"})
      */
@@ -237,6 +239,11 @@ class User implements UserInterface, \Serializable
     {
         return (string) $this->getUsername();
     }
+
+    //
+    // Далее идут поля для API,
+    // они никак не относятся к полям в БД
+    //
 
     /**
      * @Groups({ "read" })
