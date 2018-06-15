@@ -115,9 +115,21 @@ class OfferLink
         return $this->url;
     }
 
-    public function setUrl(string $url): void
+    public function setUrl(string $url)
     {
+        $applePattern  = '/itunes.apple.com/';
+        $googlePattern = '/play.google.com/';
+
+        if (preg_match($applePattern, $url)) {
+            $this->type = OfferLinkTypeEnum::APP_STORE()->getValue();
+        } elseif (preg_match($googlePattern, $url)) {
+            $this->type = OfferLinkTypeEnum::GOOGLE_PLAY()->getValue();
+        } else {
+            $this->type = OfferLinkTypeEnum::WEB()->getValue();
+        }
+
         $this->url = $url;
+        return $this;
     }
 
     public function getCtime(): \DateTime
@@ -137,11 +149,5 @@ class OfferLink
     public function getType(): OfferLinkTypeEnum
     {
         return new OfferLinkTypeEnum($this->type);
-    }
-
-    public function setType(OfferLinkTypeEnum $type)
-    {
-        $this->type = $type->getValue();
-        return $this;
     }
 }
