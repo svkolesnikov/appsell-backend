@@ -7,10 +7,10 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="financedata.commission")
+ * @ORM\Table(name="financedata.base_commission")
  * @ORM\HasLifecycleCallbacks
  */
-class Commission
+class BaseCommission
 {
     /**
      * @ORM\Id
