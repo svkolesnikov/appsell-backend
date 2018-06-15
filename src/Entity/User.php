@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Enum\UserGroupEnum;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Core\Annotation\ApiResource;
@@ -14,7 +15,10 @@ use App\ORM\Id\UuidGenerator;
  *     collectionOperations = {},
  *     itemOperations = {
  *          "get" = {
- *              "access_control" = "object == user"
+ *              "access_control" = "object == user",
+ *              "swagger_context" = {
+ *                  "tags" = { "Users" }
+ *              }
  *          }
  *     },
  *     attributes = {
@@ -232,5 +236,23 @@ class User implements UserInterface, \Serializable
     public function __toString()
     {
         return (string) $this->getUsername();
+    }
+
+    /**
+     * @Groups({ "read" })
+     * @return string
+     */
+    public function getGroup(): string
+    {
+        foreach ($this->getGroups() as $group) {
+
+            // Если пользователь входит в одну из основных групп
+            // то ее можно показать в API
+            if (UserGroupEnum::isValid($group->getCode())) {
+                return $group->getCode();
+            }
+        }
+
+        return null;
     }
 }
