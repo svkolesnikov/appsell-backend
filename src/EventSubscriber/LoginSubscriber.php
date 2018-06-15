@@ -6,6 +6,7 @@ use ApiPlatform\Core\EventListener\EventPriorities;
 use App\Api\Dto\Login;
 use App\Api\Dto\Token;
 use App\Entity\User;
+use App\Exception\AccessException;
 use App\Exception\AuthException;
 use App\Security\AccessToken;
 use Doctrine\ORM\EntityManagerInterface;
@@ -45,6 +46,7 @@ class LoginSubscriber implements EventSubscriberInterface
     /**
      * @param GetResponseForControllerResultEvent $event
      * @throws AuthException
+     * @throws AccessException
      */
     public function authenticateUser(GetResponseForControllerResultEvent $event): void
     {
@@ -62,8 +64,13 @@ class LoginSubscriber implements EventSubscriberInterface
             throw new AuthException('Invalid credentials');
         }
 
+        if (!$user->isActive()) {
+            throw new AccessException('Аккаунт заблокирован');
+        }
+
         $token = new Token();
-        $token->token = $this->accessToken->create($user->getEmail());
+        $token->token   = $this->accessToken->create($user->getEmail());
+        $token->user_id = $user->getId();
 
         $event->setResponse(new JsonResponse($token, JsonResponse::HTTP_CREATED));
     }

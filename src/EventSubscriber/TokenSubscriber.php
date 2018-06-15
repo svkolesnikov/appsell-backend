@@ -4,6 +4,7 @@ namespace App\EventSubscriber;
 
 use ApiPlatform\Core\EventListener\EventPriorities;
 use App\Api\Dto\Token;
+use App\Entity\User;
 use App\Security\AccessToken;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -41,9 +42,13 @@ class TokenSubscriber implements EventSubscriberInterface
             return;
         }
 
+        /** @var User $user */
+        $user = $this->tokenStorage->getToken()->getUser();
+
         /** @var Token $data */
         $data = $event->getControllerResult();
-        $data->token = $this->accessToken->create($this->tokenStorage->getToken()->getUsername());
+        $data->token   = $this->accessToken->create($user->getEmail());
+        $data->user_id = $user->getId();
 
         $event->setResponse(new JsonResponse($data, JsonResponse::HTTP_CREATED));
     }

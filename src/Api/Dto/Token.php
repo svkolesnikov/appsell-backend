@@ -30,4 +30,11 @@ final class Token
      * @var string
      */
     public $token;
+
+    /**
+     * @Groups({ "read" })
+     *
+     * @var string
+     */
+    public $user_id;
 }

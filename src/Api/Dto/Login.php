@@ -50,4 +50,11 @@ final class Login
      * @var string
      */
     public $token;
+
+    /**
+     * @Groups({ "read" })
+     *
+     * @var string
+     */
+    public $user_id;
 }

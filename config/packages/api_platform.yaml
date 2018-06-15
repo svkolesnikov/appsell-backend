@@ -165,8 +165,10 @@ api_platform:
         Symfony\Component\Serializer\Exception\ExceptionInterface: 400
         Symfony\Component\Security\Core\Exception\InsufficientAuthenticationException: 401
         Symfony\Component\Security\Core\Exception\UsernameNotFoundException: 403
+        Symfony\Component\Security\Core\Exception\DisabledException: 403
         App\Exception\AccessTokenException: 403
         App\Exception\AuthException: 400
+        App\Exception\AccessException: 403
 
     # The list of enabled formats. The first one will be the default.
     formats:

@@ -7,6 +7,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Authentication\Token\AbstractToken;
 use Symfony\Component\Security\Core\Authentication\Token\PreAuthenticatedToken;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Exception\DisabledException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Http\Authentication\SimplePreAuthenticatorInterface;
@@ -43,7 +44,7 @@ class AccessTokenAuthenticator implements SimplePreAuthenticatorInterface
                 $user->getRoles()
             );
 
-        } catch (AccessTokenException|UsernameNotFoundException $exception) {
+        } catch (AccessTokenException|UsernameNotFoundException|DisabledException $exception) {
             throw new AccessTokenException($exception->getMessage(), $exception);
         }
     }

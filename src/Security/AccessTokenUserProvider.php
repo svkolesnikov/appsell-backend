@@ -4,6 +4,7 @@ namespace App\Security;
 
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Security\Core\Exception\DisabledException;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -36,6 +37,7 @@ class AccessTokenUserProvider implements UserProviderInterface
     /**
      * @param string $username
      * @return UserInterface
+     * @throws \Symfony\Component\Security\Core\Exception\DisabledException
      * @throws UsernameNotFoundException
      */
     public function loadUserByUsername($username): UserInterface
@@ -46,6 +48,10 @@ class AccessTokenUserProvider implements UserProviderInterface
             $ex = new UsernameNotFoundException();
             $ex->setUsername($username);
             throw $ex;
+        }
+
+        if (!$user->isActive()) {
+            throw new DisabledException('Аккаунт заблокирован');
         }
 
         return $user;

@@ -64,11 +64,7 @@ class User implements UserInterface, \Serializable
 
     /**
      * @var UserProfile
-     * @ORM\OneToOne(
-     *     targetEntity = "UserProfile",
-     *     mappedBy = "user",
-     *     cascade={"persist", "remove"}
-     * )
+     * @ORM\OneToOne(targetEntity = "UserProfile", mappedBy = "user", cascade={"persist", "remove"})
      */
     protected $profile;
 
