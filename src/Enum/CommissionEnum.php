@@ -4,7 +4,7 @@ namespace App\Enum;
 
 use MyCLabs\Enum\Enum;
 
-class CommissionEnum extends Enum
+final class CommissionEnum extends Enum
 {
     // Комиссия, взимаемая сервисом от оплаты заказчиком
     // 100 – комиссия сервиса

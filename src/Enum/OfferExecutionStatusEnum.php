@@ -8,7 +8,7 @@ use MyCLabs\Enum\Enum;
  * @method static OfferExecutionStatusEnum COMPLETE()
  * @method static OfferExecutionStatusEnum REJECTED()
  */
-class OfferExecutionStatusEnum extends Enum
+final class OfferExecutionStatusEnum extends Enum
 {
     public const PROCESSING = 'processing';
     public const COMPLETE   = 'complete';
