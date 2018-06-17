@@ -77,6 +77,13 @@ class User implements UserInterface, \Serializable
      */
     protected $groups;
 
+    /**
+     * @var SellerBaseCommission.php
+     *
+     * @ORM\OneToOne(targetEntity = "SellerBaseCommission", mappedBy = "seller", cascade={"persist", "remove"})
+     */
+    protected $sellerCommission;
+
     public function __construct()
     {
         $this->is_active = false;
@@ -231,6 +238,16 @@ class User implements UserInterface, \Serializable
     public function __toString()
     {
         return (string) $this->getUsername();
+    }
+
+    public function getSellerCommission(): ?SellerBaseCommission
+    {
+        return $this->sellerCommission;
+    }
+
+    public function setSellerCommission(SellerBaseCommission $sellerCommission)
+    {
+        $this->sellerCommission = $sellerCommission;
     }
 
     public function getConfirmation(): UserConfirmation

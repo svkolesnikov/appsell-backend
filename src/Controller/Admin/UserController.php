@@ -6,6 +6,7 @@ use App\Entity\Group;
 use App\Entity\User;
 use App\Lib\Enum\UserGroupEnum;
 use App\Form\UserType;
+use App\Manager\CommissionManager;
 use App\Manager\UserManager;
 use App\Security\UserGroupManager;
 use Doctrine\ORM\EntityManagerInterface;
@@ -84,8 +85,7 @@ class UserController extends BaseController
 
         if ($form->isSubmitted() && $form->isValid()) {
             try {
-                $this->em->persist($user);
-                $this->em->flush();
+                $this->userManager->save($user);
 
                 $this->addFlash('success', 'Пользователь обновлен');
 
@@ -130,8 +130,7 @@ class UserController extends BaseController
 
         if ($form->isSubmitted() && $form->isValid()) {
             try {
-                $this->em->persist($user);
-                $this->em->flush();
+                $this->userManager->save($user);
 
                 $this->addFlash('success', 'Пользователь обновлен');
 
@@ -162,11 +161,22 @@ class UserController extends BaseController
      */
     public function removeAction(User $user): Response
     {
-        $this->em->remove($user);
-        $this->em->flush();
+        $this->userManager->remove($user);
 
         $this->addFlash('success', 'Пользователь удален');
 
         return $this->redirectToRoute('app_settings_users_list');
+    }
+
+    /**
+     * @Route("/admin/users/profile", name="app_user_profile")
+     *
+     * @Security("has_role('ROLE_APP_USER_PROFILE')")
+     *
+     * @return Response
+     */
+    public function profileAction(): Response
+    {
+        return $this->render('pages/user/profile.html.twig', ['user' => $this->getUser()]);
     }
 }

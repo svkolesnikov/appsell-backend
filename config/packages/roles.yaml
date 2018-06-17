@@ -10,6 +10,8 @@ security:
             - ROLE_USER
             - ROLE_ALLOWED_TO_SWITCH
 
+            - ROLE_APP_USER_PROFILE
+
             - ROLE_APP_OFFER_EDIT
             - ROLE_APP_OFFER_LIST
             - ROLE_APP_OFFER_CREATE

@@ -41,4 +41,16 @@ class UserManager
             ->getQuery()
             ->getResult();
     }
+
+    public function save(User $user)
+    {
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+    }
+
+    public function remove(User $user)
+    {
+        $this->entityManager->remove($user);
+        $this->entityManager->flush();
+    }
 }

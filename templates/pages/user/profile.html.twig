@@ -1,0 +1,69 @@
+{% extends 'base.html.twig' %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script type="text/javascript">
+        $(function() {
+            $('#percent').editable({
+                error: function(response, newValue) {
+                    return response.responseJSON.error;
+                }
+            });
+        });
+    </script>
+
+{% endblock %}
+
+{% block page_content %}
+<section class="content">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="box box-primary">
+                <div class="box-body">
+                    <h3 class="profile-username text-center">{{ user.profile.lastname ~ ' ' ~ user.profile.firstname }}</h3>
+
+                    <ul class="list-group list-group-unbordered">
+                        <li class="list-group-item">
+                            <b>Email</b> <span class="pull-right">{{ user.email }}</span>
+                        </li>
+                        <li class="list-group-item">
+                            <b>Телефон</b> <span class="pull-right">{{ user.profile.phone }}</span>
+                        </li>
+                        <li class="list-group-item">
+                            <b>Наименование компании</b> <span class="pull-right">{{ user.profile.companyTitle }}</span>
+                        </li>
+                        <li class="list-group-item">
+                            <b>Идентификатор компании</b> <span class="pull-right">{{ user.profile.companyId }}</span>
+                        </li>
+
+                        {% if is_granted(['ROLE_EMPLOYEE']) %}
+                            <li class="list-group-item">
+                                <b>Работодатель</b> <span class="pull-right">
+                                    {% set employer = user.profile.employer %}
+                                {% if user.profile.employer is not null %}
+                                    {{ employer.profile.lastname ~ ' ' ~ employer.profile.firstname }} ({{ employer.email }})
+                                {% endif %}
+                            </span>
+                            </li>
+                        {% endif %}
+                        {% if is_granted(['ROLE_SELLER']) %}
+                        <li class="list-group-item">
+                            <b>Базовая комиссия, %</b>
+                            <span class="pull-right">
+                                <a href="#" id="percent"
+                                   data-type="number"
+                                   data-pk="1"
+                                   data-url="{{ path('api_commissions_seller_update') }}"
+                                   data-title="Введите комиссию"
+                                >{{ user.sellerCommission.percent|default(0) }}</a>
+                            </span>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
