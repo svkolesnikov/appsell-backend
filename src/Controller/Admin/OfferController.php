@@ -49,6 +49,7 @@ class OfferController extends BaseController
         $items = $this->offerManager->getList($this->getUser(), $criteria, $perPage, $offset);
 
         return $this->render('pages/offer/list.html.twig', [
+            'offerManager' => $this->offerManager,
             'offers' => $items,
             'pager' => [
                 '_per_page' => $perPage,
@@ -176,6 +177,26 @@ class OfferController extends BaseController
         $this->offerManager->changeActivity($offer, $request->get('active'));
 
         $this->addFlash('success', 'Активность оффера изменена');
+
+        return $this->redirectToRoute('app_offer_list');
+    }
+
+    /**
+     * @Route("/admin/offers/{id}/accessibility/{action}", name="app_offer_change_accessibility")
+     *
+     * @Security("has_role('ROLE_APP_OFFER_CHANGE_ACCESSIBILITY')")
+     *
+     * @param Request $request
+     * @param Offer $offer
+     * @return Response
+     */
+    public function changeAccessibilityAction(Request $request, Offer $offer): Response
+    {
+        'approve' === $request->get('action', 'approve')
+            ? $this->offerManager->approveForEmployee($offer, $this->getUser())
+            : $this->offerManager->disapproveForEmployee($offer, $this->getUser());
+
+        $this->addFlash('success', 'Доступность оффера изменена');
 
         return $this->redirectToRoute('app_offer_list');
     }

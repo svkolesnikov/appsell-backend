@@ -14,8 +14,9 @@ security:
             - ROLE_APP_OFFER_LIST
             - ROLE_APP_OFFER_CREATE
             - ROLE_APP_OFFER_DELETE
-            - ROLE_APP_OFFER_CHANGE_ACTIVITY    # изменение активности офера
-            - ROLE_APP_OFFER_HIDE               # скрытие из списка ака "удаление" для заказчика
+            - ROLE_APP_OFFER_CHANGE_ACTIVITY      # изменение активности оффера
+            - ROLE_APP_OFFER_CHANGE_ACCESSIBILITY # изменение видимости оффера для сотрудников
+            - ROLE_APP_OFFER_HIDE                 # скрытие из списка ака "удаление" для заказчика
 
             - ROLE_APP_EVENT_TYPE_EDIT
             - ROLE_APP_EVENT_TYPE_LIST

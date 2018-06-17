@@ -111,6 +111,14 @@ class Offer
     protected $links;
 
     /**
+     * @Groups({ "read" })
+     *
+     * @var SellerApprovedOffer[]|ArrayCollection
+     * @ORM\OneToMany(targetEntity="SellerApprovedOffer", mappedBy="offer", cascade={"persist", "remove"}, orphanRemoval=true)
+     */
+    protected $seller_approvals;
+
+    /**
      * @ORM\Column(type="boolean")
      */
     protected $is_active;
@@ -300,5 +308,10 @@ class Offer
     {
         $this->is_deleted = $deleted;
         return $this;
+    }
+
+    public function getSellerApprovals()
+    {
+        return $this->seller_approvals;
     }
 }

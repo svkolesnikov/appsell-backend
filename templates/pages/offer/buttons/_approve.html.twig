@@ -1,5 +1,0 @@
-{% if is_granted('ROLE_APP_OFFER_APPROVE') %}
-    <a href="{{ path('app_offer_change_', { id: offer.id, active: not offer.isActive}) }}" class="btn btn-sm btn-default">
-        {% if true == offer.isActive %}Деактивировать{% else %}Активировать{% endif %}
-    </a>
-{% endif %}

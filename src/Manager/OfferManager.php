@@ -30,15 +30,21 @@ class OfferManager
         if ($this->userManager->hasGroup($user, UserGroupEnum::EMPLOYEE())) {
 
             $employer = $user->getProfile()->getEmployer();
-            $criteria = array_merge($criteria, [
-                'seller'            => $employer,
-                'offer.is_active'   => true,
-                'offer.is_deleted'  => false
-            ]);
 
             $items = $this->entityManager
-                ->getRepository(SellerApprovedOffer::class)
-                ->findBy($criteria, [], $perPage, $offset);
+                ->getRepository(Offer::class)
+                ->createQueryBuilder('offer')
+                ->select('offer')
+                ->innerJoin('offer.seller_approvals', 'approve')
+                ->where('offer.is_active = true')
+                ->andWhere('offer.is_deleted = false')
+                ->andWhere('approve.seller = :seller')
+                ->setParameter(':seller', $employer)
+                ->setFirstResult($offset)
+                ->setMaxResults($perPage)
+                ->getQuery()
+                ->execute()
+            ;
 
         } else {
 
@@ -87,5 +93,36 @@ class OfferManager
         $this->save($offer);
 
         return $offer;
+    }
+
+    public function getAccessibility(Offer $offer, User $user): ?SellerApprovedOffer
+    {
+        return $this->entityManager
+            ->getRepository(SellerApprovedOffer::class)
+            ->findOneBy([
+                'offer'  => $offer,
+                'seller' => $user
+            ]);
+    }
+
+    public function approveForEmployee(Offer $offer, User $user): void
+    {
+        $approve = (new SellerApprovedOffer())
+            ->setOffer($offer)
+            ->setSeller($user);
+
+        $this->entityManager->persist($approve);
+        $this->entityManager->flush();
+    }
+
+    public function disapproveForEmployee(Offer $offer, User $user): void
+    {
+        $approve = $this->getAccessibility($offer, $user);
+        if (null === $approve) {
+            return;
+        }
+
+        $this->entityManager->remove($approve);
+        $this->entityManager->flush();
     }
 }
