@@ -28,6 +28,7 @@
                         <th class="column-title">Наименование компании</th>
                         <th class="column-title">Работодатель</th>
                         {% endif %}
+                        <th class="column-title">Статус</th>
                         <th class="column-title">Действия</th>
                     </tr>
                     </thead>
@@ -45,6 +46,14 @@
                         <td>{{ user.profile.companyTitle }}</td>
                         <td>{{ user.profile.employer }}</td>
                         {% endif %}
+
+                        <td align="center">
+                            {% if true == user.isActive %}
+                                <span class="label label-success">Активен</span>
+                            {% else %}
+                                <span class="label label-danger">Отключен</span>
+                            {% endif %}
+                        </td>
 
                         <td>
                             <div class="btn-group">

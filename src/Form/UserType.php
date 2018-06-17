@@ -26,7 +26,7 @@ class UserType extends AbstractType
             ->add('email',      TextType::class,        ['required' => true])
             ->add('password',   HiddenType::class)
             ->add('profile',    UserProfileType::class)
-            ->add('is_active',  null)
+            ->add('is_active',  null,                   ['mapped' => false])
             ->add('groups',     null,                   ['label' => 'Группы'])
         ;
 
@@ -38,19 +38,22 @@ class UserType extends AbstractType
             if (!empty($plainPassword)) {
                 $user['password'] = $this->passwordEncoder->encodePassword($form->getData(), $plainPassword);
             }
-            
+
             $event->setData($user);
+            $form->getData()->setActive($user['is_active'] ?? false, true);
         });
 
-        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
+        $builder->addEventListener(FormEvents::POST_SET_DATA, function (FormEvent $event) {
             $user = $event->getData();
             $form = $event->getForm();
 
-            if ( !$user || null === $user->getId()) {
-                $form->add('plainPassword', PasswordType::class, ['required' => true, 'mapped' => false, 'label' => 'Пароль']);
-            } else {
-                $form->add('plainPassword', PasswordType::class, ['required' => false, 'mapped' => false, 'label' => 'Пароль']);
-            }
+            $options = ( !$user || null === $user->getId())
+                ? ['required' => true, 'mapped' => false, 'label' => 'Пароль']
+                : ['required' => false, 'mapped' => false, 'label' => 'Пароль'];
+
+            $form->add('plainPassword', PasswordType::class, $options);
+
+            $form->get('is_active')->setData($user->isActive());
         });
     }
 }
