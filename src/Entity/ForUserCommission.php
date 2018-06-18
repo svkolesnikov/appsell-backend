@@ -2,8 +2,6 @@
 
 namespace App\Entity;
 
-use App\Enum\CommissionEnum;
-use App\Enum\OfferLinkTypeEnum;
 use Doctrine\ORM\Mapping as ORM;
 use App\ORM\Id\UuidGenerator;
 
@@ -30,9 +28,11 @@ class ForUserCommission
     protected $user;
 
     /**
-     * @ORM\Column(type="string")
+     * @var User
+     * @ORM\ManyToOne(targetEntity = "User")
+     * @ORM\JoinColumn(name = "user_id", referencedColumnName = "id")
      */
-    protected $by;
+    protected $by_user;
 
     /**
      * @ORM\Column(type="integer")
@@ -84,18 +84,14 @@ class ForUserCommission
         return $this;
     }
 
-    /**
-     * @return CommissionEnum
-     * @throws \UnexpectedValueException
-     */
-    public function getBy(): CommissionEnum
+    public function getByUser(): ?User
     {
-        return new CommissionEnum($this->by);
+        return $this->by_user;
     }
 
-    public function setBy(CommissionEnum $by)
+    public function setByUser(?User $by_user)
     {
-        $this->by = $by->getValue();
+        $this->by_user = $by_user;
         return $this;
     }
 
