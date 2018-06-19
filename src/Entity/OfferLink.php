@@ -150,4 +150,10 @@ class OfferLink
     {
         return new OfferLinkTypeEnum($this->type);
     }
+
+    public function setType(OfferLinkTypeEnum $type)
+    {
+        $this->type = $type->getValue();
+        return $this;
+    }
 }
