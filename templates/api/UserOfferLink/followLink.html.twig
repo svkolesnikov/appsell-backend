@@ -1,0 +1,19 @@
+<html>
+    <head>
+        <title>Выбор нужного стора</title>
+    </head>
+    <body>
+        <h1>Выбор нужного стора</h1>
+        <ul>
+            {% for link in offer.getLinks %}
+                <li>
+                    <a href="{{ path('follow_user_offer_link', { 'id': followLink.getId, 'type': link.getType.getValue }) }}">
+                        {{ link.getType.getValue }}
+                    </a>
+                </li>
+            {% else %}
+                <li>Для выбранного оффера не задано ссылок на приложения :(</li>
+            {% endfor %}
+        </ul>
+    </body>
+</html>

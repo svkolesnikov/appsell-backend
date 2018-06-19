@@ -2,39 +2,137 @@
 
 namespace App\Controller\Api;
 
+use App\Entity\OfferExecution;
+use App\Entity\OfferLink;
+use App\Entity\UserOfferLink;
+use App\Enum\OfferLinkTypeEnum;
+use App\Enum\OfferTypeEnum;
+use Doctrine\DBAL\DBALException;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
+use BrowserDetection;
+use Symfony\Component\Templating\EngineInterface;
 
 class UserOfferLinkController
 {
     protected $entityManager;
 
-    public function __construct(EntityManagerInterface $em)
+    /** @var BrowserDetection */
+    protected $browser;
+
+    /** @var EngineInterface */
+    protected $templating;
+
+    public function __construct(EntityManagerInterface $em, EngineInterface $templating)
     {
         $this->entityManager = $em;
+        $this->browser = new BrowserDetection();
+        $this->templating = $templating;
     }
 
     /**
      * @Route(methods = {"GET"}, path = "/api/usl/{id}", name = "follow_user_offer_link")
      * @param Request $request
      * @return Response
+     *
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
+     * @throws \UnexpectedValueException
      * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+     * @throws \Doctrine\DBAL\DBALException
      */
     public function followLinkAction(Request $request): Response
     {
+        /** @var UserOfferLink $userOfferLink */
         $userOfferLink = $this->entityManager->find('App:UserOfferLink', $request->get('id'));
         if (null === $userOfferLink) {
             throw new NotFoundHttpException();
         }
 
-        $browser = new \BrowserDetection();
-        echo $browser->getPlatform() . '<br>';
+        $appStorePlatforms   = [BrowserDetection::PLATFORM_IPHONE, BrowserDetection::PLATFORM_IPAD, BrowserDetection::PLATFORM_IPOD];
+        $googlePlayPlatforms = [BrowserDetection::PLATFORM_ANDROID, BrowserDetection::PLATFORM_BLACKBERRY];
 
-        // todo: тречить переходы
+        $requestedType = $request->get('type');
+        $redirectTo    = null;
+        $linkType      = null;
+        $offer         = $userOfferLink->getOffer();
 
-        die('Здесь мы открываем заглушку выбора стора или сразу в стор отправляем');
+        if ($offer->getType()->equals(OfferTypeEnum::APP())) {
+
+            // Либо тип ссылки передали в запросе, либо пытаемся
+            // определить ее по UserAgent'у
+
+            if ($requestedType === OfferLinkTypeEnum::GOOGLE_PLAY()->getValue() || \in_array($this->browser->getPlatform(), $googlePlayPlatforms, true)) {
+                $linkType = OfferLinkTypeEnum::GOOGLE_PLAY();
+            }
+
+            if ($requestedType === OfferLinkTypeEnum::APP_STORE()->getValue() || \in_array($this->browser->getPlatform(), $appStorePlatforms, true)) {
+                $linkType = OfferLinkTypeEnum::APP_STORE();
+            }
+        }
+
+        if ($offer->getType()->equals(OfferTypeEnum::SERVICE())) {
+            $linkType = OfferLinkTypeEnum::WEB();
+        }
+
+        if (null !== $linkType) {
+            foreach ($offer->getLinks() as $link) {
+                if ($link->getType()->equals($linkType)) {
+
+                    $connection = $this->entityManager->getConnection();
+                    $connection->beginTransaction();
+
+                    try {
+
+                        // Обновим кол-во использований ссылки
+
+                        $sql = <<<SQL
+update actiondata.user_offer_link 
+set 
+  usage_count = usage_count + 1,
+  mtime = now() 
+where id = :id
+SQL;
+
+                        $statement = $connection->prepare($sql);
+                        $statement->execute(['id' => $userOfferLink->getId()]);
+
+                        // Создадим индикатор начала исполнения оффера
+
+                        $execution = new OfferExecution();
+                        $execution->setOffer($offer);
+                        $execution->setOfferLink($link);
+                        $execution->setSourceLink($userOfferLink);
+                        $execution->setSourceReferrerInfo($_SERVER);
+
+                        $this->entityManager->persist($execution);
+                        $this->entityManager->flush();
+
+                        $connection->commit();
+
+                    } catch (DBALException $ex) {
+                        $connection->rollBack();
+                        throw $ex;
+                    }
+
+                    // Обнаружили ссылку, переходим
+                    return new RedirectResponse($link->getUrl());
+                }
+            }
+
+            throw new NotFoundHttpException('Не задана ссылка на приложение');
+        }
+
+        // ссылку определить не удалось
+        // покажем список доступных ссылок для перехода
+
+        return new Response($this->templating->render(
+            'api/UserOfferLink/followLink.html.twig',
+            ['offer' => $offer, 'followLink' => $userOfferLink]
+        ));
     }
 }

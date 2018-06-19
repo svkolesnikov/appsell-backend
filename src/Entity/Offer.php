@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Enum\OfferTypeEnum;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use App\ORM\Id\UuidGenerator;
@@ -123,11 +124,15 @@ class Offer
      */
     protected $is_active;
 
-
     /**
      * @ORM\Column(type="boolean")
      */
     protected $is_deleted;
+
+    /**
+     * @ORM\Column(type="string")
+     */
+    protected $type;
 
     public function __construct()
     {
@@ -313,5 +318,20 @@ class Offer
     public function getSellerApprovals()
     {
         return $this->seller_approvals;
+    }
+
+    /**
+     * @return OfferTypeEnum
+     * @throws \UnexpectedValueException
+     */
+    public function getType(): OfferTypeEnum
+    {
+        return new OfferTypeEnum($this->type);
+    }
+
+    public function setType(OfferTypeEnum $type)
+    {
+        $this->type = $type;
+        return $this;
     }
 }
