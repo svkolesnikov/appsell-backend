@@ -9,6 +9,7 @@ use App\Enum\OfferLinkTypeEnum;
 use App\Enum\OfferTypeEnum;
 use Doctrine\DBAL\DBALException;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Query\Expr;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -44,11 +45,22 @@ class UserOfferLinkController
      * @throws \UnexpectedValueException
      * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
      * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\ORM\NonUniqueResultException
      */
     public function followLinkAction(Request $request): Response
     {
+        // todo: Сделать возможным переход для неактивного оффера и логировать это отдельно
+
         /** @var UserOfferLink $userOfferLink */
-        $userOfferLink = $this->entityManager->find('App:UserOfferLink', $request->get('id'));
+        $userOfferLink = $this->entityManager->createQueryBuilder()
+            ->select('l, o')
+            ->from('App:UserOfferLink', 'l')
+            ->join('l.offer', 'o', Expr\Join::WITH)
+            ->where('l.id = :id and o.is_active = true and o.is_deleted = false')
+            ->setParameter('id', $request->get('id'))
+            ->getQuery()
+            ->getOneOrNullResult();
+
         if (null === $userOfferLink) {
             throw new NotFoundHttpException();
         }
