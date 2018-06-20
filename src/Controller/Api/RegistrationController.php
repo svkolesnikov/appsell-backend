@@ -2,7 +2,9 @@
 
 namespace App\Controller\Api;
 
-use App\Exception\AuthException;
+use App\Exception\Api\ApiException;
+use App\Exception\Api\AuthException;
+use App\Exception\AppException;
 use App\Lib\Controller\FormTrait;
 use App\Lib\Enum\NotificationTypeEnum;
 use App\Lib\Enum\UserGroupEnum;
@@ -74,7 +76,7 @@ class RegistrationController
      * @Route("/sellers", methods = { "POST" })
      * @param Request $request
      * @return JsonResponse
-     * @throws \App\Exception\FormValidationException
+     * @throws \App\Exception\Api\FormValidationException
      */
     public function registerSellerAction(Request $request): JsonResponse
     {
@@ -141,7 +143,7 @@ class RegistrationController
      * @Route("/owners", methods = { "POST" })
      * @param Request $request
      * @return JsonResponse
-     * @throws \App\Exception\FormValidationException
+     * @throws \App\Exception\Api\FormValidationException
      */
     public function registerOwnerAction(Request $request): JsonResponse
     {
@@ -212,8 +214,8 @@ class RegistrationController
      * @param UserGroupManager $groupManager
      * @return JsonResponse
      * @throws AuthException
-     * @throws \App\Exception\FormValidationException
-     * @throws \App\Exception\AppException
+     * @throws \App\Exception\Api\FormValidationException
+     * @throws ApiException
      */
     public function registerEmployeeAction(Request $request, UserPasswordEncoderInterface $encoder, UserGroupManager $groupManager): JsonResponse
     {
@@ -239,7 +241,12 @@ class RegistrationController
         $user = new Entity\User();
         $user->setEmail($data['email']);
         $user->setPassword($encoder->encodePassword($user, $data['password']));
-        $groupManager->addGroup($user, UserGroupEnum::EMPLOYEE());
+
+        try {
+            $groupManager->addGroup($user, UserGroupEnum::EMPLOYEE());
+        } catch (AppException $ex) {
+            throw new ApiException($ex->getMessage(), $ex);
+        }
 
         $confirmation = $user->getConfirmation();
         $confirmation->setEmail($user->getEmail());

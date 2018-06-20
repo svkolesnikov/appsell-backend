@@ -2,7 +2,7 @@
 
 namespace App\Notification\Notificator;
 
-use App\Exception\NotificationException;
+use App\Exception\Api\NotificationException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Templating\EngineInterface;
 

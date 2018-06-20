@@ -2,7 +2,7 @@
 
 namespace App\Controller\Api;
 
-use App\Exception\AuthException;
+use App\Exception\Api\AuthException;
 use App\Lib\Controller\FormTrait;
 use App\Lib\Enum\NotificationTypeEnum;
 use App\Notification\Producer\SystemProducer;
@@ -60,7 +60,7 @@ class ConfirmationController
      * @param SystemProducer $producer
      * @return JsonResponse
      * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
-     * @throws \App\Exception\FormValidationException
+     * @throws \App\Exception\Api\FormValidationException
      * @throws AuthException
      */
     public function confirmEmailAction(Request $request, EntityManagerInterface $entityManager, SystemProducer $producer): JsonResponse

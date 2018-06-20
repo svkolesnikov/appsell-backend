@@ -2,7 +2,7 @@
 
 namespace App\Security;
 
-use App\Exception\AccessTokenException;
+use App\Exception\Api\AccessTokenException;
 use Firebase\JWT\JWT;
 
 class AccessToken

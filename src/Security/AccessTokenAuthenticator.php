@@ -2,7 +2,7 @@
 
 namespace App\Security;
 
-use App\Exception\AccessTokenException;
+use App\Exception\Api\AccessTokenException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Authentication\Token\AbstractToken;
 use Symfony\Component\Security\Core\Authentication\Token\PreAuthenticatedToken;

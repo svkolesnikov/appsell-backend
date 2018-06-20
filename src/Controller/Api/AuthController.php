@@ -3,7 +3,7 @@
 namespace App\Controller\Api;
 
 use App\Entity\User;
-use App\Exception\AuthException;
+use App\Exception\Api\AuthException;
 use App\Lib\Controller\FormTrait;
 use App\Security\AccessToken;
 use Doctrine\ORM\EntityManagerInterface;
@@ -73,7 +73,7 @@ class AuthController
      * @return JsonResponse
      * @throws \Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException
      * @throws AuthException
-     * @throws \App\Exception\FormValidationException
+     * @throws \App\Exception\Api\FormValidationException
      */
     public function loginAction(Request $request, UserPasswordEncoderInterface $encoder, EntityManagerInterface $em): JsonResponse
     {

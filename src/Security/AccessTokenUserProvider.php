@@ -27,7 +27,7 @@ class AccessTokenUserProvider implements UserProviderInterface
     /**
      * @param string $token
      * @return string
-     * @throws \App\Exception\AccessTokenException
+     * @throws \App\Exception\Api\AccessTokenException
      */
     public function getUsernameForToken(string $token): string
     {

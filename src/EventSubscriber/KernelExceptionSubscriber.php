@@ -2,8 +2,7 @@
 
 namespace App\EventSubscriber;
 
-use App\Exception\AccessTokenException;
-use App\Exception\AppException;
+use App\Exception\Api;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -36,9 +35,7 @@ class KernelExceptionSubscriber implements EventSubscriberInterface
         $result = [];
 
         foreach ($params as $key => $value) {
-            $result[$key] = \in_array($key, $fields)
-                ? '***'
-                : $value;
+            $result[$key] = \in_array($key, $fields, true) ? '***' : $value;
         }
 
         return $result;
@@ -48,6 +45,13 @@ class KernelExceptionSubscriber implements EventSubscriberInterface
     {
         $exception  = $event->getException();
         $statusCode = JsonResponse::HTTP_INTERNAL_SERVER_ERROR;
+
+        // Данный обработчик должен обрабатывать исключения
+        // только в разделе API
+
+        if (0 !== strpos($event->getRequest()->get('_route'), 'app_api_')) {
+            return;
+        }
 
         $response   = [
             'message' => $exception->getMessage(),
@@ -68,13 +72,13 @@ class KernelExceptionSubscriber implements EventSubscriberInterface
                 $logLevel = Logger::NOTICE;
             }
 
-        } elseif ($exception instanceof AccessTokenException) {
+        } elseif ($exception instanceof Api\AccessTokenException) {
 
             $statusCode            = JsonResponse::HTTP_FORBIDDEN;
             $response['details']   = $exception->getErrors();
             $logContext['details'] = $exception->getErrors();
 
-        } elseif ($exception instanceof AppException) {
+        } elseif ($exception instanceof Api\ApiException) {
 
             $statusCode            = JsonResponse::HTTP_BAD_REQUEST;
             $response['details']   = $exception->getErrors();
@@ -82,7 +86,7 @@ class KernelExceptionSubscriber implements EventSubscriberInterface
 
         } elseif ($exception instanceof InsufficientAuthenticationException) {
 
-            $statusCode            = JsonResponse::HTTP_UNAUTHORIZED;
+            $statusCode = JsonResponse::HTTP_UNAUTHORIZED;
 
         } else {
             $logLevel            = Logger::CRITICAL;

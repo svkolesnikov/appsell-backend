@@ -2,7 +2,7 @@
 
 namespace App\Lib\Controller;
 
-use App\Exception\FormValidationException;
+use App\Exception\Api\FormValidationException;
 use Symfony\Component\Form\Extension\HttpFoundation\HttpFoundationExtension;
 use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
 use Symfony\Component\Form\FormBuilderInterface;
