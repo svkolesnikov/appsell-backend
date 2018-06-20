@@ -6,6 +6,7 @@ use App\Exception\Api\AuthException;
 use App\Lib\Controller\FormTrait;
 use App\Lib\Enum\NotificationTypeEnum;
 use App\Notification\Producer\SystemProducer;
+use App\Security\AccessToken;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -13,6 +14,7 @@ use Swagger\Annotations as SWG;
 use App\Swagger\Annotations\BadRequestResponse;
 use App\Swagger\Annotations\NotFoundResponse;
 use App\Swagger\Annotations\TokenParameter;
+use App\Swagger\Annotations\TokenSchema;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Form\Extension\Core\Type;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -20,19 +22,35 @@ use Symfony\Component\Validator\Constraints;
 use App\Entity;
 
 /**
- * @Route("/confirmations")
+ * @Route("/registration")
  */
 class ConfirmationController
 {
     use FormTrait;
 
+    /** @var EntityManagerInterface */
+    protected $entityManager;
+
+    /** @var SystemProducer */
+    protected $systemProducer;
+
+    /** @var AccessToken */
+    protected $accessToken;
+
+    public function __construct(EntityManagerInterface $entityManager, SystemProducer $producer, AccessToken $accessToken)
+    {
+        $this->entityManager = $entityManager;
+        $this->systemProducer = $producer;
+        $this->accessToken = $accessToken;
+    }
+
     /**
      * @SWG\Post(
      *
-     *  path = "/confirmations/email",
-     *  summary = "Подтверждение email кодом",
+     *  path = "/registration/employees/activate",
+     *  summary = "Активация аккаунта сотрудника кодом из email",
      *  description = "",
-     *  tags = { "Confirmations" },
+     *  tags = { "Registration" },
      *
      *  @SWG\Parameter(name = "request", description = "Запрос", required = true, in = "body",
      *     @SWG\Schema(
@@ -46,24 +64,23 @@ class ConfirmationController
      *  ),
      *
      *  @SWG\Response(
-     *      response = 202,
-     *      description = "Email подтвержден"
+     *      response = 201,
+     *      description = "Аккаунт успешно активирован и получен новый токен доступа",
+     *      @TokenSchema()
      *  ),
      *
      *  @BadRequestResponse(),
      *  @NotFoundResponse()
      * )
      *
-     * @Route("/email", methods = { "POST" })
+     * @Route("/employees/activate", methods = { "POST" })
      * @param Request $request
-     * @param EntityManagerInterface $entityManager
-     * @param SystemProducer $producer
      * @return JsonResponse
      * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
-     * @throws \App\Exception\Api\FormValidationException
      * @throws AuthException
+     * @throws \App\Exception\Api\FormValidationException
      */
-    public function confirmEmailAction(Request $request, EntityManagerInterface $entityManager, SystemProducer $producer): JsonResponse
+    public function confirmEmailAction(Request $request): JsonResponse
     {
         $form = $this->createFormBuilder()
             ->setMethod($request->getMethod())
@@ -76,16 +93,9 @@ class ConfirmationController
         $data = $form->getData();
 
         /** @var Entity\UserConfirmation $confirmation */
-        $confirmation = $entityManager->getRepository('App:UserConfirmation')->findOneBy(['email' => $data['email']]);
+        $confirmation = $this->entityManager->getRepository('App:UserConfirmation')->findOneBy(['email' => $data['email']]);
         if (null === $confirmation) {
             throw new NotFoundHttpException('Не найден email для подтверждения');
-        }
-
-        // Если email уже подтвержден
-        // то говорим что все хорошо
-
-        if ($confirmation->getEmailConfirmed()) {
-            return new JsonResponse(null, JsonResponse::HTTP_ACCEPTED);
         }
 
         if ($confirmation->getEmailConfirmationCode() !== $data['code']) {
@@ -105,19 +115,22 @@ class ConfirmationController
         $confirmation->setEmailConfirmed(true);
         $confirmation->setEmailConfirmationCode(null);
 
-        $entityManager->persist($user);
-        $entityManager->flush();
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
 
         // Отправим уведомление о регистрации сотрудника
 
         $employer = $user->getProfile()->getEmployer();
 
-        $producer->produce(NotificationTypeEnum::NEW_EMPLOYEE(), [
+        $this->systemProducer->produce(NotificationTypeEnum::NEW_EMPLOYEE(), [
             'subject' => 'Зарегистрировался новый сотрудник продавца',
             'email'   => $data['email'],
             'company' => $employer ? $employer->getProfile()->getCompanyTitle() : null
         ]);
 
-        return new JsonResponse(null, JsonResponse::HTTP_ACCEPTED);
+        return new JsonResponse(
+            ['token' => $this->accessToken->create($user->getEmail())],
+            JsonResponse::HTTP_ACCEPTED
+        );
     }
 }
