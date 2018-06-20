@@ -30,15 +30,25 @@
         recreate: yes
         restart_policy: unless-stopped
         hostname: "{{ ansible_hostname }}.backend.app"
-        dns_servers: ["{{ ansible_docker0.ipv4.address }}"]
+        dns_servers: ["8.8.8.8", "8.8.4.4"]
         volumes: ["{{ var_dir }}:/var/www/app/var"]
         env:
           APP_ENV: "{{ app_env }}"
           APP_LOCALE: "ru"
           APP_SECRET: "86e7b44293d50666286e7b44293d5066620c4381b619a9cfea7bf5ec20c4381b619a9cfea7bf5ec2"
-          CORS_ALLOW_ORIGIN: "^https?://localhost:?[0-9]*$"
           DATABASE_URL: "pgsql://backend:Wq2v9LV4UP@10.1.4.5:5432/appsell"
           MAILER_URL: "gmail://appsell@sixdays.ru:%H$b2Bp2[vMcPL5@smtp.gmail.com:465?encryption=ssl"
+
+    - name: app - swagger ui
+      docker_container:
+        pull: yes
+        name: appsell_backend_swagger_ui
+        image: "swaggerapi/swagger-ui"
+        state: started
+        recreate: yes
+        restart_policy: unless-stopped
+        env:
+          API_URL: "http://95.163.215.203/api/swagger"
 
     - name: app - nginx
       docker_container:
@@ -55,3 +65,4 @@
           - appsell_backend_fpm
         links:
           - appsell_backend_fpm:php-fpm
+          - appsell_backend_swagger_ui:swagger-ui
