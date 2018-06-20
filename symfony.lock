@@ -92,6 +92,9 @@
     "swiftmailer/swiftmailer": {
         "version": "v6.0.2"
     },
+    "symfony/asset": {
+        "version": "v4.1.0"
+    },
     "symfony/cache": {
         "version": "v4.0.6"
     },
@@ -121,6 +124,9 @@
     },
     "symfony/event-dispatcher": {
         "version": "v4.0.6"
+    },
+    "symfony/expression-language": {
+        "version": "v4.1.0"
     },
     "symfony/filesystem": {
         "version": "v4.0.6"

@@ -7,7 +7,7 @@
         <ul>
             {% for link in offer.getLinks %}
                 <li>
-                    <a href="{{ path('follow_user_offer_link', { 'id': followLink.getId, 'type': link.getType.getValue }) }}">
+                    <a href="{{ path('app_api_offer_referral_link_follow', { 'id': followLink.getId, 'type': link.getType.getValue }) }}">
                         {{ link.getType.getValue }}
                     </a>
                 </li>
