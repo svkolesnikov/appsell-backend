@@ -2,6 +2,8 @@
 
 namespace App\Controller\Api;
 
+use App\DataSource\Dto\OfferCompensation;
+use App\DataSource\Dto\SellerOffer;
 use App\DataSource\SellerOfferDataSource;
 use App\Entity\User;
 use App\Lib\Enum\UserGroupEnum;
@@ -77,24 +79,6 @@ class SellerOfferController
             throw new AccessDeniedHttpException('Sellers only access');
         }
 
-        return new JsonResponse(array_map(function (array $item) {
-
-            $compensations = (array) json_decode($item['compensations'], true);
-            return [
-                'id' => $item['id'],
-                'title' => $item['title'],
-                'description' => $item['description'],
-                'type' => $item['type'],
-                'compensations' => array_map(function (array $comp) {
-                    return [
-                        'type' => $comp['type'],
-                        'description' => $comp['description'],
-                        'currency' => $comp['currency'],
-                        'price' => $comp['price']
-                    ];
-                }, $compensations)
-            ];
-
-        }, $this->dataSource->getAvailableOffers($user, $limit, $offset)));
+        return new JsonResponse($this->dataSource->getAvailableOffers($user, $limit, $offset));
     }
 }

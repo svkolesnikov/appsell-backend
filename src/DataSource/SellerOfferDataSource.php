@@ -2,6 +2,7 @@
 
 namespace App\DataSource;
 
+use App\DataSource\Dto\SellerOffer;
 use App\Entity\User;
 use App\Exception\Api\DataSourceException;
 use Doctrine\DBAL\DBALException;
@@ -23,7 +24,7 @@ class SellerOfferDataSource
      * @param User $seller
      * @param int $limit
      * @param int $offset
-     * @return array
+     * @return array|SellerOffer[]
      * @throws DataSourceException
      */
     public function getAvailableOffers(User $seller, int $limit, int $offset): array
@@ -91,7 +92,12 @@ SQL;
             $statement->bindValue('offset', $offset, ParameterType::INTEGER);
             $statement->execute();
 
-            return $statement->fetchAll(FetchMode::ASSOCIATIVE);
+            return array_map(function (array $item) {
+
+                $item['compensations'] = (array) json_decode($item['compensations'], true);
+                return new SellerOffer($item);
+
+            }, $statement->fetchAll(FetchMode::ASSOCIATIVE));
 
         } catch (DBALException $ex) {
             throw new DataSourceException($ex->getMessage(), $ex);
