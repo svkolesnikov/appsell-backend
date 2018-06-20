@@ -5,7 +5,10 @@ namespace App\Controller\Api;
 use App\Exception\AuthException;
 use App\Lib\Controller\FormTrait;
 use App\Lib\Enum\NotificationTypeEnum;
+use App\Lib\Enum\UserGroupEnum;
+use App\Notification\Producer\ClientProducer;
 use App\Notification\Producer\SystemProducer;
+use App\Security\UserGroupManager;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -15,6 +18,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use App\Entity;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Form\Extension\Core\Type;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Validator\Constraints;
 
 /**
@@ -30,10 +34,14 @@ class RegistrationController
     /** @var SystemProducer */
     protected $systemProducer;
 
-    public function __construct(EntityManagerInterface $em, SystemProducer $sp)
+    /** @var ClientProducer */
+    protected $clientProducer;
+
+    public function __construct(EntityManagerInterface $em, SystemProducer $sp, ClientProducer $cp)
     {
         $this->entityManager = $em;
         $this->systemProducer = $sp;
+        $this->clientProducer = $cp;
     }
 
     /**
@@ -199,10 +207,60 @@ class RegistrationController
      * )
      *
      * @Route("/employees", methods = { "POST" })
+     * @param Request $request
+     * @param UserPasswordEncoderInterface $encoder
+     * @param UserGroupManager $groupManager
+     * @return JsonResponse
+     * @throws AuthException
+     * @throws \App\Exception\FormValidationException
+     * @throws \App\Exception\AppException
      */
-    public function registerEmployeeAction(): JsonResponse
+    public function registerEmployeeAction(Request $request, UserPasswordEncoderInterface $encoder, UserGroupManager $groupManager): JsonResponse
     {
+        $form = $this->createFormBuilder()
+            ->setMethod($request->getMethod())
+            ->add('email',      Type\TextType::class, ['constraints' => [new Constraints\Email(), new Constraints\NotBlank()]])
+            ->add('password',   Type\TextType::class, ['constraints' => [new Constraints\NotBlank()]])
+            ->add('company_id', Type\TextType::class, ['constraints' => [new Constraints\NotBlank()]])
+            ->getForm();
 
+        $form->handleRequest($request);
+        $this->validateForm($form);
+        $data = $form->getData();
+
+        /** @var Entity\UserProfile $employer */
+        $employer = $this->entityManager->getRepository('App:UserProfile')->findOneBy(['company_id' => $data['company_id']]);
+        if (null === $employer) {
+            throw new AuthException('Неверный идентификатор компании');
+        }
+
+        // Сгенерируем код подтверждения
+
+        $confirmationCode = new Entity\ConfirmationCode();
+        $confirmationCode->setSubject($data['email']);
+        $confirmationCode->setCode(random_int(111111, 999999));
+        $this->entityManager->persist($confirmationCode);
+
+        // Создадим пользователя
+
+        $user = new Entity\User();
+        $user->setEmail($data['email']);
+        $user->setPassword($encoder->encodePassword($user, $data['password']));
+        $groupManager->addGroup($user, UserGroupEnum::EMPLOYEE());
+
+        $profile = $user->getProfile();
+        $profile->setEmployer($employer->getUser());
+
+        $this->save($profile);
+
+        // Отправим уведомление с кодом
+
+        $this->clientProducer->produce(NotificationTypeEnum::CONFIRM_EMAIL(), [
+            'subject' => 'Код активации email на сервисе AppSell',
+            'code' => $confirmationCode->getCode()
+        ]);
+
+        return new JsonResponse(null, JsonResponse::HTTP_CREATED);
     }
 
     /**
