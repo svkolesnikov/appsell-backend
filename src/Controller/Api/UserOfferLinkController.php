@@ -36,7 +36,7 @@ class UserOfferLinkController
     }
 
     /**
-     * @Route(methods = {"GET"}, path = "/api/usl/{id}", name = "follow_user_offer_link")
+     * @Route(methods = {"GET"}, path = "/usl/{id}", name = "follow_user_offer_link")
      * @param Request $request
      * @return Response
      *
