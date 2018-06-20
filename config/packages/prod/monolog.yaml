@@ -7,6 +7,7 @@ monolog:
       action_level:  error
       excluded_404s: ['^/']
       handler:       file
+      channels:      ["!event"]
 
     file:
       type:      rotating_file

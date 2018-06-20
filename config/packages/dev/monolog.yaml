@@ -7,3 +7,4 @@ monolog:
       path: '%kernel.logs_dir%/%kernel.environment%.log'
       level: debug
       max_files: 30
+      channels: ["!event"]
