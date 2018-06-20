@@ -24,6 +24,7 @@ services:
       - APP_SECRET=86e7b44293d50666286e7b44293d5066620c4381b619a9cfea7bf5ec20c4381b619a9cfea7bf5ec2
       - DATABASE_URL=pgsql://backend:Wq2v9LV4UP@10.1.4.5:5432/appsell
       - MAILER_URL=gmail://appsell@sixdays.ru:%H$$b2Bp2[vMcPL5@smtp.gmail.com:465?encryption=ssl
+      - CORS_ALLOW_ORIGIN=^https?://localhost:?[0-9]*$$
 
   nginx:
     container_name: appsell_nginx
