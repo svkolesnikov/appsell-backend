@@ -45,7 +45,7 @@ class AuthController
      *  description = "Возвращает новый токен доступа если учетные данные верны",
      *  tags = { "Authorization" },
      *
-     *  @SWG\Parameter(name = "request", description = "Запрос", type = "object", required = true, in = "body",
+     *  @SWG\Parameter(name = "request", description = "Запрос", required = true, in = "body",
      *     @SWG\Schema(
      *      type = "object",
      *      required = { "email", "password" },

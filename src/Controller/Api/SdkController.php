@@ -26,7 +26,7 @@ class SdkController
      *  description = "",
      *  tags = { "SDK" },
      *
-     *  @SWG\Parameter(name = "request", description = "Запрос", type = "object", required = true, in = "body",
+     *  @SWG\Parameter(name = "request", description = "Запрос", required = true, in = "body",
      *     @SWG\Schema(
      *      type = "object",
      *      required = { "event_name", "offer_id", "offer_link_id", "device_id" },

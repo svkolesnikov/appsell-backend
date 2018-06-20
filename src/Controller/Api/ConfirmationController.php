@@ -34,7 +34,7 @@ class ConfirmationController
      *  description = "",
      *  tags = { "Confirmations" },
      *
-     *  @SWG\Parameter(name = "request", description = "Запрос", type = "object", required = true, in = "body",
+     *  @SWG\Parameter(name = "request", description = "Запрос", required = true, in = "body",
      *     @SWG\Schema(
      *      type = "object",
      *      required = { "email", "code" },
