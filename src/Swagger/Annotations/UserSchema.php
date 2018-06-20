@@ -21,7 +21,7 @@ class UserSchema extends Schema
                 new Property(['property' => 'lastname', 'type' => 'string']),
                 new Property(['property' => 'firstname', 'type' => 'string']),
                 new Property(['property' => 'company_id', 'type' => 'string']),
-                new Property(['property' => 'company_name', 'type' => 'string'])
+                new Property(['property' => 'company_title', 'type' => 'string'])
             ]
         ], $properties));
     }
