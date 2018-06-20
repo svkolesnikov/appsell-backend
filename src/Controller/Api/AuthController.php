@@ -3,16 +3,19 @@
 namespace App\Controller\Api;
 
 use App\Entity\User;
-use App\Exception\AccessException;
 use App\Exception\AuthException;
 use App\Lib\Controller\FormTrait;
 use App\Security\AccessToken;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\Extension\Core\Type;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Validator\Constraints;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Swagger\Annotations as SWG;
+use App\Swagger\Annotations\AccessDeniedResponse;
+use App\Swagger\Annotations\UnauthorizedResponse;
 use App\Swagger\Annotations\BadRequestResponse;
 use App\Swagger\Annotations\TokenParameter;
 use App\Swagger\Annotations\TokenSchema;
@@ -26,19 +29,11 @@ class AuthController
 {
     use FormTrait;
 
-    /** @var EntityManagerInterface */
-    protected $entityManager;
-
     /** @var AccessToken */
     protected $accessToken;
 
-    /** @var UserPasswordEncoderInterface */
-    protected $passwordEncoder;
-
-    public function __construct(UserPasswordEncoderInterface $encoder, EntityManagerInterface $em, AccessToken $at)
+    public function __construct(AccessToken $at)
     {
-        $this->passwordEncoder = $encoder;
-        $this->entityManager = $em;
         $this->accessToken = $at;
     }
 
@@ -67,17 +62,20 @@ class AuthController
      *      @TokenSchema()
      *  ),
      *
-     *  @BadRequestResponse()
+     *  @BadRequestResponse(),
+     *  @AccessDeniedResponse()
      * )
      *
      * @Route("/login", methods = { "POST" })
      * @param Request $request
+     * @param UserPasswordEncoderInterface $encoder
+     * @param EntityManagerInterface $em
      * @return JsonResponse
-     * @throws \App\Exception\FormValidationException
+     * @throws \Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException
      * @throws AuthException
-     * @throws AccessException
+     * @throws \App\Exception\FormValidationException
      */
-    public function loginAction(Request $request): JsonResponse
+    public function loginAction(Request $request, UserPasswordEncoderInterface $encoder, EntityManagerInterface $em): JsonResponse
     {
         $form = $this->createFormBuilder()
             ->setMethod($request->getMethod())
@@ -90,14 +88,49 @@ class AuthController
         $data = $form->getData();
 
         /** @var User $user */
-        $user = $this->entityManager->getRepository('App:User')->findOneBy(['email' => $data['email']]);
-        if (null === $user || !$this->passwordEncoder->isPasswordValid($user, $data['password'])) {
+        $user = $em->getRepository('App:User')->findOneBy(['email' => $data['email']]);
+        if (null === $user || !$encoder->isPasswordValid($user, $data['password'])) {
             throw new AuthException('Неверный email или пароль');
         }
 
         if (!$user->isActive()) {
-            throw new AccessException('Аккаунт заблокирован');
+            throw new AccessDeniedHttpException('Аккаунт заблокирован');
         }
+
+        return new JsonResponse(
+            ['token' => $this->accessToken->create($user->getEmail())],
+            JsonResponse::HTTP_CREATED
+        );
+    }
+
+    /**
+     * @SWG\Post(
+     *
+     *  path = "/auth/token",
+     *  summary = "Обновление токена доступа",
+     *  description = "Возвращает новый токен доступа если пользователь был успешно авторизован",
+     *  tags = { "Authorization" },
+     *
+     *  @TokenParameter(),
+     *
+     *  @SWG\Response(
+     *      response = 201,
+     *      description = "Создан новый токен доступа",
+     *      @TokenSchema()
+     *  ),
+     *
+     *  @UnauthorizedResponse(),
+     *  @AccessDeniedResponse()
+     * )
+     *
+     * @Route("/token", methods = { "POST" })
+     * @param TokenStorageInterface $tokenStorage
+     * @return JsonResponse
+     */
+    public function refreshTokenAction(TokenStorageInterface $tokenStorage): JsonResponse
+    {
+        /** @var User $user */
+        $user = $tokenStorage->getToken()->getUser();
 
         return new JsonResponse(
             ['token' => $this->accessToken->create($user->getEmail())],

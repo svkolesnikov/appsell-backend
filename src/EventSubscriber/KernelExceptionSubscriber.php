@@ -2,6 +2,7 @@
 
 namespace App\EventSubscriber;
 
+use App\Exception\AccessTokenException;
 use App\Exception\AppException;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
@@ -10,6 +11,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\Security\Core\Exception\InsufficientAuthenticationException;
 
 class KernelExceptionSubscriber implements EventSubscriberInterface
 {
@@ -66,11 +68,21 @@ class KernelExceptionSubscriber implements EventSubscriberInterface
                 $logLevel = Logger::NOTICE;
             }
 
+        } elseif ($exception instanceof AccessTokenException) {
+
+            $statusCode            = JsonResponse::HTTP_FORBIDDEN;
+            $response['details']   = $exception->getErrors();
+            $logContext['details'] = $exception->getErrors();
+
         } elseif ($exception instanceof AppException) {
 
             $statusCode            = JsonResponse::HTTP_BAD_REQUEST;
             $response['details']   = $exception->getErrors();
             $logContext['details'] = $exception->getErrors();
+
+        } elseif ($exception instanceof InsufficientAuthenticationException) {
+
+            $statusCode            = JsonResponse::HTTP_UNAUTHORIZED;
 
         } else {
             $logLevel            = Logger::CRITICAL;
