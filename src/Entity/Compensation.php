@@ -2,29 +2,12 @@
 
 namespace App\Entity;
 
-use App\Enum\CompensationTypeEnum;
-use App\Enum\CurrencyEnum;
-use App\Enum\OfferLinkTypeEnum;
+use App\Lib\Enum\CompensationTypeEnum;
+use App\Lib\Enum\CurrencyEnum;
 use Doctrine\ORM\Mapping as ORM;
-use App\ORM\Id\UuidGenerator;
-use ApiPlatform\Core\Annotation\ApiResource;
-use Symfony\Component\Serializer\Annotation\Groups;
+use App\Lib\Orm\UuidGenerator;
 
 /**
- * @ApiResource(
- *     itemOperations = {
- *          "get" = {
- *              "swagger_context" = {
- *                  "tags" = { "Offers" }
- *              }
- *          }
- *     },
- *     collectionOperations = {},
- *     attributes = {
- *          "normalization_context" = {"groups" = {"read"}}
- *     }
- * )
- *
  * @ORM\Entity
  * @ORM\Table(name="offerdata.compensation")
  * @ORM\HasLifecycleCallbacks
@@ -32,8 +15,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
 class Compensation
 {
     /**
-     * @Groups({ "read" })
-     *
      * @ORM\Id
      * @ORM\Column(type="guid")
      * @ORM\GeneratedValue(strategy="CUSTOM")
@@ -49,29 +30,21 @@ class Compensation
     protected $offer;
 
     /**
-     * @Groups({ "read" })
-     *
      * @ORM\Column(type="string")
      */
     protected $type;
 
     /**
-     * @Groups({ "read" })
-     *
      * @ORM\Column(type="string")
      */
     protected $description;
 
     /**
-     * @Groups({ "read" })
-     *
      * @ORM\Column(type="integer")
      */
     protected $price;
 
     /**
-     * @Groups({ "read" })
-     *
      * @ORM\Column(type="string")
      */
     protected $currency;

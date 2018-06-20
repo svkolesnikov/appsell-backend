@@ -2,27 +2,11 @@
 
 namespace App\Entity;
 
-use App\Enum\OfferLinkTypeEnum;
+use App\Lib\Enum\OfferLinkTypeEnum;
 use Doctrine\ORM\Mapping as ORM;
-use App\ORM\Id\UuidGenerator;
-use ApiPlatform\Core\Annotation\ApiResource;
-use Symfony\Component\Serializer\Annotation\Groups;
+use App\Lib\Orm\UuidGenerator;
 
 /**
- * @ApiResource(
- *     itemOperations = {
- *          "get" = {
- *              "swagger_context" = {
- *                  "tags" = { "Offers" }
- *              }
- *          }
- *     },
- *     collectionOperations = {},
- *     attributes = {
- *          "normalization_context" = {"groups" = {"read"}}
- *     }
- * )
- *
  * @ORM\Entity
  * @ORM\Table(name="offerdata.offer_link")
  * @ORM\HasLifecycleCallbacks
@@ -30,8 +14,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
 class OfferLink
 {
     /**
-     * @Groups({ "read" })
-     *
      * @ORM\Id
      * @ORM\Column(type="guid")
      * @ORM\GeneratedValue(strategy="CUSTOM")
@@ -47,15 +29,11 @@ class OfferLink
     protected $offer;
 
     /**
-     * @Groups({ "read" })
-     *
      * @ORM\Column(type="string")
      */
     protected $type;
 
     /**
-     * @Groups({ "read" })
-     *
      * @ORM\Column(type="string")
      */
     protected $url;

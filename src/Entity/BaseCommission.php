@@ -2,7 +2,7 @@
 
 namespace App\Entity;
 
-use App\Enum\CommissionEnum;
+use App\Lib\Enum\CommissionEnum;
 use Doctrine\ORM\Mapping as ORM;
 
 /**

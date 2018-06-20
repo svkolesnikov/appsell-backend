@@ -2,34 +2,12 @@
 
 namespace App\Entity;
 
-use App\Enum\OfferTypeEnum;
+use App\Lib\Enum\OfferTypeEnum;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
-use App\ORM\Id\UuidGenerator;
-use ApiPlatform\Core\Annotation\ApiResource;
-use Symfony\Component\Serializer\Annotation\Groups;
+use App\Lib\Orm\UuidGenerator;
 
 /**
- * @ApiResource(
- *     itemOperations = {
- *          "get" = {
- *              "swagger_context" = {
- *                  "tags" = { "Offers" }
- *              }
- *          }
- *     },
- *     collectionOperations = {
- *          "get" = {
- *              "swagger_context" = {
- *                  "tags" = { "Offers" }
- *              }
- *          }
- *     },
- *     attributes = {
- *          "normalization_context" = {"groups" = {"read"}}
- *     }
- * )
- *
  * @ORM\Entity
  * @ORM\Table(name="offerdata.offer")
  * @ORM\HasLifecycleCallbacks
@@ -37,8 +15,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
 class Offer
 {
     /**
-     * @Groups({ "read" })
-     *
      * @ORM\Id
      * @ORM\Column(type="guid")
      * @ORM\GeneratedValue(strategy="CUSTOM")
@@ -54,30 +30,22 @@ class Offer
     protected $owner;
 
     /**
-     * @Groups({ "read" })
-     *
      * @ORM\Column(type="string")
      */
     protected $title;
 
     /**
-     * @Groups({ "read" })
-     *
      * @ORM\Column(type="string")
      */
     protected $description;
 
     /**
-     * @Groups({ "read" })
-     *
      * @var \DateTime
      * @ORM\Column(type="datetime")
      */
     protected $active_from;
 
     /**
-     * @Groups({ "read" })
-     *
      * @var \DateTime
      * @ORM\Column(type="datetime")
      */
@@ -96,24 +64,18 @@ class Offer
     protected $mtime;
 
     /**
-     * @Groups({ "read" })
-     *
      * @var Compensation[]|ArrayCollection
      * @ORM\OneToMany(targetEntity="Compensation", mappedBy="offer", cascade={"persist", "remove"}, orphanRemoval=true)
      */
     protected $compensations;
 
     /**
-     * @Groups({ "read" })
-     *
      * @var OfferLink[]|ArrayCollection
      * @ORM\OneToMany(targetEntity="OfferLink", mappedBy="offer", cascade={"persist", "remove"}, orphanRemoval=true)
      */
     protected $links;
 
     /**
-     * @Groups({ "read" })
-     *
      * @var SellerApprovedOffer[]|ArrayCollection
      * @ORM\OneToMany(targetEntity="SellerApprovedOffer", mappedBy="offer", cascade={"persist", "remove"}, orphanRemoval=true)
      */

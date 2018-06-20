@@ -2,7 +2,7 @@
 
 namespace App\Form\DataTransformer;
 
-use App\Enum\CompensationTypeEnum;
+use App\Lib\Enum\CompensationTypeEnum;
 use Symfony\Component\Form\DataTransformerInterface;
 
 class StringToCompensationTypeDataTransformer implements DataTransformerInterface

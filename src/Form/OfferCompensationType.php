@@ -3,8 +3,8 @@
 namespace App\Form;
 
 use App\Entity\Compensation;
-use App\Enum\CompensationTypeEnum;
-use App\Enum\CurrencyEnum;
+use App\Lib\Enum\CompensationTypeEnum;
+use App\Lib\Enum\CurrencyEnum;
 use App\Form\DataTransformer\StringToCompensationTypeDataTransformer;
 use App\Form\DataTransformer\StringToCurrencyDataTransformer;
 use Symfony\Component\Form\AbstractType;

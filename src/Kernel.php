@@ -9,6 +9,9 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Kernel as BaseKernel;
 use Symfony\Component\Routing\RouteCollectionBuilder;
 
+// Небольшой хак для возможности написания собственных аннотаций для Swagger
+\Swagger\Analyser::$whitelist[] = 'App\\Swagger\\Annotations\\';
+
 class Kernel extends BaseKernel
 {
     use MicroKernelTrait;

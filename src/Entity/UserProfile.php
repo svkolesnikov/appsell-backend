@@ -3,25 +3,8 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use ApiPlatform\Core\Annotation\ApiResource;
-use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
- * @ApiResource(
- *     collectionOperations = {},
- *     itemOperations = {
- *          "get" = {
- *              "access_control" = "object.user == user",
- *              "swagger_context" = {
- *                  "tags" = { "Users" }
- *              }
- *          }
- *     },
- *     attributes = {
- *          "normalization_context" = {"groups" = {"read"}}
- *     }
- * )
- *
  * @ORM\Entity
  * @ORM\Table(name="userdata.profile")
  * @ORM\HasLifecycleCallbacks
@@ -38,22 +21,16 @@ class UserProfile
     protected $user;
 
     /**
-     * @Groups({ "read" })
-     *
      * @ORM\Column(type="integer")
      */
     protected $phone;
 
     /**
-     * @Groups({ "read" })
-     *
      * @ORM\Column(type="string")
      */
     protected $lastname;
 
     /**
-     * @Groups({ "read" })
-     *
      * @ORM\Column(type="string")
      */
     protected $firstname;
@@ -71,11 +48,9 @@ class UserProfile
     protected $mtime;
 
     /**
-     * @Groups({ "read" })
-     *
      * @ORM\Column(type="string")
      */
-    public $company_id;
+    protected $company_id;
 
     /**
      * @ORM\Column(type="string")
@@ -188,25 +163,5 @@ class UserProfile
     {
         $this->company_title = $title;
         return $this;
-    }
-
-    //
-    // Далее идут поля для API,
-    // они никак не относятся к полям в БД
-    //
-
-    /**
-     * Информация о компании продавца
-     *
-     * @Groups({ "read" })
-     * @var string
-     */
-    public $company_name;
-
-    public function getCompanyName(): string
-    {
-        return null !== $this->getEmployer()
-            ? $this->getEmployer()->getProfile()->getCompanyTitle()
-            : $this->company_title;
     }
 }

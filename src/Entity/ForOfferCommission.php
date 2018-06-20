@@ -3,7 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use App\ORM\Id\UuidGenerator;
+use App\Lib\Orm\UuidGenerator;
 
 /**
  * @ORM\Entity

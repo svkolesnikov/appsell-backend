@@ -2,7 +2,7 @@
 
 namespace App\Notification\Producer;
 
-use App\Enum\NotificationTypeEnum;
+use App\Lib\Enum\NotificationTypeEnum;
 use App\Notification\Notificator\EmailNotificator;
 
 class ClientProducer

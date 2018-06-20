@@ -29,9 +29,9 @@ class TokenSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            KernelEvents::VIEW => [
-                ['refreshToken', EventPriorities::POST_VALIDATE]
-            ]
+//            KernelEvents::VIEW => [
+////                ['refreshToken', EventPriorities::POST_VALIDATE]
+//            ]
         ];
     }
 

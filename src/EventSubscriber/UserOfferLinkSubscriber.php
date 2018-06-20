@@ -35,7 +35,7 @@ class UserOfferLinkSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            KernelEvents::VIEW => [['createLink', EventPriorities::POST_VALIDATE]]
+//            KernelEvents::VIEW => []
         ];
     }
 

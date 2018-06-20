@@ -2,9 +2,9 @@
 
 namespace App\Entity;
 
-use App\Enum\OfferExecutionStatusEnum;
+use App\Lib\Enum\OfferExecutionStatusEnum;
 use Doctrine\ORM\Mapping as ORM;
-use App\ORM\Id\UuidGenerator;
+use App\Lib\Orm\UuidGenerator;
 
 /**
  * @ORM\Entity

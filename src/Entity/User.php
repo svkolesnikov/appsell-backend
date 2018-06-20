@@ -2,30 +2,12 @@
 
 namespace App\Entity;
 
-use App\Enum\UserGroupEnum;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
-use ApiPlatform\Core\Annotation\ApiResource;
-use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Security\Core\User\UserInterface;
-use App\ORM\Id\UuidGenerator;
+use App\Lib\Orm\UuidGenerator;
 
 /**
- * @ApiResource(
- *     collectionOperations = {},
- *     itemOperations = {
- *          "get" = {
- *              "access_control" = "object == user",
- *              "swagger_context" = {
- *                  "tags" = { "Users" }
- *              }
- *          }
- *     },
- *     attributes = {
- *          "normalization_context" = {"groups" = {"read"}}
- *     }
- * )
- *
  * @ORM\Entity
  * @ORM\Table(name="userdata.user")
  * @ORM\HasLifecycleCallbacks
@@ -33,8 +15,6 @@ use App\ORM\Id\UuidGenerator;
 class User implements UserInterface, \Serializable
 {
     /**
-     * @Groups({ "read" })
-     *
      * @ORM\Id
      * @ORM\Column(type="guid")
      * @ORM\GeneratedValue(strategy="CUSTOM")
@@ -43,8 +23,6 @@ class User implements UserInterface, \Serializable
     protected $id;
 
     /**
-     * @Groups({ "read" })
-     *
      * @ORM\Column(type="string")
      */
     protected $email;
@@ -67,8 +45,6 @@ class User implements UserInterface, \Serializable
     protected $mtime;
 
     /**
-     * @Groups({ "read" })
-     *
      * @var UserProfile
      * @ORM\OneToOne(targetEntity = "UserProfile", mappedBy = "user", cascade={"persist", "remove"})
      */
@@ -238,28 +214,5 @@ class User implements UserInterface, \Serializable
     public function __toString()
     {
         return (string) $this->getUsername();
-    }
-
-    //
-    // Далее идут поля для API,
-    // они никак не относятся к полям в БД
-    //
-
-    /**
-     * @Groups({ "read" })
-     * @return string
-     */
-    public function getGroup(): string
-    {
-        foreach ($this->getGroups() as $group) {
-
-            // Если пользователь входит в одну из основных групп
-            // то ее можно показать в API
-            if (UserGroupEnum::isValid($group->getCode())) {
-                return $group->getCode();
-            }
-        }
-
-        return null;
     }
 }

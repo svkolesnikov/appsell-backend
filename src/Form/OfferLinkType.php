@@ -3,7 +3,7 @@
 namespace App\Form;
 
 use App\Entity\OfferLink;
-use App\Enum\OfferLinkTypeEnum;
+use App\Lib\Enum\OfferLinkTypeEnum;
 use App\Form\DataTransformer\StringToOfferLinkTypeDataTransformer;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;

@@ -32,9 +32,9 @@ class OfferLinkSuscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            KernelEvents::VIEW => [
-                ['createOrFetchLink', EventPriorities::POST_VALIDATE]
-            ]
+//            KernelEvents::VIEW => [
+////                ['createOrFetchLink', EventPriorities::POST_VALIDATE]
+//            ]
         ];
     }
 

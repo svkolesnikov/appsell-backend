@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Enum;
+namespace App\Lib\Enum;
 use MyCLabs\Enum\Enum;
 
 /**

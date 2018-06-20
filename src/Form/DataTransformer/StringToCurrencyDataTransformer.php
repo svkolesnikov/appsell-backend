@@ -2,7 +2,7 @@
 
 namespace App\Form\DataTransformer;
 
-use App\Enum\CurrencyEnum;
+use App\Lib\Enum\CurrencyEnum;
 use Symfony\Component\Form\DataTransformerInterface;
 
 class StringToCurrencyDataTransformer implements DataTransformerInterface

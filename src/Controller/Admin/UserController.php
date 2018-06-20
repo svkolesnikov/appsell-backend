@@ -4,7 +4,7 @@ namespace App\Controller\Admin;
 
 use App\Entity\Group;
 use App\Entity\User;
-use App\Enum\UserGroupEnum;
+use App\Lib\Enum\UserGroupEnum;
 use App\Form\UserType;
 use App\Manager\UserManager;
 use App\Security\UserGroupManager;

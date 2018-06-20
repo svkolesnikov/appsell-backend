@@ -57,6 +57,8 @@ security:
     access_control:
 
         # REST API rules
+        - { path: ^/api/swagger,                    role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/doc,                        role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api/auth/token,                 role: ROLE_USER }
         - { path: ^/api/auth,                       role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api/sdk-events,                 role: IS_AUTHENTICATED_ANONYMOUSLY }

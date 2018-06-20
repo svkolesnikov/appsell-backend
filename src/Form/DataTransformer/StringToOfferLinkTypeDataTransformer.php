@@ -2,7 +2,7 @@
 
 namespace App\Form\DataTransformer;
 
-use App\Enum\OfferLinkTypeEnum;
+use App\Lib\Enum\OfferLinkTypeEnum;
 use Symfony\Component\Form\DataTransformerInterface;
 
 class StringToOfferLinkTypeDataTransformer implements DataTransformerInterface

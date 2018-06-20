@@ -7,8 +7,8 @@ use App\Api\Dto\Employee;
 use App\Entity\ConfirmationCode;
 use App\Entity\User;
 use App\Entity\UserProfile;
-use App\Enum\NotificationTypeEnum;
-use App\Enum\UserGroupEnum;
+use App\Lib\Enum\NotificationTypeEnum;
+use App\Lib\Enum\UserGroupEnum;
 use App\Exception\AuthException;
 use App\Notification\Producer\ClientProducer;
 use App\Security\UserGroupManager;
@@ -45,7 +45,7 @@ class EmployeeRegistrationSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            KernelEvents::VIEW => [['registerUser', EventPriorities::POST_VALIDATE]]
+//            KernelEvents::VIEW => [['registerUser', EventPriorities::POST_VALIDATE]]
         ];
     }
 

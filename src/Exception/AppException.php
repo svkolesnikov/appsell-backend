@@ -2,12 +2,30 @@
 
 namespace App\Exception;
 
-use Throwable;
-
 class AppException extends \Exception
 {
-    public function __construct(string $message = '', Throwable $previous = null, int $code = 0)
+    protected $errors = [];
+
+    /**
+     * AppException constructor.
+     * @param string $message
+     * @param null|\Exception|array $errors
+     */
+    public function __construct(string $message, $errors = null)
     {
-        parent::__construct($message, $code, $previous);
+        if ($errors instanceof \Exception) {
+            $this->errors = ['exception' => sprintf('%s: %s', \get_class($errors), $errors->getMessage())];
+        }
+
+        if (\is_array($errors)) {
+            $this->errors = $errors;
+        }
+
+        parent::__construct($message, 0);
+    }
+
+    public function getErrors()
+    {
+        return $this->errors;
     }
 }

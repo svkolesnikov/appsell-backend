@@ -5,7 +5,7 @@ namespace App\Manager;
 use App\Entity\Offer;
 use App\Entity\SellerApprovedOffer;
 use App\Entity\User;
-use App\Enum\UserGroupEnum;
+use App\Lib\Enum\UserGroupEnum;
 use App\Security\UserGroupManager;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;

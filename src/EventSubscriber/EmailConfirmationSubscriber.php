@@ -6,7 +6,7 @@ use ApiPlatform\Core\EventListener\EventPriorities;
 use App\Api\Dto\EmailConfirmation;
 use App\Entity\ConfirmationCode;
 use App\Entity\User;
-use App\Enum\NotificationTypeEnum;
+use App\Lib\Enum\NotificationTypeEnum;
 use App\Exception\AuthException;
 use App\Notification\Producer\SystemProducer;
 use Doctrine\ORM\EntityManagerInterface;
@@ -32,7 +32,7 @@ class EmailConfirmationSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            KernelEvents::VIEW => [['confirmEmail', EventPriorities::POST_VALIDATE]]
+//            KernelEvents::VIEW => [['confirmEmail', EventPriorities::POST_VALIDATE]]
         ];
     }
 

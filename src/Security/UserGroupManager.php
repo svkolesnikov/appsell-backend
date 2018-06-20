@@ -4,7 +4,7 @@ namespace App\Security;
 
 use App\Entity\Group;
 use App\Entity\User;
-use App\Enum\UserGroupEnum;
+use App\Lib\Enum\UserGroupEnum;
 use App\Exception\AppException;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;

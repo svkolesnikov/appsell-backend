@@ -7,7 +7,7 @@ use App\Api\Dto\Owner;
 use App\Api\Dto\Seller;
 use App\Entity\User;
 use App\Entity\UserProfile;
-use App\Enum\NotificationTypeEnum;
+use App\Lib\Enum\NotificationTypeEnum;
 use App\Exception\AuthException;
 use App\Notification\Producer\SystemProducer;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
@@ -34,9 +34,9 @@ class CommonRegistrationSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            KernelEvents::VIEW => [
-                ['registerUser', EventPriorities::POST_VALIDATE]
-            ]
+//            KernelEvents::VIEW => [
+////                ['registerUser', EventPriorities::POST_VALIDATE]
+//            ]
         ];
     }
 
