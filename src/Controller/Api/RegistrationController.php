@@ -234,19 +234,16 @@ class RegistrationController
             throw new AuthException('Неверный идентификатор компании');
         }
 
-        // Сгенерируем код подтверждения
-
-        $confirmationCode = new Entity\ConfirmationCode();
-        $confirmationCode->setSubject($data['email']);
-        $confirmationCode->setCode(random_int(111111, 999999));
-        $this->entityManager->persist($confirmationCode);
-
         // Создадим пользователя
 
         $user = new Entity\User();
         $user->setEmail($data['email']);
         $user->setPassword($encoder->encodePassword($user, $data['password']));
         $groupManager->addGroup($user, UserGroupEnum::EMPLOYEE());
+
+        $confirmation = $user->getConfirmation();
+        $confirmation->setEmail($user->getEmail());
+        $confirmation->setEmailConfirmationCode(random_int(111111, 999999));
 
         $profile = $user->getProfile();
         $profile->setEmployer($employer->getUser());
@@ -257,7 +254,7 @@ class RegistrationController
 
         $this->clientProducer->produce(NotificationTypeEnum::CONFIRM_EMAIL(), [
             'subject' => 'Код активации email на сервисе AppSell',
-            'code' => $confirmationCode->getCode()
+            'code' => $confirmation->getEmailConfirmationCode()
         ]);
 
         return new JsonResponse(null, JsonResponse::HTTP_CREATED);

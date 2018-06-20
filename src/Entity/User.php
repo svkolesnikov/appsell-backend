@@ -51,6 +51,12 @@ class User implements UserInterface, \Serializable
     protected $profile;
 
     /**
+     * @var UserConfirmation
+     * @ORM\OneToOne(targetEntity = "UserConfirmation", mappedBy = "user", cascade={"persist", "remove"})
+     */
+    protected $confirmation;
+
+    /**
      * @ORM\Column(type="boolean")
      */
     protected $is_active;
@@ -73,6 +79,9 @@ class User implements UserInterface, \Serializable
 
         $this->profile = new UserProfile();
         $this->profile->setUser($this);
+
+        $this->confirmation = new UserConfirmation();
+        $this->confirmation->setUser($this);
     }
 
     /**
@@ -214,5 +223,16 @@ class User implements UserInterface, \Serializable
     public function __toString()
     {
         return (string) $this->getUsername();
+    }
+
+    public function getConfirmation(): UserConfirmation
+    {
+        return $this->confirmation;
+    }
+
+    public function setConfirmation(UserConfirmation $confirmation)
+    {
+        $this->confirmation = $confirmation;
+        return $this;
     }
 }
