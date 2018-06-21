@@ -5,6 +5,7 @@ namespace App\Controller\Api;
 use App\Exception\Api\ApiException;
 use App\Lib\Controller\FormTrait;
 use App\Lib\Enum\UserGroupEnum;
+use App\Security\AccessToken;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -15,6 +16,7 @@ use App\Swagger\Annotations\NotFoundResponse;
 use App\Swagger\Annotations\BadRequestResponse;
 use App\Swagger\Annotations\UserSchema;
 use App\Swagger\Annotations\TokenParameter;
+use App\Swagger\Annotations\TokenSchema;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use App\Entity;
@@ -32,9 +34,13 @@ class CurrentUserController
     /** @var EntityManagerInterface */
     protected $entityManager;
 
-    public function __construct(EntityManagerInterface $em)
+    /** @var TokenStorageInterface */
+    protected $tokenStorage;
+
+    public function __construct(EntityManagerInterface $em, TokenStorageInterface $tokenStorage)
     {
         $this->entityManager = $em;
+        $this->tokenStorage = $tokenStorage;
     }
 
     /**
@@ -59,13 +65,12 @@ class CurrentUserController
      * )
      *
      * @Route("", methods = { "GET" })
-     * @param TokenStorageInterface $tokenStorage
      * @return JsonResponse
      */
-    public function getCurrentUserAction(TokenStorageInterface $tokenStorage): JsonResponse
+    public function getCurrentUserAction(): JsonResponse
     {
         /** @var Entity\User $user */
-        $user = $tokenStorage->getToken()->getUser();
+        $user = $this->tokenStorage->getToken()->getUser();
         $profile = $user->getProfile();
 
         $companyInfo = null === $profile->getEmployer()
@@ -112,8 +117,9 @@ class CurrentUserController
      *  ),
      *
      *  @SWG\Response(
-     *      response = 202,
-     *      description = "Пароль изменен"
+     *      response = 201,
+     *      description = "Пароль изменен. Выдан новый токен доступа",
+     *      @TokenSchema()
      *  ),
      *
      *  @UnauthorizedResponse(),
@@ -123,13 +129,13 @@ class CurrentUserController
      *
      * @Route("/password", methods = { "PUT" })
      * @param Request $request
-     * @param TokenStorageInterface $tokenStorage
      * @param UserPasswordEncoderInterface $encoder
+     * @param AccessToken $accessToken
      * @return JsonResponse
-     * @throws \App\Exception\Api\FormValidationException
      * @throws ApiException
+     * @throws \App\Exception\Api\FormValidationException
      */
-    public function changeCurrentUserPasswordAction(Request $request, TokenStorageInterface $tokenStorage, UserPasswordEncoderInterface $encoder): JsonResponse
+    public function changeCurrentUserPasswordAction(Request $request, UserPasswordEncoderInterface $encoder, AccessToken $accessToken): JsonResponse
     {
         $form = $this->createFormBuilder()
             ->setMethod($request->getMethod())
@@ -142,7 +148,7 @@ class CurrentUserController
         $data = $form->getData();
 
         /** @var Entity\User $user */
-        $user = $tokenStorage->getToken()->getUser();
+        $user = $this->tokenStorage->getToken()->getUser();
 
         if (!$encoder->isPasswordValid($user, $data['password'])) {
             throw new ApiException('Неверно указан текущий пароль');
@@ -152,6 +158,9 @@ class CurrentUserController
         $this->entityManager->persist($user);
         $this->entityManager->flush();
 
-        return new JsonResponse(null, JsonResponse::HTTP_ACCEPTED);
+        return new JsonResponse(
+            ['token' => $accessToken->create($user->getEmail(), $user->getTokenSalt())],
+            JsonResponse::HTTP_CREATED
+        );
     }
 }

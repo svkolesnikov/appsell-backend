@@ -97,10 +97,6 @@ class AuthController
             throw new AccessDeniedHttpException('Аккаунт заблокирован');
         }
 
-        $user->renewTokenSalt();
-        $em->persist($user);
-        $em->flush();
-
         return new JsonResponse(
             ['token' => $this->accessToken->create($user->getEmail(), $user->getTokenSalt())],
             JsonResponse::HTTP_CREATED
@@ -137,10 +133,6 @@ class AuthController
         /** @var User $user */
         $user = $tokenStorage->getToken()->getUser();
 
-        $user->renewTokenSalt();
-        $em->persist($user);
-        $em->flush();
-
         return new JsonResponse(
             ['token' => $this->accessToken->create($user->getEmail(), $user->getTokenSalt())],
             JsonResponse::HTTP_CREATED
@@ -151,8 +143,8 @@ class AuthController
      * @SWG\Delete(
      *
      *  path = "/auth/logout",
-     *  summary = "Инвалидация текущего токена доступа",
-     *  description = "",
+     *  summary = "Инвалидация текущего токенов доступа",
+     *  description = "Все токены доступа полученные пользователем до текущего момента будут инвалидированы",
      *  tags = { "Authorization" },
      *
      *  @TokenParameter(),
