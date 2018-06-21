@@ -21,7 +21,8 @@ class OfferLinkType extends AbstractType
                 'required'      => true,
                 'label'         => false,
                 'label_attr'    => ['style' => 'font-size:14px;font-weight:700'],
-                'choices'       => OfferLinkTypeEnum::toArray()
+                'choices'       => OfferLinkTypeEnum::toArray(),
+                'disabled'      => true
             ])
         ;
 
