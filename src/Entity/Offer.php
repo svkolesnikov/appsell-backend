@@ -215,7 +215,7 @@ class Offer
 
     public function removeCompensation(Compensation $compensation)
     {
-        if (!$this->compensations->contains($compensation)) {
+        if ($this->compensations->contains($compensation)) {
             $this->compensations->removeElement($compensation);
         }
 
@@ -248,7 +248,7 @@ class Offer
 
     public function removeLink(OfferLink $link)
     {
-        if (!$this->links->contains($link)) {
+        if ($this->links->contains($link)) {
             $this->links->removeElement($link);
         }
 
