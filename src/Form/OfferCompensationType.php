@@ -20,7 +20,7 @@ class OfferCompensationType extends AbstractType
         $builder
             ->add('type',           ChoiceType::class,      [
                 'required'      => true,
-                'choices'       => CompensationTypeEnum::toArray()
+                'choices'       => array_flip(CompensationTypeEnum::getTitles())
             ])
             ->add('description',    TextType::class,        ['required' => false, 'label' => false])
             ->add('event_type',     null,                   [

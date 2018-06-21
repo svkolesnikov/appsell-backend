@@ -110,6 +110,11 @@ class Compensation
         return $this;
     }
 
+    public function getTypeTitle()
+    {
+        return CompensationTypeEnum::getTitles()[$this->getType()->getValue()];
+    }
+
     /**
      * @return CompensationTypeEnum
      * @throws \UnexpectedValueException
