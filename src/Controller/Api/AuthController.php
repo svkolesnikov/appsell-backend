@@ -111,7 +111,7 @@ class AuthController
      * @SWG\Post(
      *
      *  path = "/auth/token",
-     *  summary = "Обновление токена доступа",
+     *  summary = "Получение нового токена доступа",
      *  description = "Возвращает новый токен доступа если пользователь был успешно авторизован",
      *  tags = { "Authorization" },
      *
@@ -145,5 +145,41 @@ class AuthController
             ['token' => $this->accessToken->create($user->getEmail(), $user->getTokenSalt())],
             JsonResponse::HTTP_CREATED
         );
+    }
+
+    /**
+     * @SWG\Delete(
+     *
+     *  path = "/auth/logout",
+     *  summary = "Инвалидация текущего токена доступа",
+     *  description = "",
+     *  tags = { "Authorization" },
+     *
+     *  @TokenParameter(),
+     *
+     *  @SWG\Response(
+     *      response = 204,
+     *      description = "Токен успешно инвалидирован"
+     *  ),
+     *
+     *  @UnauthorizedResponse(),
+     *  @AccessDeniedResponse()
+     * )
+     *
+     * @Route("/logout", methods = { "DELETE" })
+     * @param TokenStorageInterface $tokenStorage
+     * @param EntityManagerInterface $em
+     * @return JsonResponse
+     */
+    public function logoutAction(TokenStorageInterface $tokenStorage, EntityManagerInterface $em): JsonResponse
+    {
+        /** @var User $user */
+        $user = $tokenStorage->getToken()->getUser();
+
+        $user->renewTokenSalt();
+        $em->persist($user);
+        $em->flush();
+
+        return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
     }
 }
