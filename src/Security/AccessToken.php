@@ -24,12 +24,14 @@ class AccessToken
 
     /**
      * @param string $email
+     * @param string|null $salt
      * @return string
      */
-    public function create(string $email): string
+    public function create(string $email, string $salt = null): string
     {
         return JWT::encode([
             'email' => $email,
+            'salt'  => $salt,
             'iat'   => time(),
             'exp'   => time() + $this->expiresIn
         ], $this->secret, $this->algorithm);
@@ -52,6 +54,10 @@ class AccessToken
             throw new AccessTokenException('Access token is expired');
         }
 
-        return (string) $decoded->email;
+        return sprintf(
+            '%s|%s',
+            $decoded->email ?? null,
+            $decoded->salt  ?? null
+        );
     }
 }

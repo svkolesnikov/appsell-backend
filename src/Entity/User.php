@@ -62,6 +62,11 @@ class User implements UserInterface, \Serializable
     protected $is_active;
 
     /**
+     * @ORM\Column(type="string")
+     */
+    protected $token_salt;
+
+    /**
      * @var Group[]|ArrayCollection
      *
      * @ORM\ManyToMany(targetEntity="Group")
@@ -121,9 +126,12 @@ class User implements UserInterface, \Serializable
         return $this->password;
     }
 
-    public function setPassword(string $password): void
+    public function setPassword(string $password)
     {
         $this->password = $password;
+        $this->renewTokenSalt();
+
+        return $this;
     }
 
     public function getSalt(): ?string
@@ -233,6 +241,23 @@ class User implements UserInterface, \Serializable
     public function setConfirmation(UserConfirmation $confirmation)
     {
         $this->confirmation = $confirmation;
+        return $this;
+    }
+
+    public function getTokenSalt(): ?string
+    {
+        return $this->token_salt;
+    }
+
+    /**
+     * Обновление соли для токена доступа –
+     * все предыдущие токены доступа будут инвалидированы
+     *
+     * @return $this
+     */
+    public function renewTokenSalt(): self
+    {
+        $this->token_salt = substr(md5(mt_rand()), 5, 10);
         return $this;
     }
 }

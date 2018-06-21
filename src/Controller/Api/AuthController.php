@@ -97,8 +97,12 @@ class AuthController
             throw new AccessDeniedHttpException('Аккаунт заблокирован');
         }
 
+        $user->renewTokenSalt();
+        $em->persist($user);
+        $em->flush();
+
         return new JsonResponse(
-            ['token' => $this->accessToken->create($user->getEmail())],
+            ['token' => $this->accessToken->create($user->getEmail(), $user->getTokenSalt())],
             JsonResponse::HTTP_CREATED
         );
     }
@@ -125,15 +129,20 @@ class AuthController
      *
      * @Route("/token", methods = { "POST" })
      * @param TokenStorageInterface $tokenStorage
+     * @param EntityManagerInterface $em
      * @return JsonResponse
      */
-    public function refreshTokenAction(TokenStorageInterface $tokenStorage): JsonResponse
+    public function refreshTokenAction(TokenStorageInterface $tokenStorage, EntityManagerInterface $em): JsonResponse
     {
         /** @var User $user */
         $user = $tokenStorage->getToken()->getUser();
 
+        $user->renewTokenSalt();
+        $em->persist($user);
+        $em->flush();
+
         return new JsonResponse(
-            ['token' => $this->accessToken->create($user->getEmail())],
+            ['token' => $this->accessToken->create($user->getEmail(), $user->getTokenSalt())],
             JsonResponse::HTTP_CREATED
         );
     }

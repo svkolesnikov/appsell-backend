@@ -42,8 +42,10 @@ class AccessTokenUserProvider implements UserProviderInterface
      */
     public function loadUserByUsername($username): UserInterface
     {
+        [$email, $tokenSalt] = explode('|', $username);
+
         /** @var User $user */
-        $user = $this->entityManager->getRepository('App:User')->findOneBy(['email' => $username]);
+        $user = $this->entityManager->getRepository('App:User')->findOneBy(['email' => $email, 'token_salt' => $tokenSalt]);
         if (null === $user) {
             $ex = new UsernameNotFoundException();
             $ex->setUsername($username);

@@ -129,7 +129,7 @@ class ConfirmationController
         ]);
 
         return new JsonResponse(
-            ['token' => $this->accessToken->create($user->getEmail())],
+            ['token' => $this->accessToken->create($user->getEmail(), $user->getTokenSalt())],
             JsonResponse::HTTP_ACCEPTED
         );
     }
