@@ -32,6 +32,11 @@ security:
         ROLE_SUPER_ADMIN:
             - ROLE_ADMIN
 
+            - ROLE_APP_COMMISSION_EDIT
+            - ROLE_APP_COMMISSION_LIST
+            - ROLE_APP_COMMISSION_CREATE
+            - ROLE_APP_COMMISSION_DELETE
+
             - ROLE_APP_USER_EDIT
             - ROLE_APP_USER_LIST
             - ROLE_APP_USER_CREATE

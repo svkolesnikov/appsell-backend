@@ -2,9 +2,7 @@
 
 namespace App\Lib\Enum;
 
-use MyCLabs\Enum\Enum;
-
-final class CommissionEnum extends Enum
+final class CommissionEnum extends BaseEnum
 {
     // Комиссия, взимаемая сервисом от оплаты заказчиком
     // 100 – комиссия сервиса
@@ -13,4 +11,9 @@ final class CommissionEnum extends Enum
     // Комиссия, взимаемая продавцом от награды сотрудника
     // 100 - комиссия сервиса - комиссия продавца
     public const SELLER  = 'seller';
+
+    protected static $titles = [
+        self::SERVICE   => 'Сервис',
+        self::SELLER    => 'Продавец'
+    ];
 }

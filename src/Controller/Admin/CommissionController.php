@@ -2,17 +2,11 @@
 
 namespace App\Controller\Admin;
 
-use App\Entity\Group;
-use App\Entity\SellerBaseCommission;
-use App\Entity\User;
-use App\Enum\UserGroupEnum;
-use App\Form\UserType;
-use App\Manager\UserManager;
-use App\Security\UserGroupManager;
+use App\Entity\BaseCommission;
+use App\Form\CommissionType;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -21,55 +15,130 @@ class CommissionController extends BaseController
     /** @var  EntityManagerInterface */
     protected $em;
 
-    /** @var  UserManager  */
-    protected $userManager;
-
-    public function __construct(
-        EntityManagerInterface $em,
-        UserManager $userManager
-    )
+    public function __construct(EntityManagerInterface $em)
     {
         $this->em = $em;
-        $this->userManager = $userManager;
     }
 
     /**
-     * @Route("/admin/commissions/base", name="app_commissions_base_seller_edit")
+     * @Route("/admin/commissions", name="app_commission_list")
      *
-     * @Security("has_role('ROLE_APP_COMMISSIONS_EDIT')")
+     * @Security("has_role('ROLE_APP_COMMISSION_LIST')")
      *
      * @param Request $request
      *
-     * @return JsonResponse
+     * @return Response
+     * @throws \UnexpectedValueException
      */
-    public function editBaseSellerCommissionAction(Request $request): JsonResponse
+    public function listAction(Request $request): Response
     {
-//        $this->em->getRepository(SellerBaseCommission::class)->findOneBy()
-//
-//        $form = $this->createForm(UserType::class, $user);
-//
-//        $form->handleRequest($request);
-//
-//        if ($form->isSubmitted() && $form->isValid()) {
-//            try {
-//                $this->em->persist($user);
-//                $this->em->flush();
-//
-//                $this->addFlash('success', 'Пользователь обновлен');
-//
-//                return $this->redirectToRoute('app_settings_users_list');
-//
-//            } catch (\Exception $ex) {
-//                $this->addFlash('error', 'Ошибка при обновлении пользователя: ' . $ex->getMessage());
-//            }
-//        }
-//
-//        $groups = $this->em->getRepository(Group::class)->findAll();
-//
-//        return $this->render('pages/user/edit.html.twig', [
-//            'form' => $form->createView(),
-//            'action' => 'edit',
-//            'groups' => $groups
-//        ]);
+        $page = $request->get('_page', 1);
+        $perPage = $request->get('_per_page', 16);
+        $offset =  ($page-1) * $perPage;
+
+        $items = $this->em->getRepository(BaseCommission::class)->findBy([], [], $perPage, $offset);
+
+        return $this->render('pages/commission/list.html.twig', [
+            'commissions' => $items,
+            'pager' => [
+                '_per_page' => $perPage,
+                '_page'     => $page,
+                '_has_more' => count($items) >= $perPage
+            ]
+        ]);
+    }
+
+    /**
+     * @Route("/admin/commissions/{id}/edit", name="app_commission_edit")
+     *
+     * @Security("has_role('ROLE_APP_COMMISSION_EDIT')")
+     *
+     * @param Request $request
+     *
+     * @param BaseCommission $commission
+     * @return Response
+     */
+    public function editAction(Request $request, BaseCommission $commission): Response
+    {
+        $form = $this->createForm(CommissionType::class, $commission);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+
+            try {
+
+                $this->em->persist($commission);
+                $this->em->flush();
+
+                $this->addFlash('success', 'Запись обновлена');
+
+                return $this->redirectToRoute('app_commission_list');
+
+            } catch (\Exception $ex) {
+                $this->addFlash('error', 'Ошибка при обновлении записи: ' . $ex->getMessage());
+            }
+        }
+
+        return $this->render('pages/commission/edit.html.twig', [
+            'form' => $form->createView(),
+            'action' => 'edit'
+        ]);
+    }
+
+    /**
+     * @Route("/admin/commissions/create", name="app_commission_create")
+     *
+     * @Security("has_role('ROLE_APP_COMMISSION_CREATE')")
+     *
+     * @param Request $request
+     * @return Response
+     * @throws \LogicException
+     */
+    public function createAction(Request $request): Response
+    {
+        $commission = new BaseCommission();
+        $form       = $this->createForm(CommissionType::class, $commission);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+
+            try {
+
+                $this->em->persist($commission);
+                $this->em->flush();
+
+                $this->addFlash('success', 'Запись создана');
+
+                return $this->redirectToRoute('app_commission_list');
+
+            } catch (\Exception $ex) {
+                $this->addFlash('error', 'Ошибка при добавлении записи: ' . $ex->getMessage());
+            }
+        }
+
+        return $this->render('pages/commission/edit.html.twig', [
+            'form' => $form->createView(),
+            'action' => 'create'
+        ]);
+    }
+
+    /**
+     * @Route("/admin/commissions/{id}/remove", name="app_commission_remove")
+     *
+     * @Security("has_role('ROLE_APP_COMMISSION_DELETE')")
+     *
+     * @param BaseCommission $commission
+     * @return Response
+     */
+    public function removeAction(BaseCommission $commission): Response
+    {
+        $this->em->remove($commission);
+        $this->em->flush();
+
+        $this->addFlash('success', 'Запись успешно удалена');
+
+        return $this->redirectToRoute('app_ commission_list');
     }
 }

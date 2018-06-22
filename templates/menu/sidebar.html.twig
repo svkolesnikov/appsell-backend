@@ -30,4 +30,10 @@
         </li>
     {% endif %}
 
+    {% if is_granted(['ROLE_APP_COMMISSION_LIST']) %}
+        <li>
+            <a href="{{ path('app_commission_list') }}"><i class="fa fa-money"></i>Комиссии</a>
+        </li>
+    {% endif %}
+
 {% endblock %}
