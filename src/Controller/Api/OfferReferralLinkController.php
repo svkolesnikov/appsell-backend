@@ -44,10 +44,10 @@ class OfferReferralLinkController
     /**
      * @SWG\Post(
      *
-     *  path = "/offers/{id}/referral-links",
+     *  path = "/employees/offers/{id}/referral-links",
      *  summary = "Создание реферальной ссылки на оффер для текущего пользователя",
      *  description = "",
-     *  tags = { "Offers" },
+     *  tags = { "Employees" },
      *
      *  @TokenParameter(),
      *
@@ -62,7 +62,7 @@ class OfferReferralLinkController
      *  @NotFoundResponse()
      * )
      *
-     * @Route("/offers/{id}/referral-links", methods = { "POST" })
+     * @Route("/employees/offers/{id}/referral-links", methods = { "POST" })
      * @param Request $request
      * @param TokenStorageInterface $tokenStorage
      * @param UserGroupManager $gm
