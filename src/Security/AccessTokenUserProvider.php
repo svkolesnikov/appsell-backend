@@ -37,15 +37,27 @@ class AccessTokenUserProvider implements UserProviderInterface
     /**
      * @param string $username
      * @return UserInterface
+     * @throws \Doctrine\ORM\NoResultException
      * @throws \Symfony\Component\Security\Core\Exception\DisabledException
      * @throws UsernameNotFoundException
+     * @throws \Doctrine\ORM\NonUniqueResultException
      */
     public function loadUserByUsername($username): UserInterface
     {
         [$email, $tokenSalt] = explode('|', $username);
 
         /** @var User $user */
-        $user = $this->entityManager->getRepository('App:User')->findOneBy(['email' => $email, 'token_salt' => $tokenSalt]);
+        $user = $this->entityManager->createQueryBuilder()
+            ->select('u')
+            ->from('App:User', 'u')
+            ->where('u.email = :email and (u.token_salt is null or u.token_salt = :salt)')
+            ->setParameters([
+                'email' => $email,
+                'salt' => $tokenSalt
+            ])
+            ->getQuery()
+            ->getSingleResult();
+
         if (null === $user) {
             $ex = new UsernameNotFoundException();
             $ex->setUsername($username);
