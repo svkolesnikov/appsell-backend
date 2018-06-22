@@ -5,6 +5,8 @@ namespace App\Controller\Api;
 use App\Entity;
 use App\Lib\Enum\OfferLinkTypeEnum;
 use App\Lib\Enum\OfferTypeEnum;
+use App\Lib\Enum\UserGroupEnum;
+use App\Security\UserGroupManager;
 use BrowserDetection;
 use Doctrine\DBAL\DBALException;
 use Doctrine\ORM\EntityManagerInterface;
@@ -19,6 +21,7 @@ use App\Swagger\Annotations\ReferralLinkSchema;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -29,9 +32,13 @@ class OfferReferralLinkController
 {
     protected $entityManager;
 
-    public function __construct(EntityManagerInterface $em)
+    /** @var RouterInterface */
+    protected $router;
+
+    public function __construct(EntityManagerInterface $em, RouterInterface $router)
     {
         $this->entityManager = $em;
+        $this->router = $router;
     }
 
     /**
@@ -58,19 +65,23 @@ class OfferReferralLinkController
      * @Route("/offers/{id}/referral-links", methods = { "POST" })
      * @param Request $request
      * @param TokenStorageInterface $tokenStorage
-     * @param RouterInterface $router
+     * @param UserGroupManager $gm
      * @return JsonResponse
+     * @throws \Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException
      */
-    public function createLinkController(Request $request, TokenStorageInterface $tokenStorage, RouterInterface $router): JsonResponse
+    public function createLinkController(Request $request, TokenStorageInterface $tokenStorage, UserGroupManager $gm): JsonResponse
     {
+        /** @var Entity\User $user */
+        $user = $tokenStorage->getToken()->getUser();
+        if (!$gm->hasGroup($user, UserGroupEnum::EMPLOYEE())) {
+            throw new AccessDeniedHttpException('Employees only access');
+        }
+
         /** @var Entity\Offer $offer */
         $offer = $this->entityManager->find('App:Offer', $request->get('id'));
         if (null === $offer) {
             throw new NotFoundHttpException(sprintf('Оффер %s не найден', $request->get('id')));
         }
-
-        /** @var Entity\User $user */
-        $user = $tokenStorage->getToken()->getUser();
 
         // Получим ссылку на оффер или создадим новую
 
@@ -88,7 +99,7 @@ class OfferReferralLinkController
             $this->entityManager->flush();
         }
 
-        $url = $router->generate('app_api_offer_referral_link_follow', ['id' => $offerLink->getId()], RouterInterface::ABSOLUTE_URL);
+        $url = $this->router->generate('app_api_offer_referral_link_follow', ['id' => $offerLink->getId()], RouterInterface::ABSOLUTE_URL);
         return new JsonResponse(['url' => $url], JsonResponse::HTTP_CREATED);
     }
 
