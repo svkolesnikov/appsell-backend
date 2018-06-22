@@ -12,7 +12,7 @@ use Swagger\Annotations as SWG;
 use App\Swagger\Annotations\AccessDeniedResponse;
 use App\Swagger\Annotations\UnauthorizedResponse;
 use App\Swagger\Annotations\TokenParameter;
-use App\Swagger\Annotations\SellerOfferSchema;
+use App\Swagger\Annotations\OfferWithCompensationsSchema;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -40,7 +40,7 @@ class SellerOfferController
      *  path = "/sellers/offers",
      *  summary = "Доступные офферы для продавцов",
      *  description = "",
-     *  tags = { "Offers" },
+     *  tags = { "Sellers" },
      *
      *  @TokenParameter(),
      *  @SWG\Parameter(name = "limit", default = 20, in = "query", type = "integer"),
@@ -51,7 +51,7 @@ class SellerOfferController
      *      description = "Список получен",
      *      @SWG\Schema(
      *          type = "array",
-     *          items = @SellerOfferSchema()
+     *          items = @OfferWithCompensationsSchema()
      *      )
      *  ),
      *

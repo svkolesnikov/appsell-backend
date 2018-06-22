@@ -2,7 +2,7 @@
 
 namespace App\DataSource\Dto;
 
-class SellerOffer
+class Offer
 {
     public $id;
     public $title;

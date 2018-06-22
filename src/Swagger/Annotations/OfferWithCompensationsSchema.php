@@ -8,7 +8,7 @@ use Swagger\Annotations\Schema;
 /**
  * @Annotation
  */
-class SellerOfferSchema extends Schema
+class OfferWithCompensationsSchema extends Schema
 {
     public function __construct(array $properties)
     {

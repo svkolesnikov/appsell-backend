@@ -2,7 +2,7 @@
 
 namespace App\DataSource;
 
-use App\DataSource\Dto\SellerOffer;
+use App\DataSource\Dto\Offer;
 use App\Entity\User;
 use App\Exception\Api\DataSourceException;
 use Doctrine\DBAL\DBALException;
@@ -41,7 +41,8 @@ with base_commission as (
     where
       O.is_active = true AND
       O.active_from < now() AND
-      O.active_to > now()
+      O.active_to > now() and
+      O.type in ('app', 'service')
   ),
   compensations as (
     select
@@ -76,6 +77,7 @@ select
       P.description
     from prices P
     where P.offer_id = O.id
+    order by P.type desc
   ) as r) as compensations
 from offers O
 order by O.mtime desc
@@ -95,7 +97,7 @@ SQL;
             return array_map(function (array $item) {
 
                 $item['compensations'] = (array) json_decode($item['compensations'], true);
-                return new SellerOffer($item);
+                return new Offer($item);
 
             }, $statement->fetchAll(FetchMode::ASSOCIATIVE));
 

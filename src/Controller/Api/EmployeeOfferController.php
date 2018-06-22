@@ -2,6 +2,7 @@
 
 namespace App\Controller\Api;
 
+use App\DataSource\EmployeeOfferDataSource;
 use App\Entity\User;
 use App\Lib\Enum\UserGroupEnum;
 use App\Security\UserGroupManager;
@@ -11,7 +12,7 @@ use Swagger\Annotations as SWG;
 use App\Swagger\Annotations\AccessDeniedResponse;
 use App\Swagger\Annotations\UnauthorizedResponse;
 use App\Swagger\Annotations\TokenParameter;
-use App\Swagger\Annotations\EmployeeOfferSchema;
+use App\Swagger\Annotations\OfferWithCompensationsSchema;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -21,15 +22,15 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
  */
 class EmployeeOfferController
 {
-//    /** @var SellerOfferDataSource */
-//    protected $dataSource;
+    /** @var EmployeeOfferDataSource */
+    protected $dataSource;
 
     /** @var TokenStorageInterface */
     protected $tokenStorage;
 
-    public function __construct(TokenStorageInterface $ts)
+    public function __construct(EmployeeOfferDataSource $ds, TokenStorageInterface $ts)
     {
-//        $this->dataSource = $ds;
+        $this->dataSource = $ds;
         $this->tokenStorage = $ts;
     }
 
@@ -39,7 +40,7 @@ class EmployeeOfferController
      *  path = "/employees/offers",
      *  summary = "Доступные офферы для сотрудников продавцов",
      *  description = "",
-     *  tags = { "Offers" },
+     *  tags = { "Employees" },
      *
      *  @TokenParameter(),
      *  @SWG\Parameter(name = "limit", default = 20, in = "query", type = "integer"),
@@ -50,7 +51,7 @@ class EmployeeOfferController
      *      description = "Список получен",
      *      @SWG\Schema(
      *          type = "array",
-     *          items = @EmployeeOfferSchema()
+     *          items = @OfferWithCompensationsSchema()
      *      )
      *  ),
      *
@@ -58,11 +59,12 @@ class EmployeeOfferController
      *  @AccessDeniedResponse()
      * )
      *
-     * @Route("/employees", methods = { "GET" })
+     * @Route("/offers", methods = { "GET" })
      * @param Request $request
      * @param UserGroupManager $groupManager
      * @return JsonResponse
      * @throws \Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException
+     * @throws \App\Exception\Api\DataSourceException
      */
     public function getAvailableOffersAction(Request $request, UserGroupManager $groupManager): JsonResponse
     {
@@ -75,6 +77,6 @@ class EmployeeOfferController
             throw new AccessDeniedHttpException('Employees only access');
         }
 
-        return new JsonResponse([]);
+        return new JsonResponse($this->dataSource->getAvailableOffers($user, $limit, $offset));
     }
 }
