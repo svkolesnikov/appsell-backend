@@ -116,7 +116,7 @@ class SellerOfferController
     /**
      * @SWG\Post(
      *
-     *  path = "/sellers/offers/{id}/approval",
+     *  path = "/sellers/offers/{id}/employees/approval",
      *  summary = "Разрешение распространения оффера сотрудниками",
      *  description = "",
      *  tags = { "Sellers" },
@@ -133,7 +133,7 @@ class SellerOfferController
      *  @NotFoundResponse()
      * )
      *
-     * @Route("/offers/{id}/approval", methods = { "POST" })
+     * @Route("/offers/{id}/employees/approval", methods = { "POST" })
      * @param Request $request
      * @return JsonResponse
      */
@@ -170,7 +170,7 @@ class SellerOfferController
     /**
      * @SWG\Delete(
      *
-     *  path = "/sellers/offers/{id}/approval",
+     *  path = "/sellers/offers/{id}/employees/approval",
      *  summary = "Запрет распространения оффера сотрудниками",
      *  description = "",
      *  tags = { "Sellers" },
@@ -187,7 +187,7 @@ class SellerOfferController
      *  @NotFoundResponse()
      * )
      *
-     * @Route("/offers/{id}/approval", methods = { "DELETE" })
+     * @Route("/offers/{id}/employees/approval", methods = { "DELETE" })
      * @param Request $request
      * @return JsonResponse
      */
