@@ -34,7 +34,7 @@
     <div class="btn-group">
         <a href="{{ path(app.request.attributes.get('_route'), { _page: pager._page-1, _per_page: pager._per_page, filter: filter is defined ? filter : [] }) }}"
            class="btn btn-default" title="Предыдущая"
-           {% if 1 == pager._page %}disabled{% endif %}
+           {% if 1 == pager._page %}disabled style="pointer-events: none;"{% endif %}
         >
             <i class="fa fa-hand-o-left" aria-hidden="true"></i>
             Предыдущая
@@ -42,7 +42,7 @@
 
         <a href="{{ path(app.request.attributes.get('_route'), { _page: pager._page+1, _per_page: pager._per_page, filter: filter is defined ? filter : [] }) }}"
            class="btn btn-default" title="Следующая"
-           {% if false == pager._has_more %}disabled{% endif %}
+           {% if false == pager._has_more %}disabled style="pointer-events: none;"{% endif %}
         >
             <i class="fa fa-hand-o-right" aria-hidden="true"></i>
             Следующая
