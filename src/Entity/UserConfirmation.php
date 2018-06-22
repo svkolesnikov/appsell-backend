@@ -53,6 +53,17 @@ class UserConfirmation
      */
     protected $mtime;
 
+    /**
+     * @ORM\Column(type="string")
+     */
+    protected $password_recovery_code;
+
+    /**
+     * @var \DateTime
+     * @ORM\Column(type="datetime")
+     */
+    protected $password_recovery_time;
+
     public function __construct()
     {
         $this->email_confirmed = false;
@@ -137,6 +148,28 @@ class UserConfirmation
     public function setEmailConfirmationTime(\DateTime $time)
     {
         $this->email_confirmation_time = $time;
+        return $this;
+    }
+
+    public function getPasswordRecoveryCode(): ?string
+    {
+        return $this->password_recovery_code;
+    }
+
+    public function setPasswordRecoveryCode(?string $code)
+    {
+        $this->password_recovery_code = $code;
+        return $this;
+    }
+
+    public function getPasswordRecoveryTime(): ?\DateTime
+    {
+        return $this->password_recovery_time;
+    }
+
+    public function setPasswordRecoveryTime(\DateTime $time)
+    {
+        $this->password_recovery_time = $time;
         return $this;
     }
 }

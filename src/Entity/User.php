@@ -88,12 +88,6 @@ class User implements UserInterface, \Serializable
     {
         $this->is_active = false;
         $this->groups    = new ArrayCollection();
-
-        $this->profile = new UserProfile();
-        $this->profile->setUser($this);
-
-        $this->confirmation = new UserConfirmation();
-        $this->confirmation->setUser($this);
     }
 
     /**
@@ -217,7 +211,7 @@ class User implements UserInterface, \Serializable
 
     public function getProfile(): UserProfile
     {
-        return $this->profile;
+        return $this->profile ?? (new UserProfile())->setUser($this);
     }
 
     public function setProfile(UserProfile $profile): void
@@ -252,7 +246,7 @@ class User implements UserInterface, \Serializable
 
     public function getConfirmation(): UserConfirmation
     {
-        return $this->confirmation;
+        return $this->confirmation ?? (new UserConfirmation())->setUser($this);
     }
 
     public function setConfirmation(UserConfirmation $confirmation)

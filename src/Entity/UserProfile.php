@@ -127,9 +127,10 @@ class UserProfile
         return $this->user;
     }
 
-    public function setUser(User $user): void
+    public function setUser(User $user)
     {
         $this->user = $user;
+        return $this;
     }
 
     public function getCompanyId(): ?string

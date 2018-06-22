@@ -67,7 +67,6 @@ class OfferReferralLinkController
      * @param TokenStorageInterface $tokenStorage
      * @param UserGroupManager $gm
      * @return JsonResponse
-     * @throws \Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException
      */
     public function createLinkController(Request $request, TokenStorageInterface $tokenStorage, UserGroupManager $gm): JsonResponse
     {

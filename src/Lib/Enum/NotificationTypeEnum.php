@@ -9,6 +9,7 @@ use MyCLabs\Enum\Enum;
  * @method static NotificationTypeEnum NEW_SELLER()
  * @method static NotificationTypeEnum NEW_EMPLOYEE()
  * @method static NotificationTypeEnum CONFIRM_EMAIL()
+ * @method static NotificationTypeEnum PASSWORD_RECOVERY()
  */
 final class NotificationTypeEnum extends Enum
 {
@@ -16,4 +17,5 @@ final class NotificationTypeEnum extends Enum
     public const NEW_SELLER = 'new_seller';
     public const NEW_EMPLOYEE = 'new_employee';
     public const CONFIRM_EMAIL = 'confirm_email';
+    public const PASSWORD_RECOVERY = 'password_recovery';
 }
