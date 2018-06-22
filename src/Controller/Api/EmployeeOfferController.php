@@ -38,7 +38,7 @@ class EmployeeOfferController
     }
 
     /**
-     * @SWG\Post(
+     * @SWG\Get(
      *
      *  path = "/employees/offers",
      *  summary = "Доступные офферы для сотрудников продавцов",

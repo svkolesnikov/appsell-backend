@@ -4,6 +4,7 @@ namespace App\Security;
 
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\NoResultException;
 use Symfony\Component\Security\Core\Exception\DisabledException;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
@@ -37,7 +38,6 @@ class AccessTokenUserProvider implements UserProviderInterface
     /**
      * @param string $username
      * @return UserInterface
-     * @throws \Doctrine\ORM\NoResultException
      * @throws \Symfony\Component\Security\Core\Exception\DisabledException
      * @throws UsernameNotFoundException
      * @throws \Doctrine\ORM\NonUniqueResultException
@@ -46,29 +46,37 @@ class AccessTokenUserProvider implements UserProviderInterface
     {
         [$email, $tokenSalt] = explode('|', $username);
 
-        /** @var User $user */
-        $user = $this->entityManager->createQueryBuilder()
-            ->select('u')
-            ->from('App:User', 'u')
-            ->where('u.email = :email and (u.token_salt is null or u.token_salt = :salt)')
-            ->setParameters([
-                'email' => $email,
-                'salt' => $tokenSalt
-            ])
-            ->getQuery()
-            ->getSingleResult();
+        try {
 
-        if (null === $user) {
+            /** @var User $user */
+            $user = $this->entityManager->createQueryBuilder()
+                ->select('u')
+                ->from('App:User', 'u')
+                ->where('u.email = :email and (u.token_salt is null or u.token_salt = :salt)')
+                ->setParameters([
+                    'email' => $email,
+                    'salt' => $tokenSalt
+                ])
+                ->getQuery()
+                ->getSingleResult();
+
+            if (null === $user) {
+                $ex = new UsernameNotFoundException();
+                $ex->setUsername($email);
+                throw $ex;
+            }
+
+            if (!$user->isActive()) {
+                throw new DisabledException('Аккаунт заблокирован');
+            }
+
+            return $user;
+
+        } catch (NoResultException $ex) {
             $ex = new UsernameNotFoundException();
-            $ex->setUsername($username);
+            $ex->setUsername($email);
             throw $ex;
         }
-
-        if (!$user->isActive()) {
-            throw new DisabledException('Аккаунт заблокирован');
-        }
-
-        return $user;
     }
 
     /**

@@ -3,11 +3,14 @@
 namespace App\Controller\Api;
 
 use App\DataSource\SellerOfferDataSource;
+use App\Entity\Offer;
+use App\Entity\SellerApprovedOffer;
 use App\Entity\User;
 use App\Exception\Api\FormValidationException;
 use App\Lib\Enum\OfferTypeEnum;
 use App\Lib\Enum\UserGroupEnum;
 use App\Security\UserGroupManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Swagger\Annotations as SWG;
@@ -16,8 +19,10 @@ use App\Swagger\Annotations\UnauthorizedResponse;
 use App\Swagger\Annotations\TokenParameter;
 use App\Swagger\Annotations\OfferWithCompensationsSchema;
 use App\Swagger\Annotations\BadRequestResponse;
+use App\Swagger\Annotations\NotFoundResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 /**
@@ -31,14 +36,22 @@ class SellerOfferController
     /** @var TokenStorageInterface */
     protected $tokenStorage;
 
-    public function __construct(SellerOfferDataSource $ds, TokenStorageInterface $ts)
+    /** @var EntityManagerInterface */
+    protected $entityManager;
+
+    /** @var UserGroupManager */
+    protected $groupManager;
+
+    public function __construct(SellerOfferDataSource $ds, TokenStorageInterface $ts, EntityManagerInterface $em, UserGroupManager $gm)
     {
         $this->dataSource = $ds;
         $this->tokenStorage = $ts;
+        $this->entityManager = $em;
+        $this->groupManager = $gm;
     }
 
     /**
-     * @SWG\Post(
+     * @SWG\Get(
      *
      *  path = "/sellers/offers",
      *  summary = "Доступные офферы для продавцов",
@@ -66,13 +79,12 @@ class SellerOfferController
      *
      * @Route("/offers", methods = { "GET" })
      * @param Request $request
-     * @param UserGroupManager $groupManager
      * @return JsonResponse
      * @throws \Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException
      * @throws \App\Exception\Api\DataSourceException
      * @throws FormValidationException
      */
-    public function getAvailableOffersAction(Request $request, UserGroupManager $groupManager): JsonResponse
+    public function getAvailableOffersAction(Request $request): JsonResponse
     {
         try {
 
@@ -82,7 +94,7 @@ class SellerOfferController
             $offset = (int)$request->get('offset', 0);
             $type   = $request->get('type') ? new OfferTypeEnum($request->get('type')) : null;
 
-            if (!$groupManager->hasGroup($user, UserGroupEnum::SELLER())) {
+            if (!$this->groupManager->hasGroup($user, UserGroupEnum::SELLER())) {
                 throw new AccessDeniedHttpException('Sellers only access');
             }
 
@@ -99,5 +111,109 @@ class SellerOfferController
                 ['type' => 'Допустимые значения: ' . implode(', ', OfferTypeEnum::toArray())]
             );
         }
+    }
+
+    /**
+     * @SWG\Post(
+     *
+     *  path = "/sellers/offers/{id}/approval",
+     *  summary = "Разрешение распространения оффера сотрудниками",
+     *  description = "",
+     *  tags = { "Sellers" },
+     *
+     *  @TokenParameter(),
+     *
+     *  @SWG\Response(
+     *      response = 201,
+     *      description = "Разрешено"
+     *  ),
+     *
+     *  @UnauthorizedResponse(),
+     *  @AccessDeniedResponse(),
+     *  @NotFoundResponse()
+     * )
+     *
+     * @Route("/offers/{id}/approval", methods = { "POST" })
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function approveAction(Request $request): JsonResponse
+    {
+        $user = $this->tokenStorage->getToken()->getUser();
+        if (!$this->groupManager->hasGroup($user, UserGroupEnum::SELLER())) {
+            throw new AccessDeniedHttpException('Sellers only access');
+        }
+
+        /** @var Offer $offer */
+        $offer = $this->entityManager->find('App:Offer', $request->get('id'));
+        if (null === $offer) {
+            throw new NotFoundHttpException('Оффер не найден');
+        }
+
+        $approval = $this->entityManager->getRepository('App:SellerApprovedOffer')->findOneBy([
+            'offer'  => $offer,
+            'seller' => $user
+        ]);
+
+        if (null === $approval) {
+            $approval = new SellerApprovedOffer();
+            $approval->setOffer($offer);
+            $approval->setSeller($user);
+
+            $this->entityManager->persist($approval);
+            $this->entityManager->flush();
+        }
+
+        return new JsonResponse(null, JsonResponse::HTTP_CREATED);
+    }
+
+    /**
+     * @SWG\Delete(
+     *
+     *  path = "/sellers/offers/{id}/approval",
+     *  summary = "Запрет распространения оффера сотрудниками",
+     *  description = "",
+     *  tags = { "Sellers" },
+     *
+     *  @TokenParameter(),
+     *
+     *  @SWG\Response(
+     *      response = 204,
+     *      description = "Запрещено"
+     *  ),
+     *
+     *  @UnauthorizedResponse(),
+     *  @AccessDeniedResponse(),
+     *  @NotFoundResponse()
+     * )
+     *
+     * @Route("/offers/{id}/approval", methods = { "DELETE" })
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function rejectAction(Request $request): JsonResponse
+    {
+        $user = $this->tokenStorage->getToken()->getUser();
+        if (!$this->groupManager->hasGroup($user, UserGroupEnum::SELLER())) {
+            throw new AccessDeniedHttpException('Sellers only access');
+        }
+
+        /** @var Offer $offer */
+        $offer = $this->entityManager->find('App:Offer', $request->get('id'));
+        if (null === $offer) {
+            throw new NotFoundHttpException('Оффер не найден');
+        }
+
+        $approval = $this->entityManager->getRepository('App:SellerApprovedOffer')->findOneBy([
+            'offer'  => $offer,
+            'seller' => $user
+        ]);
+
+        if (null !== $approval) {
+            $this->entityManager->remove($approval);
+            $this->entityManager->flush();
+        }
+
+        return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
     }
 }
