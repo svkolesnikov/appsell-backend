@@ -8,6 +8,7 @@ class OfferCompensation
     public $description;
     public $currency;
     public $price;
+    public $commission;
 
     public function __construct(array $props)
     {
@@ -15,5 +16,6 @@ class OfferCompensation
         $this->description = $props['description'];
         $this->currency = $props['currency'];
         $this->price = $props['price'];
+        $this->commission = $props['commission'];
     }
 }
