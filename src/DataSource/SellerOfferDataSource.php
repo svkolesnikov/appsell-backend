@@ -59,30 +59,17 @@ with base_commission as (
       C.description,
       C.currency,
       C.offer_id,
-      C.offer_commission,
       case
         when C.offer_commission is not null and C.offer_commission > 0 then C.price - C.price * C.offer_commission * 0.01
         when C.user_commission is not null and C.user_commission > 0 then C.price - C.price * C.user_commission * 0.01
         when C.base_commission is not null and C.base_commission > 0 then C.price - C.price * C.base_commission * 0.01
-      end as price,
-      case
-        when C.offer_commission is not null and C.offer_commission > 0 then C.offer_commission
-        when C.user_commission is not null and C.user_commission > 0 then C.user_commission
-        when C.base_commission is not null and C.base_commission > 0 then C.base_commission
-      end as commission
+      end as price
     from compensations C
   )
 select
   O.*,
-  (
-    select P.offer_commission
-    from prices as P
-    where P.offer_id = O.id
-    limit 1
-  ) as commission,
   (select json_agg(r) from (
     select
-      P.commission,
       P.price,
       P.currency,
       P.type,

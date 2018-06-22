@@ -8,7 +8,6 @@ class SellerOffer
     public $title;
     public $description;
     public $type;
-    public $commission;
 
     /** @var OfferCompensation[] */
     public $compensations;
@@ -19,7 +18,6 @@ class SellerOffer
         $this->title = $props['title'];
         $this->description = $props['description'];
         $this->type = $props['type'];
-        $this->commission = $props['commission'];
 
         $this->compensations = array_map(function (array $comp) {
             return new OfferCompensation($comp);

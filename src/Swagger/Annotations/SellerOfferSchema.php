@@ -19,14 +19,12 @@ class SellerOfferSchema extends Schema
                 new Property(['property' => 'title', 'type' => 'string']),
                 new Property(['property' => 'description', 'type' => 'string']),
                 new Property(['property' => 'type', 'type' => 'string']),
-                new Property(['property' => 'commission', 'type' => 'integer']),
                 new Property(['property' => 'compensations', 'type' => 'array', 'items' => new Schema([
                     'properties' => [
                         new Property(['property' => 'type', 'type' => 'string']),
                         new Property(['property' => 'description', 'type' => 'string']),
                         new Property(['property' => 'currency', 'type' => 'string']),
-                        new Property(['property' => 'price', 'type' => 'number']),
-                        new Property(['property' => 'commission', 'type' => 'integer'])
+                        new Property(['property' => 'price', 'type' => 'number'])
                     ]
                 ])]),
             ]
