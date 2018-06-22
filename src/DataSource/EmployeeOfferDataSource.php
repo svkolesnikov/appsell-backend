@@ -5,6 +5,7 @@ namespace App\DataSource;
 use App\DataSource\Dto\Offer;
 use App\Entity\User;
 use App\Exception\Api\DataSourceException;
+use App\Lib\Enum\OfferTypeEnum;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
@@ -24,11 +25,16 @@ class EmployeeOfferDataSource
      * @param User $employee
      * @param int $limit
      * @param int $offset
-     * @return array|SellerOffer[]
+     * @param OfferTypeEnum|null $type
+     * @return array|Offer[]
      * @throws DataSourceException
      */
-    public function getAvailableOffers(User $employee, int $limit, int $offset): array
+    public function getAvailableOffers(User $employee, int $limit, int $offset, OfferTypeEnum $type = null): array
     {
+        $types = null === $type
+            ? implode("', '", OfferTypeEnum::toArray())
+            : $type->getValue();
+
         $sql = <<<SQL
 with employer as (
     select * from userdata.user where id = (
@@ -56,7 +62,7 @@ with employer as (
       O.is_active = true AND
       O.active_from < now() AND
       O.active_to > now() and
-      O.type in ('app', 'service') and
+      O.type in ('$types') and
       AO.seller_id = (select id from employer limit 1)
   ),
   seller_compensations as (

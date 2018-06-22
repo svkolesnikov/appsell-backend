@@ -4,6 +4,8 @@ namespace App\Controller\Api;
 
 use App\DataSource\SellerOfferDataSource;
 use App\Entity\User;
+use App\Exception\Api\FormValidationException;
+use App\Lib\Enum\OfferTypeEnum;
 use App\Lib\Enum\UserGroupEnum;
 use App\Security\UserGroupManager;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -13,6 +15,7 @@ use App\Swagger\Annotations\AccessDeniedResponse;
 use App\Swagger\Annotations\UnauthorizedResponse;
 use App\Swagger\Annotations\TokenParameter;
 use App\Swagger\Annotations\OfferWithCompensationsSchema;
+use App\Swagger\Annotations\BadRequestResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -43,6 +46,7 @@ class SellerOfferController
      *  tags = { "Sellers" },
      *
      *  @TokenParameter(),
+     *  @SWG\Parameter(name = "type", in = "query", type = "string", description = "app или service"),
      *  @SWG\Parameter(name = "limit", default = 20, in = "query", type = "integer"),
      *  @SWG\Parameter(name = "offset", default = 0, in = "query", type = "integer"),
      *
@@ -56,7 +60,8 @@ class SellerOfferController
      *  ),
      *
      *  @UnauthorizedResponse(),
-     *  @AccessDeniedResponse()
+     *  @AccessDeniedResponse(),
+     *  @BadRequestResponse()
      * )
      *
      * @Route("/offers", methods = { "GET" })
@@ -65,18 +70,34 @@ class SellerOfferController
      * @return JsonResponse
      * @throws \Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException
      * @throws \App\Exception\Api\DataSourceException
+     * @throws FormValidationException
      */
     public function getAvailableOffersAction(Request $request, UserGroupManager $groupManager): JsonResponse
     {
-        /** @var User $user */
-        $user   = $this->tokenStorage->getToken()->getUser();
-        $limit  = (int) $request->get('limit', 20);
-        $offset = (int) $request->get('offset', 0);
+        try {
 
-        if (!$groupManager->hasGroup($user, UserGroupEnum::SELLER())) {
-            throw new AccessDeniedHttpException('Sellers only access');
+            /** @var User $user */
+            $user   = $this->tokenStorage->getToken()->getUser();
+            $limit  = (int)$request->get('limit', 20);
+            $offset = (int)$request->get('offset', 0);
+            $type   = $request->get('type') ? new OfferTypeEnum($request->get('type')) : null;
+
+            if (!$groupManager->hasGroup($user, UserGroupEnum::SELLER())) {
+                throw new AccessDeniedHttpException('Sellers only access');
+            }
+
+            return new JsonResponse($this->dataSource->getAvailableOffers(
+                $user,
+                $limit,
+                $offset,
+                $type
+            ));
+
+        } catch (\UnexpectedValueException $ex) {
+            throw new FormValidationException(
+                'Передан неверный параметр',
+                ['type' => 'Допустимые значения: ' . implode(', ', OfferTypeEnum::toArray())]
+            );
         }
-
-        return new JsonResponse($this->dataSource->getAvailableOffers($user, $limit, $offset));
     }
 }
