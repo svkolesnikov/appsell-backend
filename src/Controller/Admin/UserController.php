@@ -20,20 +20,13 @@ class UserController extends BaseController
     /** @var  EntityManagerInterface */
     protected $em;
 
-    /** @var  UserManager  */
-    protected $userManager;
-
     /** @var  UserGroupManager  */
     protected $userGroupManager;
 
-    public function __construct(
-        EntityManagerInterface $em,
-        UserManager $userManager,
-        UserGroupManager $userGroupManager
+    public function __construct(EntityManagerInterface $em, UserGroupManager $userGroupManager
     )
     {
         $this->em = $em;
-        $this->userManager = $userManager;
         $this->userGroupManager = $userGroupManager;
     }
 
@@ -53,16 +46,28 @@ class UserController extends BaseController
         $perPage    = $request->get('_per_page', 16);
         $offset     =  ($page-1) * $perPage;
 
-        $criteria   = [];
+        $qb = $this->em
+            ->createQueryBuilder()
+            ->select('u')
+            ->from(User::class, 'u')
+            ->setFirstResult($offset)
+            ->setMaxResults($perPage);
 
-        $users      = $this->userManager->getList($this->getUser(), $criteria, $perPage, $offset);
+        // "Работодатель" видит только своих сотрудников
+        if ($this->userGroupManager->hasGroup($this->getUser(), UserGroupEnum::SELLER())) {
+            $qb->innerJoin('u.profile', 'p')
+                ->where('p.employer = :user')
+                ->setParameter(':user', $this->getUser());
+        }
+
+        $users = $qb->getQuery()->getResult();
 
         return $this->render('pages/user/list.html.twig', [
             'users' => $users,
             'pager' => [
                 '_per_page' => $perPage,
                 '_page'     => $page,
-                '_has_more' => count($users) >= $perPage
+                '_has_more' => \count($users) >= $perPage
             ]
         ]);
     }
@@ -80,12 +85,14 @@ class UserController extends BaseController
     public function editAction(Request $request, User $user): Response
     {
         $form = $this->createForm(UserType::class, $user);
-
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+
             try {
-                $this->userManager->save($user);
+
+                $this->em->persist($user);
+                $this->em->flush();
 
                 $this->addFlash('success', 'Пользователь обновлен');
 
@@ -125,12 +132,14 @@ class UserController extends BaseController
         }
 
         $form = $this->createForm(UserType::class, $user);
-
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+
             try {
-                $this->userManager->save($user);
+
+                $this->em->persist($user);
+                $this->em->flush();
 
                 $this->addFlash('success', 'Пользователь обновлен');
 
@@ -161,9 +170,16 @@ class UserController extends BaseController
      */
     public function removeAction(User $user): Response
     {
-        $this->userManager->remove($user);
+        try {
 
-        $this->addFlash('success', 'Пользователь удален');
+            $this->em->remove($user);
+            $this->em->flush();
+
+            $this->addFlash('success', 'Пользователь удален');
+
+        } catch (\Exception $ex) {
+            $this->addFlash('error', 'Ошибка при удалении пользователя: ' . $ex->getMessage());
+        }
 
         return $this->redirectToRoute('app_settings_users_list');
     }
