@@ -2,7 +2,13 @@
 
 namespace App\Controller\Admin;
 
-use App\Manager\CommissionManager;
+use App\Entity\ForOfferCommission;
+use App\Entity\ForUserCommission;
+use App\Entity\Offer;
+use App\Entity\SellerBaseCommission;
+use App\Entity\User;
+use App\Exception\Admin\OfferNotFoundException;
+use App\Exception\Admin\UserNotFoundException;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -15,20 +21,13 @@ class ApiController extends BaseController
     /** @var  EntityManagerInterface */
     protected $em;
 
-    /** @var  CommissionManager  */
-    protected $commissionManager;
-
-    public function __construct(
-        EntityManagerInterface $em,
-        CommissionManager $commissionManager
-    )
+    public function __construct(EntityManagerInterface $em)
     {
         $this->em = $em;
-        $this->commissionManager = $commissionManager;
     }
 
     /**
-     * @Route("/admin/api/commissions/base", name="api_commissions_seller_update")
+     * @Route("/admin/api/commissions/seller", name="api_commissions_seller_base")
      * @Method({"POST"})
      * @param Request $request
      *
@@ -36,8 +35,8 @@ class ApiController extends BaseController
      */
     public function updateSellerCommissionAction(Request $request): JsonResponse
     {
-        $commission = $request->get('value');
-        if ($commission < 0 || $commission > 100) {
+        $percent = $request->get('value');
+        if ($percent < 0 || $percent > 100) {
             return new JsonResponse (
                 ['error' => 'Комиссия должна быть в диапазоне от 0 до 100'],
                 JsonResponse::HTTP_BAD_REQUEST
@@ -45,7 +44,132 @@ class ApiController extends BaseController
         }
 
         try {
-            $this->commissionManager->updateSellerBaseCommission($this->getUser(), $commission);
+            $commission = $this->em
+                ->getRepository(SellerBaseCommission::class)
+                ->findOneBy(['seller' => $this->getUser()]);
+
+            $commission = $commission ?? (new SellerBaseCommission())->setSeller($this->getUser());
+            $commission->setPercent($percent);
+
+            $this->em->persist($commission);
+            $this->em->flush();
+
+        } catch (\Exception $ex) {
+            return new JsonResponse (
+                ['error' => 'Не удалось обновить комисиию: ' . $ex->getMessage()],
+                JsonResponse::HTTP_BAD_REQUEST
+            );
+        }
+
+        return new JsonResponse([], JsonResponse::HTTP_OK);
+    }
+
+    /**
+     * @Route("/admin/api/commissions/offer/{id}/{by_user}", name="api_commissions_for_offer", defaults={"by_user"=null})
+     * @Method({"POST"})
+     * @param Request $request
+     *
+     * @return JsonResponse
+     */
+    public function updateForOfferCommissionAction(Request $request): JsonResponse
+    {
+        $percent = $request->get('value');
+        if ($percent < 0 || $percent > 100) {
+            return new JsonResponse (
+                ['error' => 'Комиссия должна быть в диапазоне от 0 до 100'],
+                JsonResponse::HTTP_BAD_REQUEST
+            );
+        }
+
+        /** @var User $byUser */
+        $byUser   = null;
+        $byUserId = $request->get('by_user');
+
+        try {
+
+            if (null !== $byUserId) {
+                $byUser = $this->em->getRepository(User::class)->find($byUserId);
+                if (null === $byUser) {
+                    throw new UserNotFoundException();
+                }
+            }
+
+            /** @var Offer $offer */
+            $offer = $this->em->getRepository(Offer::class)->find($request->get('id'));
+            if (null === $offer) {
+                throw new OfferNotFoundException();
+            }
+
+            $params = ['offer' => $offer, 'by_user' => $byUser];
+            $commission = $this->em->getRepository(ForOfferCommission::class)->findOneBy($params);
+
+            $commission = $commission ?? new ForOfferCommission();
+            $commission
+                ->setPercent($percent)
+                ->setOffer($offer)
+                ->setByUser($byUser);
+
+            $this->em->persist($commission);
+            $this->em->flush();
+
+        } catch (\Exception $ex) {
+            return new JsonResponse (
+                ['error' => 'Не удалось обновить комисиию: ' . $ex->getMessage()],
+                JsonResponse::HTTP_BAD_REQUEST
+            );
+        }
+
+        return new JsonResponse([], JsonResponse::HTTP_OK);
+    }
+
+    /**
+     * @Route("/admin/api/commissions/user/{id}/{by_user}", name="api_commissions_for_user", defaults={"by_user"=null})
+     * @Method({"POST"})
+     * @param Request $request
+     *
+     * @return JsonResponse
+     */
+    public function updateForUserCommissionAction(Request $request): JsonResponse
+    {
+        $percent = $request->get('value');
+        if ($percent < 0 || $percent > 100) {
+            return new JsonResponse (
+                ['error' => 'Комиссия должна быть в диапазоне от 0 до 100'],
+                JsonResponse::HTTP_BAD_REQUEST
+            );
+        }
+
+        /** @var User $byUser */
+        $byUser   = null;
+        $byUserId = $request->get('by_user');
+
+        try {
+
+            if (null !== $byUserId) {
+                $byUser = $this->em->getRepository(User::class)->find($byUserId);
+                if (null === $byUser) {
+                    throw new UserNotFoundException();
+                }
+            }
+
+            /** @var User $user */
+            $user = $this->em->getRepository(User::class)->find($request->get('id'));
+            if (null === $user) {
+                throw new UserNotFoundException();
+            }
+
+            $params = ['user' => $user, 'by_user' => $byUser];
+            $commission = $this->em
+                ->getRepository(ForUserCommission::class)
+                ->findOneBy($params);
+
+            $commission = $commission ?? new ForUserCommission();
+            $commission->setPercent($percent)
+                ->setUser($user)
+                ->setByUser($byUser);
+
+            $this->em->persist($commission);
+            $this->em->flush();
 
         } catch (\Exception $ex) {
             return new JsonResponse (

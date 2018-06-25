@@ -30,7 +30,7 @@ class ForUserCommission
     /**
      * @var User
      * @ORM\ManyToOne(targetEntity = "User")
-     * @ORM\JoinColumn(name = "user_id", referencedColumnName = "id")
+     * @ORM\JoinColumn(name = "by_user_id", referencedColumnName = "id")
      */
     protected $by_user;
 

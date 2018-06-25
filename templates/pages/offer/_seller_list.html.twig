@@ -2,16 +2,17 @@
     <thead>
     <tr class="headings">
         <th class="column-title">Информация</th>
-        {% if is_granted(['ROLE_SELLER']) %}
-        <th class="column-title">Действия</th>
+        {% if is_granted(['ROLE_APP_OFFER_CHANGE_COMMISSION']) %}
+        <th class="column-title">Комиссия</th>
         {% endif %}
+        <th class="column-title">Действия</th>
     </tr>
     </thead>
 
     <tbody>
     {% for offer in offers %}
         <tr class="even pointer">
-            <td width="90%">
+            <td width="80%">
                 <div class="box box-solid">
                     <div class="box-body">
                         <h4 style="background-color:#f7f7f7;
@@ -26,8 +27,8 @@
                             <div>
                                 <div class="clearfix">
                                     <h5 style="margin-top: 0">Компенсации</h5>
-                                    {% for item in offer.compensations %}
-                                        <p>{{ item.price ~ item.currency }}. {{ item.type }}: {{ item.description }}</p>
+                                    {% for item in offer.compensations|sort|reverse %}
+                                    <p>{{ item.type }}: {{ item.price ~ ' ' ~ item.currency }}. {{ item.description }}</p>
                                     {% endfor %}
                                 </div>
                             </div>
@@ -35,14 +36,21 @@
                     </div>
                 </div>
             </td>
-
-            {% if is_granted(['ROLE_SELLER']) %}
+            {% if is_granted(['ROLE_APP_OFFER_CHANGE_COMMISSION']) %}
+            <td>
+                <a href="#" class="commission-percent"
+                   data-type="number"
+                   data-pk="1"
+                   data-url="{{ path('api_commissions_for_offer', { id: offer.id, by_user: app.user.id }) }}"
+                   data-title="Введите комиссию"
+                >{{ commissions[offer.id].percent|default(0) }}</a>
+            </td>
+            {% endif %}
             <td>
                 <div class="btn-group">
                     {% include 'pages/offer/buttons/_change_accessibility.html.twig' %}
                 </div>
             </td>
-            {% endif %}
         </tr>
     {% endfor %}
 

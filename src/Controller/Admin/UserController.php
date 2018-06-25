@@ -2,12 +2,11 @@
 
 namespace App\Controller\Admin;
 
+use App\Entity\ForUserCommission;
 use App\Entity\Group;
 use App\Entity\User;
 use App\Lib\Enum\UserGroupEnum;
 use App\Form\UserType;
-use App\Manager\CommissionManager;
-use App\Manager\UserManager;
 use App\Security\UserGroupManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -42,9 +41,10 @@ class UserController extends BaseController
      */
     public function listAction(Request $request): Response
     {
-        $page       = $request->get('_page', 1);
-        $perPage    = $request->get('_per_page', 16);
-        $offset     =  ($page-1) * $perPage;
+        $page        = $request->get('_page', 1);
+        $perPage     = $request->get('_per_page', 16);
+        $offset      =  ($page-1) * $perPage;
+        $commissions = [];
 
         $qb = $this->em
             ->createQueryBuilder()
@@ -62,9 +62,17 @@ class UserController extends BaseController
 
         $users = $qb->getQuery()->getResult();
 
+        $byUser = $this->isGranted('ROLE_ADMIN') ? null : $this->getUser();
+        foreach ((array) $users as $user) {
+            $commissions[$user->getId()] = $this->em
+                ->getRepository(ForUserCommission::class)
+                ->findOneBy(['user' => $user, 'by_user' => $byUser]);
+        }
+
         return $this->render('pages/user/list.html.twig', [
-            'users' => $users,
-            'pager' => [
+            'commissions'   => $commissions,
+            'users'         => $users,
+            'pager'         => [
                 '_per_page' => $perPage,
                 '_page'     => $page,
                 '_has_more' => \count($users) >= $perPage

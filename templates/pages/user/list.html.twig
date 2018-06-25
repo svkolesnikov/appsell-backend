@@ -1,5 +1,20 @@
 {% extends 'base.html.twig' %}
 
+{% block javascripts %}
+    {{ parent() }}
+
+    <script type="text/javascript">
+        $(function() {
+            $('.commission-percent').editable({
+                error: function(response, newValue) {
+                    return response.responseJSON.error;
+                }
+            });
+        });
+    </script>
+
+{% endblock %}
+
 {% block top_nav_menu_buttons %}
     <ul class="nav navbar-nav navbar-right">
         <li class="dropdown">
@@ -28,6 +43,9 @@
                         <th class="column-title">Наименование компании</th>
                         <th class="column-title">Работодатель</th>
                         {% endif %}
+                        {% if is_granted(['ROLE_APP_USER_CHANGE_COMMISSION']) %}
+                            <th class="column-title">Комиссия</th>
+                        {% endif %}
                         <th class="column-title">Статус</th>
                         <th class="column-title">Действия</th>
                     </tr>
@@ -45,6 +63,21 @@
                         <td>{{ user.profile.companyId }}</td>
                         <td>{{ user.profile.companyTitle }}</td>
                         <td>{{ user.profile.employer }}</td>
+                        {% endif %}
+
+                        {% if is_granted(['ROLE_APP_USER_CHANGE_COMMISSION']) %}
+                        <td>
+                            <a href="#" class="commission-percent"
+                               data-type="number"
+                               data-pk="1"
+                               {% if is_granted(['ROLE_ADMIN', 'ROLE_SUPER_ADMIN']) %}
+                               data-url="{{ path('api_commissions_for_user', { id: user.id }) }}"
+                               {% else %}
+                               data-url="{{ path('api_commissions_for_user', { id: user.id, by_user: app.user.id }) }}"
+                               {% endif %}
+                               data-title="Введите комиссию"
+                            >{{ commissions[user.id].percent|default(0) }}</a>
+                        </td>
                         {% endif %}
 
                         <td align="center">

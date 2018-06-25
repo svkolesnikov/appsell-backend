@@ -6,6 +6,9 @@
         <th class="column-title">Наименование</th>
         <th class="column-title">Дата начала</th>
         <th class="column-title">Дата завершения</th>
+        {% if is_granted(['ROLE_APP_OFFER_CHANGE_COMMISSION']) %}
+        <th class="column-title">Комиссия</th>
+        {% endif %}
         <th class="column-title">Активность</th>
         <th class="column-title">Удален</th>
         <th class="column-title">Действия</th>
@@ -20,6 +23,16 @@
             <td>{{ offer.title }}</td>
             <td>{{ offer.activeFrom|date('d-m-Y') }}</td>
             <td>{{ offer.activeTo|date('d-m-Y') }}</td>
+            {% if is_granted(['ROLE_APP_OFFER_CHANGE_COMMISSION']) %}
+            <td>
+                <a href="#" class="commission-percent"
+                   data-type="number"
+                   data-pk="1"
+                   data-url="{{ path('api_commissions_for_offer', { id: offer.id }) }}"
+                   data-title="Введите комиссию"
+                >{{ commissions[offer.id].percent|default(0) }}</a>
+            </td>
+            {% endif %}
             <td>
                 {% if true == offer.isActive %}
                     <small class="label bg-green">Активирован</small>

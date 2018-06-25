@@ -1,8 +1,6 @@
 {% if is_granted('ROLE_APP_OFFER_CHANGE_ACCESSIBILITY') %}
 
-    {% set accessibiblity = offerManager.getAccessibility(offer, app.user) %}
-
-    {% if accessibiblity is null %}
+    {% if available_offers[offer.id] is not defined or available_offers[offer.id] is empty %}
         <a href="{{ path('app_offer_change_accessibility', { id: offer.id, action: 'approve'}) }}" class="btn btn-sm btn-success">
             Показать сотрудникам
         </a>

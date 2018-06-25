@@ -1,5 +1,20 @@
 {% extends 'base.html.twig' %}
 
+{% block javascripts %}
+    {{ parent() }}
+
+    <script type="text/javascript">
+        $(function() {
+            $('.commission-percent').editable({
+                error: function(response, newValue) {
+                    return response.responseJSON.error;
+                }
+            });
+        });
+    </script>
+
+{% endblock %}
+
 {% block top_nav_menu_buttons %}
     <ul class="nav navbar-nav navbar-right">
         <li class="dropdown">
