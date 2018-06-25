@@ -45,28 +45,35 @@ class UserController extends BaseController
         $perPage     = $request->get('_per_page', 16);
         $offset      =  ($page-1) * $perPage;
         $commissions = [];
+        $users       = [];
 
-        $qb = $this->em
-            ->createQueryBuilder()
-            ->select('u')
-            ->from(User::class, 'u')
-            ->setFirstResult($offset)
-            ->setMaxResults($perPage);
+        try {
 
-        // "Работодатель" видит только своих сотрудников
-        if ($this->userGroupManager->hasGroup($this->getUser(), UserGroupEnum::SELLER())) {
-            $qb->innerJoin('u.profile', 'p')
-                ->where('p.employer = :user')
-                ->setParameter(':user', $this->getUser());
-        }
+            $qb = $this->em
+                ->createQueryBuilder()
+                ->select('u')
+                ->from(User::class, 'u')
+                ->setFirstResult($offset)
+                ->setMaxResults($perPage);
 
-        $users = $qb->getQuery()->getResult();
+            // "Работодатель" видит только своих сотрудников
+            if ($this->userGroupManager->hasGroup($this->getUser(), UserGroupEnum::SELLER())) {
+                $qb->innerJoin('u.profile', 'p')
+                    ->where('p.employer = :user')
+                    ->setParameter(':user', $this->getUser());
+            }
 
-        $byUser = $this->isGranted('ROLE_ADMIN') ? null : $this->getUser();
-        foreach ((array) $users as $user) {
-            $commissions[$user->getId()] = $this->em
-                ->getRepository(ForUserCommission::class)
-                ->findOneBy(['user' => $user, 'by_user' => $byUser]);
+            $users = $qb->getQuery()->getResult();
+
+            $byUser = $this->isGranted('ROLE_ADMIN') ? null : $this->getUser();
+            foreach ((array)$users as $user) {
+                $commissions[$user->getId()] = $this->em
+                    ->getRepository(ForUserCommission::class)
+                    ->findOneBy(['user' => $user, 'by_user' => $byUser]);
+            }
+
+        } catch (\Exception $ex) {
+            $this->addFlash('error', 'Ошибка при получении списка пользователей: ' . $ex->getMessage());
         }
 
         return $this->render('pages/user/list.html.twig', [

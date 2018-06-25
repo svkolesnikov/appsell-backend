@@ -38,7 +38,11 @@ class GroupController extends BaseController
         $perPage = $request->get('_per_page', 16);
         $offset =  ($page-1) * $perPage;
 
-        $items = $this->em->getRepository(Group::class)->findBy([], [], $perPage, $offset);
+        try {
+            $items = $this->em->getRepository(Group::class)->findBy([], [], $perPage, $offset);
+        } catch (\Exception $ex) {
+            $this->addFlash('error', 'Не удалось получить список групп. ' . $ex->getMessage());
+        }
 
         return $this->render('pages/group/list.html.twig', [
             'groups' => $items,
@@ -137,10 +141,16 @@ class GroupController extends BaseController
      */
     public function removeAction(Group $group): Response
     {
-        $this->em->remove($group);
-        $this->em->flush();
+        try {
 
-        $this->addFlash('success', 'Группа успешно удалена');
+            $this->em->remove($group);
+            $this->em->flush();
+
+            $this->addFlash('success', 'Группа успешно удалена');
+
+        } catch (\Exception $ex) {
+            $this->addFlash('error', 'Ошибка при удалении группы: ' . $ex->getMessage());
+        }
 
         return $this->redirectToRoute('app_settings_groups_list');
     }

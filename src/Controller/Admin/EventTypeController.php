@@ -36,7 +36,11 @@ class EventTypeController extends BaseController
         $perPage    = $request->get('_per_page', 16);
         $offset     = ($page-1) * $perPage;
 
-        $items      = $this->em->getRepository(EventType::class)->findBy([], [], $perPage, $offset);
+        try {
+            $items = $this->em->getRepository(EventType::class)->findBy([], [], $perPage, $offset);
+        } catch (\Exception $ex) {
+            $this->addFlash('error', 'Не удалось получить список событий. ' . $ex->getMessage());
+        }
 
         return $this->render('pages/event_type/list.html.twig', [
             'types' => $items,
@@ -134,10 +138,16 @@ class EventTypeController extends BaseController
      */
     public function removeAction(EventType $eventType): Response
     {
-        $this->em->remove($eventType);
-        $this->em->flush();
+        try {
 
-        $this->addFlash('success', 'Запись успешно удалена');
+            $this->em->remove($eventType);
+            $this->em->flush();
+
+            $this->addFlash('success', 'Запись успешно удалена');
+
+        } catch (\Exception $ex) {
+            $this->addFlash('error', 'Ошибка при удалении записи: ' . $ex->getMessage());
+        }
 
         return $this->redirectToRoute('app_event_type_list');
     }

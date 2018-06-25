@@ -36,7 +36,11 @@ class CommissionController extends BaseController
         $perPage = $request->get('_per_page', 16);
         $offset =  ($page-1) * $perPage;
 
-        $items = $this->em->getRepository(BaseCommission::class)->findBy([], [], $perPage, $offset);
+        try {
+            $items = $this->em->getRepository(BaseCommission::class)->findBy([], [], $perPage, $offset);
+        } catch (\Exception $ex) {
+            $this->addFlash('error', 'Не удалось получить список базовых комиссий. ' . $ex->getMessage());
+        }
 
         return $this->render('pages/commission/list.html.twig', [
             'commissions' => $items,
@@ -134,10 +138,16 @@ class CommissionController extends BaseController
      */
     public function removeAction(BaseCommission $commission): Response
     {
-        $this->em->remove($commission);
-        $this->em->flush();
+        try {
 
-        $this->addFlash('success', 'Запись успешно удалена');
+            $this->em->remove($commission);
+            $this->em->flush();
+
+            $this->addFlash('success', 'Запись успешно удалена');
+
+        } catch (\Exception $ex) {
+            $this->addFlash('error', 'Ошибка при удалении записи: ' . $ex->getMessage());
+        }
 
         return $this->redirectToRoute('app_ commission_list');
     }
