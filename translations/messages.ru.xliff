@@ -6,6 +6,14 @@
                 <source>Name</source>
                 <target>Наименование</target>
             </trans-unit>
+            <trans-unit id="User account is locked.">
+                <source>User account is locked.</source>
+                <target>Аккаунт заблокирован</target>
+            </trans-unit>
+            <trans-unit id="User account is disabled.">
+                <source>User account is disabled.</source>
+                <target>Аккаунт заблокирован</target>
+            </trans-unit>
             <trans-unit id="Group List">
                 <source>Group List</source>
                 <target>Группы</target>
