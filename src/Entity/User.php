@@ -13,7 +13,7 @@ use App\Lib\Orm\UuidGenerator;
  * @ORM\Table(name="userdata.user")
  * @ORM\HasLifecycleCallbacks
  */
-class User implements UserInterface, AdvancedUserInterface, \Serializable
+class User implements UserInterface, \Serializable
 {
     /**
      * @ORM\Id
@@ -271,25 +271,5 @@ class User implements UserInterface, AdvancedUserInterface, \Serializable
     {
         $this->token_salt = substr(md5(mt_rand()), 5, 10);
         return $this;
-    }
-
-    public function isAccountNonExpired()
-    {
-        return true;
-    }
-
-    public function isAccountNonLocked()
-    {
-        return $this->is_active;
-    }
-
-    public function isCredentialsNonExpired()
-    {
-        return true;
-    }
-
-    public function isEnabled()
-    {
-        return $this->is_active;
     }
 }

@@ -31,6 +31,7 @@ security:
             switch_user:      false
             context:          user
             pattern:          ^/admin.*
+            user_checker:     App\Security\UserChecker
             form_login:
                 provider:     database_provider
                 login_path:     /admin/login
