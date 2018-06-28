@@ -122,6 +122,7 @@ class SellerOfferController
      *  tags = { "Sellers" },
      *
      *  @TokenParameter(),
+     *  @SWG\Parameter(name = "id", type = "string", required = true, in = "path"),
      *
      *  @SWG\Response(
      *      response = 201,
@@ -176,6 +177,7 @@ class SellerOfferController
      *  tags = { "Sellers" },
      *
      *  @TokenParameter(),
+     *  @SWG\Parameter(name = "id", type = "string", required = true, in = "path"),
      *
      *  @SWG\Response(
      *      response = 204,

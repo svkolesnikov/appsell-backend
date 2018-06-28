@@ -50,6 +50,7 @@ class OfferReferralLinkController
      *  tags = { "Employees" },
      *
      *  @TokenParameter(),
+     *  @SWG\Parameter(name = "id", type = "string", required = true, in = "path"),
      *
      *  @SWG\Response(
      *      response = 201,
