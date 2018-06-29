@@ -134,9 +134,10 @@ class Offer
         return $this->owner;
     }
 
-    public function setOwner(User $owner): void
+    public function setOwner(User $owner)
     {
         $this->owner = $owner;
+        return $this;
     }
 
     public function getTitle(): string
@@ -166,9 +167,10 @@ class Offer
         return $this->active_from;
     }
 
-    public function setActiveFrom(\DateTime $date): void
+    public function setActiveFrom(\DateTime $date)
     {
         $this->active_from = $date;
+        return $this;
     }
 
     public function getActiveTo(): \DateTime
@@ -176,9 +178,10 @@ class Offer
         return $this->active_to;
     }
 
-    public function setActiveTo(\DateTime $date): void
+    public function setActiveTo(\DateTime $date)
     {
         $this->active_to = $date;
+        return $this;
     }
 
     public function getCtime(): \DateTime
