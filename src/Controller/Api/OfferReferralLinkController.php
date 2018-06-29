@@ -119,14 +119,12 @@ class OfferReferralLinkController
      */
     public function followLinkAction(Request $request, EngineInterface $templating): Response
     {
-        // todo: Сделать возможным переход для неактивного оффера и логировать это отдельно
-
         /** @var Entity\UserOfferLink $userOfferLink */
         $userOfferLink = $this->entityManager->createQueryBuilder()
             ->select('l, o')
             ->from('App:UserOfferLink', 'l')
             ->join('l.offer', 'o', Expr\Join::WITH)
-            ->where('l.id = :id and o.is_active = true and o.is_deleted = false')
+            ->where('l.id = :id')
             ->setParameter('id', $request->get('id'))
             ->getQuery()
             ->getOneOrNullResult();
@@ -190,7 +188,7 @@ SQL;
                         $execution->setOffer($offer);
                         $execution->setOfferLink($link);
                         $execution->setSourceLink($userOfferLink);
-                        $execution->setSourceReferrerInfo($_SERVER);
+                        $execution->setSourceReferrerInfo(array_merge($request->server->all(), $request->headers->all()));
 
                         $this->entityManager->persist($execution);
                         $this->entityManager->flush();
