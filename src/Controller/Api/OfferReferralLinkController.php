@@ -188,7 +188,7 @@ SQL;
                         $execution->setOffer($offer);
                         $execution->setOfferLink($link);
                         $execution->setSourceLink($userOfferLink);
-                        $execution->setSourceReferrerInfo(array_merge($request->server->all(), $request->headers->all()));
+                        $execution->setSourceReferrerInfo($request->server->all());
 
                         $this->entityManager->persist($execution);
                         $this->entityManager->flush();
