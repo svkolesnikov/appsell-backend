@@ -14,6 +14,7 @@ class OfferLinkSchema extends Schema
     {
         parent::__construct(array_merge_recursive([
             'type' => 'object',
+            'required' => ['url'],
             'properties' => [
                 new Property(['property' => 'url', 'type' => 'string']),
             ]

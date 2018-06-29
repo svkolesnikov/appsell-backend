@@ -200,7 +200,6 @@ class OwnerOfferController
             ->add('description',   Type\TextType::class,       [])
             ->add('active_from',   Type\DateTimeType::class,   ['constraints' => [new Constraints\NotBlank(), new Constraints\DateTime()], 'widget' => 'single_text'])
             ->add('active_to',     Type\DateTimeType::class,   ['constraints' => [new Constraints\NotBlank(), new Constraints\DateTime()], 'widget' => 'single_text'])
-            ->add('is_active',     Type\CheckboxType::class,   ['constraints' => [new Constraints\NotBlank()]])
             ->getForm();
 
         $form->handleRequest($request);
@@ -214,7 +213,6 @@ class OwnerOfferController
                 ->setType(new OfferTypeEnum($data['type']))
                 ->setTitle($data['title'])
                 ->setDescription($data['description'])
-                ->setActive($data['is_active'])
                 ->setOwner($user)
                 ->setActiveFrom($data['active_from'])
                 ->setActiveTo($data['active_to']);
@@ -276,7 +274,6 @@ class OwnerOfferController
             ->add('description',   Type\TextType::class,       [])
             ->add('active_from',   Type\DateTimeType::class,   ['constraints' => [new Constraints\NotBlank(), new Constraints\DateTime()], 'widget' => 'single_text'])
             ->add('active_to',     Type\DateTimeType::class,   ['constraints' => [new Constraints\NotBlank(), new Constraints\DateTime()], 'widget' => 'single_text'])
-            ->add('is_active',     Type\TextType::class,       ['constraints' => [new Constraints\NotBlank()]])
             ->getForm();
 
         $form->handleRequest($request);
@@ -302,7 +299,6 @@ class OwnerOfferController
                 ->setType(new OfferTypeEnum($data['type']))
                 ->setTitle($data['title'])
                 ->setDescription($data['description'])
-                ->setActive('true' === $data['is_active'])
                 ->setActiveFrom($data['active_from'])
                 ->setActiveTo($data['active_to']);
 

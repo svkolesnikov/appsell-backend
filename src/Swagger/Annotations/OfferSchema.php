@@ -2,6 +2,7 @@
 
 namespace App\Swagger\Annotations;
 
+use App\Lib\Enum\OfferTypeEnum;
 use Swagger\Annotations\Property;
 use Swagger\Annotations\Schema;
 
@@ -14,13 +15,13 @@ class OfferSchema extends Schema
     {
         parent::__construct(array_merge_recursive([
             'type' => 'object',
+            'required' => ['title', 'type', 'active_from', 'active_to', 'is_active'],
             'properties' => [
                 new Property(['property' => 'title', 'type' => 'string']),
                 new Property(['property' => 'description', 'type' => 'string']),
-                new Property(['property' => 'type', 'type' => 'string']),
+                new Property(['property' => 'type', 'type' => 'string', 'enum' => array_values(OfferTypeEnum::toArray())]),
                 new Property(['property' => 'active_from', 'type' => 'string']),
-                new Property(['property' => 'active_to', 'type' => 'string']),
-                new Property(['property' => 'is_active', 'type' => 'boolean']),
+                new Property(['property' => 'active_to', 'type' => 'string'])
             ]
         ], $properties));
     }

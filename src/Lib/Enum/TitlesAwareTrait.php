@@ -4,8 +4,6 @@ namespace App\Lib\Enum;
 
 trait TitlesAwareTrait
 {
-    protected static $titles = [];
-
     public static function getTitles(): array
     {
         return static::$titles;
