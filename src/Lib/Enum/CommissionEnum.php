@@ -2,8 +2,16 @@
 
 namespace App\Lib\Enum;
 
-final class CommissionEnum extends BaseEnum
+use MyCLabs\Enum\Enum;
+
+/**
+ * @method static CommissionEnum SERVICE()
+ * @method static CommissionEnum SELLER()
+ */
+final class CommissionEnum extends Enum
 {
+    use TitlesAwareTrait;
+
     // Комиссия, взимаемая сервисом от оплаты заказчиком
     // 100 – комиссия сервиса
     public const SERVICE = 'service';

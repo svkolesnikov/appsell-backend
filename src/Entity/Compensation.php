@@ -110,9 +110,9 @@ class Compensation
         return $this;
     }
 
-    public function getTypeTitle()
+    public function getTypeTitle(): string
     {
-        return CompensationTypeEnum::getTitles()[$this->getType()->getValue()];
+        return CompensationTypeEnum::getTitleByValue($this->getType()->getValue());
     }
 
     /**

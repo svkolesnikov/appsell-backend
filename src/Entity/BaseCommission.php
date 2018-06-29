@@ -75,7 +75,7 @@ class BaseCommission
 
     public function getTypeTitle()
     {
-        return CommissionEnum::getTitles()[$this->type];
+        return CommissionEnum::getTitleByValue($this->type);
     }
 
     public function getDescription(): ?string
