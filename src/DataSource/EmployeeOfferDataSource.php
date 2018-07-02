@@ -65,6 +65,11 @@ with employer as (
       O.type in ('$types') and
       AO.seller_id = (select id from employer limit 1)
   ),
+  app_links as (
+    select * from offerdata.offer_link where offer_id in (
+      select id from offers
+    )
+  ),
   seller_compensations as (
     select
       C.*,
@@ -137,6 +142,7 @@ with employer as (
 
 select
   O.*,
+  
   (select json_agg(r) from (
     select
       P.price,
@@ -146,7 +152,16 @@ select
     from employee_prices P
     where P.offer_id = O.id
     order by P.type desc
-  ) as r) as compensations
+  ) as r) as compensations,
+  
+  (select json_agg(r) from (
+    select
+      L.type
+    from app_links L
+    where L.offer_id = O.id
+    order by L.type
+  ) as r) as links
+  
 from offers O
 order by mtime desc
 limit :limit 
@@ -165,6 +180,8 @@ SQL;
             return array_map(function (array $item) {
 
                 $item['compensations'] = (array) json_decode($item['compensations'], true);
+                $item['links'] = (array) json_decode($item['links'], true);
+
                 return new Offer($item);
 
             }, $statement->fetchAll(FetchMode::ASSOCIATIVE));

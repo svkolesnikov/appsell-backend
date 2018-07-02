@@ -60,6 +60,11 @@ with base_commission as (
     join offerdata.compensation C on C.offer_id = O.id
     left join financedata.for_offer_commission OC on OC.offer_id = O.id and OC.by_user_id is null
   ),
+  app_links as (
+    select * from offerdata.offer_link where offer_id in (
+      select id from offers
+    )
+  ),
   prices as (
     select
       C.type,
@@ -75,6 +80,7 @@ with base_commission as (
   )
 select
   O.*,
+  
   (select json_agg(r) from (
     select
       P.price,
@@ -84,7 +90,16 @@ select
     from prices P
     where P.offer_id = O.id
     order by P.type desc
-  ) as r) as compensations
+  ) as r) as compensations,
+  
+  (select json_agg(r) from (
+    select
+      L.type
+    from app_links L
+    where L.offer_id = O.id
+    order by L.type
+  ) as r) as links
+  
 from offers O
 order by O.mtime desc
 limit :limit 
@@ -103,6 +118,8 @@ SQL;
             return array_map(function (array $item) {
 
                 $item['compensations'] = (array) json_decode($item['compensations'], true);
+                $item['links'] = (array) json_decode($item['links'], true);
+
                 return new Offer($item);
 
             }, $statement->fetchAll(FetchMode::ASSOCIATIVE));

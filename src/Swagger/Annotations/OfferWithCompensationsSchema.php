@@ -27,6 +27,11 @@ class OfferWithCompensationsSchema extends Schema
                         new Property(['property' => 'price', 'type' => 'number'])
                     ]
                 ])]),
+                new Property(['property' => 'links', 'type' => 'array', 'items' => new Schema([
+                    'properties' => [
+                        new Property(['property' => 'type', 'type' => 'string'])
+                    ]
+                ])]),
             ]
         ], $properties));
     }

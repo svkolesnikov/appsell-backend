@@ -12,6 +12,9 @@ class Offer
     /** @var OfferCompensation[] */
     public $compensations;
 
+    /** @var OfferLink[] */
+    public $links;
+
     public function __construct(array $props)
     {
         $this->id = $props['id'];
@@ -22,5 +25,9 @@ class Offer
         $this->compensations = array_map(function (array $comp) {
             return new OfferCompensation($comp);
         }, $props['compensations']);
+
+        $this->links = array_map(function (array $comp) {
+            return new OfferLink($comp);
+        }, $props['links']);
     }
 }
