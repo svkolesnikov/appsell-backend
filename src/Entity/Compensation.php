@@ -40,7 +40,7 @@ class Compensation
     protected $description;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="decimal")
      */
     protected $price;
 
@@ -141,12 +141,12 @@ class Compensation
         return $this;
     }
 
-    public function getPrice(): ?int
+    public function getPrice(): ?float
     {
         return $this->price;
     }
 
-    public function setPrice(int $price)
+    public function setPrice(float $price)
     {
         $this->price = $price;
         return $this;
