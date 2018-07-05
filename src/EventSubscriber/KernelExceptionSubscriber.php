@@ -3,6 +3,7 @@
 namespace App\EventSubscriber;
 
 use App\Exception\Api;
+use Doctrine\DBAL\Exception\DriverException;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -87,6 +88,16 @@ class KernelExceptionSubscriber implements EventSubscriberInterface
         } elseif ($exception instanceof InsufficientAuthenticationException) {
 
             $statusCode = JsonResponse::HTTP_UNAUTHORIZED;
+
+        } elseif ($exception instanceof DriverException) {
+
+            $statusCode = JsonResponse::HTTP_INTERNAL_SERVER_ERROR;
+            $response['message'] = 'Internal Server Error';
+
+            if (preg_match('/invalid input syntax for type uuid/i', $exception->getMessage())) {
+                $statusCode = JsonResponse::HTTP_NOT_FOUND;
+                $response['message'] = 'Указан некорректный идентификатор контента';
+            }
 
         } else {
             $logLevel            = Logger::CRITICAL;
