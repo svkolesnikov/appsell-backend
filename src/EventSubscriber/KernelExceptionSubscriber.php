@@ -55,7 +55,7 @@ class KernelExceptionSubscriber implements EventSubscriberInterface
         }
 
         $response   = [
-            'message' => $exception->getMessage(),
+            'message' => null,
             'details' => []
         ];
 
