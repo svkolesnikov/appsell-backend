@@ -20,8 +20,6 @@ class OfferSchema extends Schema
                 new Property(['property' => 'title', 'type' => 'string']),
                 new Property(['property' => 'description', 'type' => 'string']),
                 new Property(['property' => 'type', 'type' => 'string', 'enum' => array_values(OfferTypeEnum::toArray())]),
-                new Property(['property' => 'active_from', 'type' => 'string']),
-                new Property(['property' => 'active_to', 'type' => 'string'])
             ]
         ], $properties));
     }

@@ -198,8 +198,6 @@ class OwnerOfferController
             ->add('type',          Type\ChoiceType::class,     ['constraints' => [new Constraints\NotBlank()], 'choices' => OfferTypeEnum::toArray()])
             ->add('title',         Type\TextType::class,       ['constraints' => [new Constraints\NotBlank()]])
             ->add('description',   Type\TextType::class,       [])
-            ->add('active_from',   Type\DateTimeType::class,   ['constraints' => [new Constraints\NotBlank(), new Constraints\DateTime()], 'widget' => 'single_text'])
-            ->add('active_to',     Type\DateTimeType::class,   ['constraints' => [new Constraints\NotBlank(), new Constraints\DateTime()], 'widget' => 'single_text'])
             ->getForm();
 
         $form->handleRequest($request);
@@ -213,9 +211,7 @@ class OwnerOfferController
                 ->setType(new OfferTypeEnum($data['type']))
                 ->setTitle($data['title'])
                 ->setDescription($data['description'])
-                ->setOwner($user)
-                ->setActiveFrom($data['active_from'])
-                ->setActiveTo($data['active_to']);
+                ->setOwner($user);
 
             $this->entityManager->persist($offer);
             $this->entityManager->flush();
@@ -272,8 +268,6 @@ class OwnerOfferController
             ->add('type',          Type\ChoiceType::class,     ['constraints' => [new Constraints\NotBlank()], 'choices' => OfferTypeEnum::toArray()])
             ->add('title',         Type\TextType::class,       ['constraints' => [new Constraints\NotBlank()]])
             ->add('description',   Type\TextType::class,       [])
-            ->add('active_from',   Type\DateTimeType::class,   ['constraints' => [new Constraints\NotBlank(), new Constraints\DateTime()], 'widget' => 'single_text'])
-            ->add('active_to',     Type\DateTimeType::class,   ['constraints' => [new Constraints\NotBlank(), new Constraints\DateTime()], 'widget' => 'single_text'])
             ->getForm();
 
         $form->handleRequest($request);
@@ -298,9 +292,7 @@ class OwnerOfferController
             $offer
                 ->setType(new OfferTypeEnum($data['type']))
                 ->setTitle($data['title'])
-                ->setDescription($data['description'])
-                ->setActiveFrom($data['active_from'])
-                ->setActiveTo($data['active_to']);
+                ->setDescription($data['description']);
 
             $this->entityManager->persist($offer);
             $this->entityManager->flush();
