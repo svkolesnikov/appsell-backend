@@ -68,7 +68,8 @@ class KernelExceptionSubscriber implements EventSubscriberInterface
 
         if ($exception instanceof HttpException) {
 
-            $statusCode = $exception->getStatusCode();
+            $response['message'] = $exception->getMessage();
+            $statusCode          = $exception->getStatusCode();
             if ($statusCode === JsonResponse::HTTP_NOT_FOUND) {
                 $logLevel = Logger::NOTICE;
             }

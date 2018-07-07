@@ -10,6 +10,7 @@ use App\Security\UserGroupManager;
 use BrowserDetection;
 use Doctrine\DBAL\DBALException;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Swagger\Annotations as SWG;
@@ -201,7 +202,18 @@ SQL;
                     }
 
                     // Обнаружили ссылку, переходим
-                    return new RedirectResponse($link->getUrl());
+                    $response = new RedirectResponse($link->getUrl());
+                    $response->headers->setCookie(new Cookie(
+                        'employee_id',
+                        $userOfferLink->getUser()->getId(),
+                        0,
+                        '/api/sdk/deep-link',
+                        null,
+                        false,
+                        true
+                    ));
+
+                    return $response;
                 }
             }
 

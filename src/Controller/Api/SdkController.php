@@ -13,6 +13,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Swagger\Annotations as SWG;
 use App\Swagger\Annotations\BadRequestResponse;
 use App\Swagger\Annotations\NotFoundResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Validator\Constraints;
@@ -31,6 +32,48 @@ class SdkController
     public function __construct(EntityManagerInterface $em)
     {
         $this->entityManager = $em;
+    }
+
+    /**
+     * @SWG\Get(
+     *
+     *  path = "/sdk/deep-link",
+     *  summary = "Переход в приложение по deferred deep link",
+     *  description = "Считывает из cookies значение employee_id и передает его в приложение для SDK.<br>
+    Redirect to: app<offer_link_id>://employee/...id",
+     *  tags = { "SDK" },
+     *
+     *  @SWG\Parameter(name = "offer_link_id", required = true, in = "query", type = "string"),
+     *
+     *  @SWG\Response(
+     *      response = 302,
+     *      description = "Переход в приложение"
+     *  ),
+     *
+     *  @BadRequestResponse(),
+     *  @NotFoundResponse()
+     * )
+     *
+     * @Route(methods = {"GET"}, path = "/deep-link")
+     *
+     * @param Request $request
+     * @return RedirectResponse
+     * @throws \InvalidArgumentException
+     */
+    public function followDeepLinkAction(Request $request): RedirectResponse
+    {
+        $offerLinkId = $request->get('offer_link_id', 'tmp123');
+
+        /** @var OfferLink $link */
+        $link = $this->entityManager->find('App:OfferLink', $request->get('offer_link_id', ''));
+
+        // todo: раскомментировать после тестов SDK
+//        if (null === $link) {
+//            throw new NotFoundHttpException('Указанная ссылка на приложение не найдена');
+//        }
+
+        $employeeId = $request->cookies->get('employee_id');
+        return new RedirectResponse(sprintf('app%s://employee/%s', $offerLinkId, $employeeId));
     }
 
     /**
