@@ -232,7 +232,7 @@ class OwnerOfferController
      *  tags = { "Owners" },
      *
      *  @TokenParameter(),
-     *  @SWG\Parameter(name = "id", in = "path", type = "string"),
+     *  @SWG\Parameter(name = "id", in = "path", type = "string", required=true),
      *  @SWG\Parameter(name = "request", description = "Запрос", required = true, in = "body", @OfferSchema()),
      *
      *  @SWG\Response(

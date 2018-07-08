@@ -59,7 +59,7 @@ class OwnerOfferCompensationController
      *  tags = { "Owners" },
      *
      *  @TokenParameter(),
-     *  @SWG\Parameter(name = "offer_id", in = "path", type = "string"),
+     *  @SWG\Parameter(name = "offer_id", in = "path", type = "string", required=true),
      *  @SWG\Parameter(name = "request", description = "Запрос", required = true, in = "body", @OfferCompensationSchema()),
      *
      *  @SWG\Response(
@@ -143,8 +143,8 @@ class OwnerOfferCompensationController
      *  tags = { "Owners" },
      *
      *  @TokenParameter(),
-     *  @SWG\Parameter(name = "offer_id", in = "path", type = "string"),
-     *  @SWG\Parameter(name = "id", in = "path", type = "string"),
+     *  @SWG\Parameter(name = "offer_id", in = "path", type = "string", required=true),
+     *  @SWG\Parameter(name = "id", in = "path", type = "string", required=true),
      *  @SWG\Parameter(name = "request", description = "Запрос", required = true, in = "body", @OfferCompensationSchema()),
      *
      *  @SWG\Response(
@@ -236,8 +236,8 @@ class OwnerOfferCompensationController
      *  tags = { "Owners" },
      *
      *  @TokenParameter(),
-     *  @SWG\Parameter(name = "offer_id", in = "path", type = "string"),
-     *  @SWG\Parameter(name = "id", in = "path", type = "string"),
+     *  @SWG\Parameter(name = "offer_id", in = "path", type = "string", required=true),
+     *  @SWG\Parameter(name = "id", in = "path", type = "string", required=true),
      *
      *  @SWG\Response(
      *      response = 204,

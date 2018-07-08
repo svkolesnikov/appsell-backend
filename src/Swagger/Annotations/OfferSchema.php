@@ -15,7 +15,7 @@ class OfferSchema extends Schema
     {
         parent::__construct(array_merge_recursive([
             'type' => 'object',
-            'required' => ['title', 'type', 'active_from', 'active_to', 'is_active'],
+            'required' => ['title', 'type'],
             'properties' => [
                 new Property(['property' => 'title', 'type' => 'string']),
                 new Property(['property' => 'description', 'type' => 'string']),
