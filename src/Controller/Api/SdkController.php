@@ -167,4 +167,18 @@ class SdkController
         // А вот теперь начинаем формировать событие для сохранения
 
     }
+
+    /**
+     * @Route("/tmp", methods = { "GET" })
+     * @param Request $request
+     */
+    public function testAction(Request $request): void
+    {
+        echo '<pre>';
+        var_dump('Headers:');
+        var_dump($request->headers->all());
+        var_dump('Server:');
+        var_dump($request->server->all());
+        die();
+    }
 }
