@@ -171,14 +171,10 @@ class SdkController
     /**
      * @Route("/tmp", methods = { "GET" })
      * @param Request $request
+     * @return JsonResponse
      */
-    public function testAction(Request $request): void
+    public function testAction(Request $request): JsonResponse
     {
-        echo '<pre>';
-        var_dump('Headers:');
-        var_dump($request->headers->all());
-        var_dump('Server:');
-        var_dump($request->server->all());
-        die();
+        return new JsonResponse($request->server->all());
     }
 }
