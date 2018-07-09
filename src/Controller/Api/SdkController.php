@@ -5,9 +5,11 @@ namespace App\Controller\Api;
 use App\Entity\Compensation;
 use App\Entity\Offer;
 use App\Entity\OfferLink;
+use App\Kernel;
 use App\Lib\Controller\FormTrait;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query\Expr\Join;
+use Psr\Container\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Swagger\Annotations as SWG;
@@ -176,5 +178,26 @@ class SdkController
     public function testAction(Request $request): JsonResponse
     {
         return new JsonResponse($request->server->all());
+    }
+
+    /**
+     * @Route("/tmp2", methods = { "POST" })
+     * @param Request $request
+     * @param ContainerInterface $container
+     * @return JsonResponse
+     */
+    public function test2Action(Request $request, ContainerInterface $container): JsonResponse
+    {
+        /** @var Kernel $kernel */
+        $kernel = $container->get('kernel');
+        $path   = $kernel->getProjectDir() . '/var/tmp2params.log';
+
+        file_put_contents(
+            $path,
+            date('Y-m-d H:i:s') . PHP_EOL . print_r($request->request->all(), true) . PHP_EOL,
+            FILE_APPEND
+        );
+
+        return new JsonResponse(null, JsonResponse::HTTP_CREATED);
     }
 }
