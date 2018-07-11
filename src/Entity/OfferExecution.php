@@ -50,6 +50,11 @@ class OfferExecution
     /**
      * @ORM\Column(type="string")
      */
+    protected $source_referrer_fingerprint;
+
+    /**
+     * @ORM\Column(type="string")
+     */
     protected $status;
 
     /**
@@ -160,5 +165,16 @@ class OfferExecution
     public function getMtime(): \DateTime
     {
         return $this->mtime;
+    }
+
+    public function getSourceReferrerFingerprint(): ?string
+    {
+        return $this->source_referrer_fingerprint;
+    }
+
+    public function setSourceReferrerFingerprint(string $fingerprint)
+    {
+        $this->source_referrer_fingerprint = $fingerprint;
+        return $this;
     }
 }

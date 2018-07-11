@@ -190,6 +190,10 @@ SQL;
                         $execution->setOfferLink($link);
                         $execution->setSourceLink($userOfferLink);
                         $execution->setSourceReferrerInfo($request->server->all());
+                        $execution->setSourceReferrerFingerprint(md5(
+                            $request->headers->get('user-agent') .
+                            $request->server->get('REMOTE_ADDR')
+                        ));
 
                         $this->entityManager->persist($execution);
                         $this->entityManager->flush();

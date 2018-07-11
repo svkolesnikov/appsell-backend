@@ -4,6 +4,7 @@ namespace App\Controller\Api;
 
 use App\Entity\Compensation;
 use App\Entity\Offer;
+use App\Entity\OfferExecution;
 use App\Entity\OfferLink;
 use App\Kernel;
 use App\Lib\Controller\FormTrait;
@@ -64,17 +65,25 @@ class SdkController
      */
     public function followDeepLinkAction(Request $request): RedirectResponse
     {
-        $offerLinkId = $request->get('offer_link_id', 'tmp123');
+        $offerLinkId = $request->get('offer_link_id');
+        $fingerprint = md5($request->headers->get('user-agent') . $request->server->get('REMOTE_ADDR'));
+        $employeeId  = null;
 
         /** @var OfferLink $link */
-        $link = $this->entityManager->find('App:OfferLink', $request->get('offer_link_id', ''));
+        $link = $this->entityManager->find('App:OfferLink', $offerLinkId);
+        if (null !== $link) {
 
-        // todo: раскомментировать после тестов SDK
-//        if (null === $link) {
-//            throw new NotFoundHttpException('Указанная ссылка на приложение не найдена');
-//        }
+            /** @var OfferExecution $execution */
+            $execution = $this->entityManager->getRepository('App:OfferExecution')->findOneBy([
+                'source_referrer_fingerprint' => $fingerprint,
+                'offer_link' => $link
+            ]);
 
-        $employeeId = $request->cookies->get('employee_id');
+            if (null !== $execution) {
+                $employeeId = $execution->getSourceLink()->getUser()->getId();
+            }
+        }
+
         return new RedirectResponse(sprintf('app%s://employee/%s', $offerLinkId, $employeeId));
     }
 
@@ -168,16 +177,6 @@ class SdkController
 
         // А вот теперь начинаем формировать событие для сохранения
 
-    }
-
-    /**
-     * @Route("/tmp", methods = { "GET" })
-     * @param Request $request
-     * @return JsonResponse
-     */
-    public function testAction(Request $request): JsonResponse
-    {
-        return new JsonResponse($request->server->all());
     }
 
     /**
