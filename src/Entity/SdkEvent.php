@@ -81,6 +81,13 @@ class SdkEvent
     protected $offer_link;
 
     /**
+     * @var User
+     * @ORM\ManyToOne(targetEntity = "User")
+     * @ORM\JoinColumn(name = "employee_id", referencedColumnName = "id")
+     */
+    protected $employee;
+
+    /**
      * @ORM\Column(type="string")
      */
     protected $source;
@@ -241,6 +248,17 @@ class SdkEvent
     public function setOfferLink(OfferLink $link)
     {
         $this->offer_link = $link;
+        return $this;
+    }
+
+    public function getEmployee(): ?User
+    {
+        return $this->employee;
+    }
+
+    public function setEmployee(User $employee)
+    {
+        $this->employee = $employee;
         return $this;
     }
 }
