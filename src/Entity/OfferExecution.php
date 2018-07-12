@@ -128,12 +128,12 @@ class OfferExecution
         return $this;
     }
 
-    public function getSourceLink(): UserOfferLink
+    public function getSourceLink(): ?UserOfferLink
     {
         return $this->source_link;
     }
 
-    public function setSourceLink(UserOfferLink $link)
+    public function setSourceLink(?UserOfferLink $link)
     {
         $this->source_link = $link;
         return $this;

@@ -4,16 +4,16 @@ namespace App\Controller\Api;
 
 use App\Entity\Compensation;
 use App\Entity\EventType;
-use App\Entity\Offer;
 use App\Entity\OfferExecution;
 use App\Entity\OfferLink;
 use App\Entity\SdkEvent;
 use App\Entity\User;
+use App\Entity\UserOfferLink;
 use App\Kernel;
 use App\Lib\Controller\FormTrait;
 use App\Lib\Enum\CurrencyEnum;
+use App\Lib\Enum\OfferExecutionStatusEnum;
 use App\Lib\Enum\SdkEventSourceEnum;
-use App\Lib\Enum\UserGroupEnum;
 use App\Security\UserGroupManager;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
@@ -26,7 +26,6 @@ use App\Swagger\Annotations\BadRequestResponse;
 use App\Swagger\Annotations\NotFoundResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Validator\Constraints;
 use Symfony\Component\Form\Extension\Core\Type;
@@ -193,10 +192,11 @@ class SdkController
             // а суммы в event записать нулевые
 
             $qb = $this->entityManager->createQueryBuilder();
-            $qb = $qb->select('e')
+            $qb = $qb
+                ->select('e')
                 ->from('App:OfferExecution', 'e')
                 ->join('e.source_link', 'ul', Join::WITH)
-                ->leftJoin('e.events', 'ee', Join::WITH, 'ee.event_type = :event_type')
+                ->leftJoin('e.events', 'ee', Join::WITH, 'ee.event_type = :event_type AND ee.device_id = :device_id')
                 ->setMaxResults(1)
                 ->where('e.offer = :offer')
                 ->andWhere('e.offer_link = :app_link')
@@ -204,12 +204,13 @@ class SdkController
                 ->setParameters([
                     'offer' => $link->getOffer(),
                     'app_link' => $link,
-                    'event_type' => $eventType
-                ])
-            ;
+                    'event_type' => $eventType,
+                    'device_id' => $data['device_id']
+                ]);
 
             if (null !== $employee) {
-                $qb = $qb->andWhere('ul.user = :employee')
+                $qb = $qb
+                    ->andWhere('ul.user = :employee')
                     ->setParameter('employee', $employee);
             }
 
@@ -218,6 +219,26 @@ class SdkController
 
             if (null === $offerExecution) {
 
+                /** @var UserOfferLink $userOfferLink */
+                $userOfferLink = null;
+                if (null !== $employee) {
+
+                    // Вообще, если пришел ивент с referrer_id, значит ссылка была
+                    // так что просто пытаемся ее достать, для привязки к ней очередного
+                    // исполнения оффера
+                    $userOfferLink = $this->entityManager->getRepository('App:UserOfferLink')->findOneBy([
+                        'user' => $employee,
+                        'offer' => $link->getOffer()
+                    ]);
+                }
+
+                $offerExecution = new OfferExecution();
+                $offerExecution->setOfferLink($link);
+                $offerExecution->setOffer($link->getOffer());
+                $offerExecution->setSourceLink($userOfferLink);
+                $offerExecution->setStatus(OfferExecutionStatusEnum::PROCESSING());
+
+                $this->entityManager->persist($offerExecution);
             }
 
             // Далее рассчитываем суммы (если необходимо), для конкретного события
@@ -231,7 +252,6 @@ class SdkController
 
             $newEvent = new SdkEvent();
             $newEvent->setEventType($eventType);
-            $newEvent->setOfferExecution($offerExecution);
             $newEvent->setDeviceId($data['device_id']);
             $newEvent->setSourceInfo($request->server->all());
             $newEvent->setCurrency(CurrencyEnum::RUB());
@@ -242,8 +262,34 @@ class SdkController
             $newEvent->setOfferLink($link);
             $newEvent->setSource(SdkEventSourceEnum::APP());
             $newEvent->setEmployee($employee);
+            $offerExecution->addEvent($newEvent);
 
             $this->entityManager->persist($newEvent);
+
+            // А теперь бы еще понять, изменился ли статус OfferExecution
+            // по нему могли прийти все допустимые события и он завершился
+
+            $compensationEvents = $link->getOffer()->getCompensations()->map(function (Compensation $c) {
+                return $c->getEventType()->getCode();
+            })->toArray();
+
+            $sdkEvents = $offerExecution->getEvents()->map(function (SdkEvent $e) {
+                return $e->getEventType()->getCode();
+            })->toArray();
+
+            sort($compensationEvents);
+            sort($sdkEvents);
+
+            $isExecutionComplete = $compensationEvents === $sdkEvents
+                && $offerExecution->getStatus()->equals(OfferExecutionStatusEnum::PROCESSING());
+
+            if ($isExecutionComplete) {
+                $offerExecution->setStatus(OfferExecutionStatusEnum::COMPLETE());
+                $this->entityManager->persist($offerExecution);
+            }
+
+            // Все збс, можно закрывать транзакцию
+
             $this->entityManager->flush();
             $this->entityManager->commit();
 
