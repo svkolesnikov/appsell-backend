@@ -3,12 +3,16 @@
 namespace App\Controller\Api;
 
 use App\Entity\Compensation;
+use App\Entity\EventType;
 use App\Entity\Offer;
 use App\Entity\OfferExecution;
 use App\Entity\OfferLink;
+use App\Entity\SdkEvent;
 use App\Entity\User;
 use App\Kernel;
 use App\Lib\Controller\FormTrait;
+use App\Lib\Enum\CurrencyEnum;
+use App\Lib\Enum\SdkEventSourceEnum;
 use App\Lib\Enum\UserGroupEnum;
 use App\Security\UserGroupManager;
 use Doctrine\ORM\EntityManagerInterface;
@@ -46,11 +50,10 @@ class SdkController
      *
      *  path = "/sdk/deep-link",
      *  summary = "Переход в приложение по deferred deep link",
-     *  description = "Считывает из cookies значение employee_id и передает его в приложение для SDK.<br>
-    Redirect to: app<offer_link_id>://employee/...id",
+     *  description = "Redirect to: app_<app_id>://referrer/...id",
      *  tags = { "SDK" },
      *
-     *  @SWG\Parameter(name = "offer_link_id", required = true, in = "query", type = "string"),
+     *  @SWG\Parameter(name = "app_id", required = true, in = "query", type = "string"),
      *
      *  @SWG\Response(
      *      response = 302,
@@ -69,7 +72,7 @@ class SdkController
      */
     public function followDeepLinkAction(Request $request): RedirectResponse
     {
-        $offerLinkId = $request->get('offer_link_id');
+        $offerLinkId = $request->get('app_id');
         $fingerprint = md5($request->headers->get('user-agent') . $request->server->get('REMOTE_ADDR'));
         $employeeId  = null;
 
@@ -88,7 +91,7 @@ class SdkController
             }
         }
 
-        return new RedirectResponse(sprintf('app%s://employee/%s', $offerLinkId, $employeeId));
+        return new RedirectResponse(sprintf('app%s://referrer/%s', $offerLinkId, $employeeId));
     }
 
     /**
@@ -102,12 +105,12 @@ class SdkController
      *  @SWG\Parameter(name = "request", description = "Запрос", required = true, in = "body",
      *     @SWG\Schema(
      *      type = "object",
-     *      required = { "event_name", "offer_link_id", "device_id", "employee_id" },
+     *      required = { "event_name", "offer_link_id", "device_id" },
      *      properties = {
      *          @SWG\Property(property = "event_name", type = "string"),
-     *          @SWG\Property(property = "offer_link_id", type = "string"),
-     *          @SWG\Property(property = "device_id", type = "string"),
-     *          @SWG\Property(property = "employee_id", type = "string", description = "ID пользователя, передавшего реферальную ссылку на установку")
+     *          @SWG\Property(property = "app_id", type = "string", description = "Зашивается в приложении"),
+     *          @SWG\Property(property = "device_id", type = "string", description = "Уникальный идентификатор устройства"),
+     *          @SWG\Property(property = "referrer_id", type = "string", description = "ID пользователя, передавшего реферальную ссылку на установку")
      *      }
      *     )
      *  ),
@@ -131,10 +134,10 @@ class SdkController
     {
         $form = $this->createFormBuilder()
             ->setMethod($request->getMethod())
-            ->add('event_name',    Type\TextType::class, ['constraints' => [new Constraints\NotBlank()]])
-            ->add('offer_link_id', Type\TextType::class, ['constraints' => [new Constraints\NotBlank()]])
-            ->add('device_id',     Type\TextType::class, ['constraints' => [new Constraints\NotBlank()]])
-            ->add('employee_id',   Type\TextType::class, ['constraints' => [new Constraints\NotBlank()]])
+            ->add('event_name',  Type\TextType::class, ['constraints' => [new Constraints\NotBlank()]])
+            ->add('app_id',      Type\TextType::class, ['constraints' => [new Constraints\NotBlank()]])
+            ->add('device_id',   Type\TextType::class, ['constraints' => [new Constraints\NotBlank()]])
+            ->add('referrer_id', Type\TextType::class)
             ->getForm();
 
         $form->handleRequest($request);
@@ -144,7 +147,7 @@ class SdkController
         // Проверим наличие оффера, ссылки и ивента в нем
 
         /** @var OfferLink $link */
-        $link = $this->entityManager->getRepository('App:OfferLink')->findOneBy(['id' => $data['offer_link_id']]);
+        $link = $this->entityManager->find('App:OfferLink', $data['app_id']);
         if (null === $link) {
             throw new NotFoundHttpException('Приложение не найдено');
         }
@@ -160,17 +163,22 @@ class SdkController
         }
 
         // Проверим наличие сотрудника
+        // Если не нашли сотрудника по ID, то событие запишется в БД
+        // без ссылки на пользователя, с 0 суммами, и не будет влиять
+        // на выплаты и статистику
 
         /** @var User $employee */
-        $employee = $this->entityManager->find('App:User', $data['employee_id']);
+        $employee = $data['referrer_id']
+            ? $this->entityManager->find('App:User', $data['referrer_id'])
+            : null;
 
-        if (null === $employee) {
-            throw new NotFoundHttpException('Пользователь не найден');
-        }
+        // Вытащим еще и событие
+        // Проверять, получили ли мы сам ивент смысла нет, тк до этого мы получили с
+        // его участием компенсацию, а мы бы этого не смогли, если бы ивент не существовал
+        // это гарантируют ключи в БД
 
-        if (!$gm->hasGroup($employee, UserGroupEnum::EMPLOYEE())) {
-            throw new NotFoundHttpException('Пользователь не является сотрудником продавца');
-        }
+        /** @var EventType $eventType */
+        $eventType = $this->entityManager->find('App:EventType', $data['event_name']);
 
         // Проверим не было ли уже события от этого устройства
 
@@ -178,7 +186,7 @@ class SdkController
             'offer'      => $link->getOffer(),
             'offer_link' => $link,
             'device_id'  => $data['device_id'],
-            'event_type' => $data['event_name']
+            'event_type' => $eventType
         ]);
 
         if (null !== $sdkEvent) {
@@ -187,8 +195,29 @@ class SdkController
             return new JsonResponse(null, JsonResponse::HTTP_CREATED);
         }
 
+        // Получим ссылку на OfferExecution
+        // если нет ни одного "свободного", то будем его создавать
+        // при этом, если не был передан referrer_id, то можно создать
+        // формальный OfferExecution, без привязки к реферальной ссылке
+        // а суммы в event записать нулевые
+
+
+
         // А вот теперь начинаем формировать событие для сохранения
 
+        $newEvent = new SdkEvent();
+        $newEvent->setEventType($eventType);
+//        $newEvent->setOfferExecution()
+        $newEvent->setDeviceId($data['device_id']);
+        $newEvent->setSourceInfo($request->server->all());
+        $newEvent->setCurrency(CurrencyEnum::RUB());
+//        $newEvent->setAmountForService()
+//        $newEvent->setAmountForSeller()
+//        $newEvent->setAmountForEmployee()
+        $newEvent->setOffer($link->getOffer());
+        $newEvent->setOfferLink($link);
+        $newEvent->setSource(SdkEventSourceEnum::APP());
+        $newEvent->setEmployee($employee);
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Lib\Enum\OfferExecutionStatusEnum;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use App\Lib\Orm\UuidGenerator;
 
@@ -43,6 +44,12 @@ class OfferExecution
     protected $source_link;
 
     /**
+     * @var SdkEvent[]|ArrayCollection
+     * @ORM\OneToMany(targetEntity="SdkEvent", mappedBy="offer_execution", cascade={"persist"})
+     */
+    protected $events;
+
+    /**
      * @ORM\Column(type="string")
      */
     protected $source_referrer_info;
@@ -74,6 +81,7 @@ class OfferExecution
     {
         $this->source_referrer_info = json_encode([]);
         $this->status = OfferExecutionStatusEnum::PROCESSING;
+        $this->events = new ArrayCollection();
     }
 
     /**
@@ -175,6 +183,33 @@ class OfferExecution
     public function setSourceReferrerFingerprint(string $fingerprint)
     {
         $this->source_referrer_fingerprint = $fingerprint;
+        return $this;
+    }
+
+    /**
+     * @return SdkEvent[]|ArrayCollection
+     */
+    public function getEvents()
+    {
+        return $this->events;
+    }
+
+    public function addEvent(SdkEvent $event)
+    {
+        if (!$this->events->contains($event)) {
+            $event->setOfferExecution($this);
+            $this->events->add($event);
+        }
+
+        return $this;
+    }
+
+    public function removeEvent(SdkEvent $event)
+    {
+        if ($this->events->contains($event)) {
+            $this->events->removeElement($event);
+        }
+
         return $this;
     }
 }

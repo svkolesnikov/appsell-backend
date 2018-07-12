@@ -31,7 +31,7 @@ class SdkEvent
 
     /**
      * @var OfferExecution
-     * @ORM\ManyToOne(targetEntity = "OfferExecution")
+     * @ORM\ManyToOne(targetEntity = "OfferExecution", inversedBy = "events")
      * @ORM\JoinColumn(name = "offer_execution_id", referencedColumnName = "id")
      */
     protected $offer_execution;
@@ -256,7 +256,7 @@ class SdkEvent
         return $this->employee;
     }
 
-    public function setEmployee(User $employee)
+    public function setEmployee(?User $employee)
     {
         $this->employee = $employee;
         return $this;
