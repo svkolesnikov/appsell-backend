@@ -15,6 +15,7 @@ use App\Lib\Enum\CurrencyEnum;
 use App\Lib\Enum\SdkEventSourceEnum;
 use App\Lib\Enum\UserGroupEnum;
 use App\Security\UserGroupManager;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query\Expr\Join;
 use Psr\Container\ContainerInterface;
@@ -180,44 +181,88 @@ class SdkController
         /** @var EventType $eventType */
         $eventType = $this->entityManager->find('App:EventType', $data['event_name']);
 
-        // Проверим не было ли уже события от этого устройства
 
-        $sdkEvent = $this->entityManager->getRepository('App:SdkEvent')->findOneBy([
-            'offer'      => $link->getOffer(),
-            'offer_link' => $link,
-            'device_id'  => $data['device_id'],
-            'event_type' => $eventType
-        ]);
+        try {
 
-        if (null !== $sdkEvent) {
+            $this->entityManager->beginTransaction();
 
-            // Если уже есть, просто скажем, что создалось успешно
+            // Получим ссылку на OfferExecution
+            // если нет ни одного "свободного", то будем его создавать
+            // при этом, если не был передан referrer_id, то можно создать
+            // формальный OfferExecution, без привязки к реферальной ссылке
+            // а суммы в event записать нулевые
+
+            $qb = $this->entityManager->createQueryBuilder();
+            $qb = $qb->select('e')
+                ->from('App:OfferExecution', 'e')
+                ->join('e.source_link', 'ul', Join::WITH)
+                ->leftJoin('e.events', 'ee', Join::WITH, 'ee.event_type = :event_type')
+                ->setMaxResults(1)
+                ->where('e.offer = :offer')
+                ->andWhere('e.offer_link = :app_link')
+                ->andWhere('ee.id is null')
+                ->setParameters([
+                    'offer' => $link->getOffer(),
+                    'app_link' => $link,
+                    'event_type' => $eventType
+                ])
+            ;
+
+            if (null !== $employee) {
+                $qb = $qb->andWhere('ul.user = :employee')
+                    ->setParameter('employee', $employee);
+            }
+
+            /** @var OfferExecution $offerExecution */
+            $offerExecution = $qb->getQuery()->getOneOrNullResult();
+
+            if (null === $offerExecution) {
+
+            }
+
+            // Далее рассчитываем суммы (если необходимо), для конкретного события
+            // и всех участником схемы
+
+            $amountForService = 0;
+            $amountForSeller = 0;
+            $amountForEmployee = 0;
+
+            // А вот теперь начинаем формировать событие для сохранения
+
+            $newEvent = new SdkEvent();
+            $newEvent->setEventType($eventType);
+            $newEvent->setOfferExecution($offerExecution);
+            $newEvent->setDeviceId($data['device_id']);
+            $newEvent->setSourceInfo($request->server->all());
+            $newEvent->setCurrency(CurrencyEnum::RUB());
+            $newEvent->setAmountForService($amountForService);
+            $newEvent->setAmountForSeller($amountForSeller);
+            $newEvent->setAmountForEmployee($amountForEmployee);
+            $newEvent->setOffer($link->getOffer());
+            $newEvent->setOfferLink($link);
+            $newEvent->setSource(SdkEventSourceEnum::APP());
+            $newEvent->setEmployee($employee);
+
+            $this->entityManager->persist($newEvent);
+            $this->entityManager->flush();
+            $this->entityManager->commit();
+
             return new JsonResponse(null, JsonResponse::HTTP_CREATED);
+
+        } catch (UniqueConstraintViolationException $ex) {
+
+            // Событие уже приходило до этого и было зафиксировано
+            // откатим транзакцию и скажем что все ОК
+            $this->entityManager->rollback();
+            return new JsonResponse(null, JsonResponse::HTTP_CREATED);
+
+        } catch (\Exception $ex) {
+
+            // Какая бы ошибка ни произошла, необходимо откатить транзакцию
+            // и следом прокинуть исключение дальше
+            $this->entityManager->rollback();
+            throw $ex;
         }
-
-        // Получим ссылку на OfferExecution
-        // если нет ни одного "свободного", то будем его создавать
-        // при этом, если не был передан referrer_id, то можно создать
-        // формальный OfferExecution, без привязки к реферальной ссылке
-        // а суммы в event записать нулевые
-
-
-
-        // А вот теперь начинаем формировать событие для сохранения
-
-        $newEvent = new SdkEvent();
-        $newEvent->setEventType($eventType);
-//        $newEvent->setOfferExecution()
-        $newEvent->setDeviceId($data['device_id']);
-        $newEvent->setSourceInfo($request->server->all());
-        $newEvent->setCurrency(CurrencyEnum::RUB());
-//        $newEvent->setAmountForService()
-//        $newEvent->setAmountForSeller()
-//        $newEvent->setAmountForEmployee()
-        $newEvent->setOffer($link->getOffer());
-        $newEvent->setOfferLink($link);
-        $newEvent->setSource(SdkEventSourceEnum::APP());
-        $newEvent->setEmployee($employee);
     }
 
     /**

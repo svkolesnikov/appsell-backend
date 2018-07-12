@@ -103,6 +103,14 @@ class SdkEvent
         $this->source_info = json_encode([]);
     }
 
+    /**
+     * @ORM\PrePersist
+     */
+    public function onPrePersist(): void
+    {
+        $this->ctime = new \DateTime();
+    }
+
     public function getId(): string
     {
         return $this->id;
