@@ -91,7 +91,7 @@ class SdkController
             }
         }
 
-        return new RedirectResponse(sprintf('app%s://referrer/%s', $offerLinkId, $employeeId));
+        return new RedirectResponse(sprintf('app_%s://referrer/%s', $offerLinkId, $employeeId));
     }
 
     /**
