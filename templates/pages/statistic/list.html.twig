@@ -1,18 +1,78 @@
 {% extends 'base.html.twig' %}
 
 {% block top_nav_menu_buttons %}
-    {#<ul class="nav navbar-nav navbar-right">#}
-        {#<li class="dropdown">#}
-            {#<a class="" href="{{ path('app_stat_create') }}">#}
-                {#<i class="fa fa-plus-circle" aria-hidden="true"></i>#}
-                {#Добавить новый#}
-            {#</a>#}
-        {#</li>#}
-    {#</ul>#}
+    <ul class="nav navbar-nav navbar-left">
+        <li class="dropdown {% if status == 'complete' %}active{% endif %}">
+            <a class="" href="{{ path('app_stat_list', { status: 'complete' } ) }}">
+                <i class="fa fa-check" aria-hidden="true"></i>
+                Исполнено
+            </a>
+        </li>
+        <li class="dropdown {% if status == 'processing' %}active{% endif %}">
+            <a class="" href="{{ path('app_stat_list', { status: 'processing' } ) }}">
+                <i class="fa fa-refresh" aria-hidden="true"></i>
+                В процессе
+            </a>
+        </li>
+        <li class="dropdown {% if status == 'rejected' %}active{% endif %}">
+            <a class="" href="{{ path('app_stat_list', { status: 'rejected' } ) }}">
+                <i class="fa fa-close" aria-hidden="true"></i>
+                Отклонено
+            </a>
+        </li>
+    </ul>
 {% endblock %}
 
 {% block page_content %}
 
-    Здесь будет статистика
+    <div class="box box-primary">
+        <div class="box-body table-responsive no-padding">
+            <table class="table table-striped table-bordered">
+                <thead>
+                <tr class="headings">
+                    <th class="column-title">Наименование</th>
+                    <th class="column-title">Копий</th>
+                    <th class="column-title">Сумма</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                {% if items is empty %}
+                    <tr class="even pointer">
+                        <td colspan="3">Данных не обнаружено</td>
+                    </tr>
+                {% else %}
+
+                    {% set totalCount = 0 %}
+                    {% set totalSum = 0 %}
+
+                    {% for item in items %}
+
+                    {% set totalCount = totalCount + item.count %}
+                    {% set totalSum = totalSum + item.sum %}
+
+                    <tr class="even pointer">
+                        <td>{{ item.title }}</td>
+                        <td>{{ item.count }}</td>
+                        <td>{{ item.sum }}</td>
+                    </tr>
+
+                    {% endfor %}
+
+                    <tr class="even pointer">
+                        <td>Итого:</td>
+                        <td>{{ totalCount }}</td>
+                        <td>{{ totalSum }}</td>
+                    </tr>
+
+                    {% endif %}
+
+                </tbody>
+            </table>
+        </div>
+        <div class="box-footer">
+            {#{% include 'pager/default_pager.html.twig' %}#}
+        </div>
+    </div>
 
 {% endblock %}

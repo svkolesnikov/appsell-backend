@@ -3,8 +3,10 @@
 namespace App\DataSource;
 
 use App\DataSource\Dto\Offer;
+use App\DataSource\Dto\StatisticItem;
 use App\Entity\User;
 use App\Exception\Api\DataSourceException;
+use App\Lib\Enum\OfferExecutionStatusEnum;
 use App\Lib\Enum\OfferTypeEnum;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\FetchMode;
@@ -184,6 +186,50 @@ SQL;
 
                 return new Offer($item);
 
+            }, $statement->fetchAll(FetchMode::ASSOCIATIVE));
+
+        } catch (DBALException $ex) {
+            throw new DataSourceException($ex->getMessage(), $ex);
+        }
+    }
+
+    /**
+     * @param User $employee
+     * @param OfferExecutionStatusEnum $status
+     * @return array
+     * @throws DataSourceException
+     */
+    public function getExecutionStatistic(User $employee, OfferExecutionStatusEnum $status): array
+    {
+        $sql = <<<SQL
+WITH data as (
+    SELECT
+      o.id as offer_id, 
+      o.title as offer_title, 
+      se.amount_for_employee as price, 
+      oe.status
+    FROM actiondata.user_offer_link ol
+    INNER JOIN offerdata.offer o ON o.id = ol.offer_id
+    INNER JOIN actiondata.offer_execution oe ON oe.offer_id = o.id
+    LEFT JOIN actiondata.sdk_event se ON se.offer_execution_id = oe.id AND se.ctime BETWEEN o.active_from AND o.active_to
+    WHERE ol.user_id = :employee_id AND oe.status = :status
+)
+
+SELECT offer_id as id, offer_title as title, COUNT(*), SUM(price)
+FROM data
+GROUP BY offer_id , offer_title;
+SQL;
+
+        try {
+
+            $connection = $this->entityManager->getConnection();
+            $statement = $connection->prepare($sql);
+            $statement->bindValue('employee_id', $employee->getId(), ParameterType::STRING);
+            $statement->bindValue('status', $status->getValue(), ParameterType::STRING);
+            $statement->execute();
+
+            return array_map(function (array $item) {
+                return new StatisticItem($item);
             }, $statement->fetchAll(FetchMode::ASSOCIATIVE));
 
         } catch (DBALException $ex) {

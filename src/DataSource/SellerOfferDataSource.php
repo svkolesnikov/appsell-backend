@@ -3,8 +3,10 @@
 namespace App\DataSource;
 
 use App\DataSource\Dto\Offer;
+use App\DataSource\Dto\StatisticItem;
 use App\Entity\User;
 use App\Exception\Api\DataSourceException;
+use App\Lib\Enum\OfferExecutionStatusEnum;
 use App\Lib\Enum\OfferTypeEnum;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\FetchMode;
@@ -122,6 +124,52 @@ SQL;
 
                 return new Offer($item);
 
+            }, $statement->fetchAll(FetchMode::ASSOCIATIVE));
+
+        } catch (DBALException $ex) {
+            throw new DataSourceException($ex->getMessage(), $ex);
+        }
+    }
+
+    /**
+     * @param User $seller
+     * @param OfferExecutionStatusEnum $status
+     * @return array
+     * @throws DataSourceException
+     */
+    public function getExecutionStatistic(User $seller, OfferExecutionStatusEnum $status): array
+    {
+        $sql = <<<SQL
+WITH data as (
+    SELECT
+      p.user_id,
+      CONCAT(u.email, ' (', p.lastname, ' ', p.firstname,')') as fullname,
+      se.amount_for_seller as price,
+      oe.status
+    FROM userdata.profile p
+    INNER JOIN userdata.user u ON u.id = p.user_id
+    LEFT JOIN actiondata.user_offer_link ol ON ol.user_id = p.user_id
+    INNER JOIN offerdata.offer o ON o.id = ol.offer_id
+    LEFT JOIN actiondata.offer_execution oe ON oe.offer_id = ol.offer_id
+    LEFT JOIN actiondata.sdk_event se ON se.offer_execution_id = oe.id AND se.ctime BETWEEN o.active_from AND o.active_to
+    WHERE p.employer_id = :employer_id AND oe.status = :status
+)
+
+SELECT user_id as id, fullname as title, COUNT(*), SUM(price)
+FROM data
+GROUP BY user_id , fullname;
+SQL;
+
+        try {
+
+            $connection = $this->entityManager->getConnection();
+            $statement = $connection->prepare($sql);
+            $statement->bindValue('employer_id', $seller->getId(), ParameterType::STRING);
+            $statement->bindValue('status', $status->getValue(), ParameterType::STRING);
+            $statement->execute();
+
+            return array_map(function (array $item) {
+                return new StatisticItem($item);
             }, $statement->fetchAll(FetchMode::ASSOCIATIVE));
 
         } catch (DBALException $ex) {

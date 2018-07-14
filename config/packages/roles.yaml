@@ -29,8 +29,6 @@ security:
             - ROLE_APP_EVENT_TYPE_DELETE
 
             - ROLE_APP_STAT_LIST
-            - ROLE_APP_STAT_CREATE
-            - ROLE_APP_STAT_DELETE
 
         ROLE_SUPER_ADMIN:
             - ROLE_ADMIN

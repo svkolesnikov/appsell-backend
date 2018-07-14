@@ -2,6 +2,7 @@
 
 namespace App\Controller\Api;
 
+use App\DataSource\OwnerOfferDataSource;
 use App\Entity\Compensation;
 use App\Entity\Offer;
 use App\Entity\OfferLink;
@@ -11,6 +12,7 @@ use App\Exception\Api\FormValidationException;
 use App\Lib\Controller\FormTrait;
 use App\Lib\Enum\CompensationTypeEnum;
 use App\Lib\Enum\CurrencyEnum;
+use App\Lib\Enum\OfferExecutionStatusEnum;
 use App\Lib\Enum\OfferTypeEnum;
 use App\Lib\Enum\UserGroupEnum;
 use App\Security\UserGroupManager;
@@ -22,6 +24,7 @@ use App\Swagger\Annotations\AccessDeniedResponse;
 use App\Swagger\Annotations\UnauthorizedResponse;
 use App\Swagger\Annotations\TokenParameter;
 use App\Swagger\Annotations\SummaryOfferSchema;
+use App\Swagger\Annotations\OfferStatisticSchema;
 use App\Swagger\Annotations\OfferSchema;
 use App\Swagger\Annotations\BadRequestResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -302,5 +305,59 @@ class OwnerOfferController
         }
 
         return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
+    }
+
+    /**
+     * @SWG\Get(
+     *
+     *  path = "/owners/offers/statistic",
+     *  summary = "Статистика по офферам",
+     *  description = "",
+     *  tags = { "Owners" },
+     *
+     *  @TokenParameter(),
+     *  @SWG\Parameter(name = "status", in = "query", type = "string", description="processing/complete/rejected", required=true),
+     *
+     *  @SWG\Response(
+     *      response = 200,
+     *      description = "Список получен",
+     *      @SWG\Schema(
+     *          type = "array",
+     *          items = @OfferStatisticSchema()
+     *      )
+     *  ),
+     *
+     *  @UnauthorizedResponse(),
+     *  @AccessDeniedResponse(),
+     *  @BadRequestResponse()
+     * )
+     *
+     * @Route("/offers/statistic", methods = { "GET" })
+     * @param Request $request
+     * @param UserGroupManager $groupManager
+     * @return JsonResponse
+     * @throws FormValidationException
+     * @throws \App\Exception\Api\DataSourceException
+     */
+    public function getStatisticAction(Request $request, UserGroupManager $groupManager, OwnerOfferDataSource $dataSource): JsonResponse
+    {
+        try {
+
+            /** @var User $user */
+            $user   = $this->tokenStorage->getToken()->getUser();
+            $status = $request->get('status') ? new OfferExecutionStatusEnum($request->get('status')) : null;
+
+            if (!$groupManager->hasGroup($user, UserGroupEnum::OWNER())) {
+                throw new AccessDeniedHttpException('Owner only access');
+            }
+
+            return new JsonResponse($dataSource->getExecutionStatistic($user, $status));
+
+        } catch (\UnexpectedValueException $ex) {
+            throw new FormValidationException(
+                'Передан неверный параметр',
+                ['status' => 'Допустимые значения: ' . implode(', ', OfferExecutionStatusEnum::toArray())]
+            );
+        }
     }
 }

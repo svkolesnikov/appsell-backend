@@ -7,6 +7,7 @@ use App\Entity\Offer;
 use App\Entity\SellerApprovedOffer;
 use App\Entity\User;
 use App\Exception\Api\FormValidationException;
+use App\Lib\Enum\OfferExecutionStatusEnum;
 use App\Lib\Enum\OfferTypeEnum;
 use App\Lib\Enum\UserGroupEnum;
 use App\Security\UserGroupManager;
@@ -18,6 +19,7 @@ use App\Swagger\Annotations\AccessDeniedResponse;
 use App\Swagger\Annotations\UnauthorizedResponse;
 use App\Swagger\Annotations\TokenParameter;
 use App\Swagger\Annotations\OfferWithCompensationsSchema;
+use App\Swagger\Annotations\OfferStatisticSchema;
 use App\Swagger\Annotations\BadRequestResponse;
 use App\Swagger\Annotations\NotFoundResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -217,5 +219,59 @@ class SellerOfferController
         }
 
         return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
+    }
+
+    /**
+     * @SWG\Get(
+     *
+     *  path = "/sellers/offers/statistic",
+     *  summary = "Статистика по офферам",
+     *  description = "",
+     *  tags = { "Sellers" },
+     *
+     *  @TokenParameter(),
+     *  @SWG\Parameter(name = "status", in = "query", type = "string", description="processing/complete/rejected", required=true),
+     *
+     *  @SWG\Response(
+     *      response = 200,
+     *      description = "Список получен",
+     *      @SWG\Schema(
+     *          type = "array",
+     *          items = @OfferStatisticSchema()
+     *      )
+     *  ),
+     *
+     *  @UnauthorizedResponse(),
+     *  @AccessDeniedResponse(),
+     *  @BadRequestResponse()
+     * )
+     *
+     * @Route("/offers/statistic", methods = { "GET" })
+     * @param Request $request
+     * @return JsonResponse
+     * @throws \Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException
+     * @throws FormValidationException
+     * @throws \App\Exception\Api\DataSourceException
+     */
+    public function getStatisticAction(Request $request): JsonResponse
+    {
+        try {
+
+            /** @var User $user */
+            $user   = $this->tokenStorage->getToken()->getUser();
+            $status = new OfferExecutionStatusEnum($request->get('status'));
+
+            if (!$this->groupManager->hasGroup($user, UserGroupEnum::SELLER())) {
+                throw new AccessDeniedHttpException('Sellers only access');
+            }
+
+            return new JsonResponse($this->dataSource->getExecutionStatistic($user, $status));
+
+        } catch (\UnexpectedValueException $ex) {
+            throw new FormValidationException(
+                'Передан неверный параметр',
+                ['status' => 'Допустимые значения: ' . implode(', ', OfferExecutionStatusEnum::toArray())]
+            );
+        }
     }
 }
