@@ -16,7 +16,7 @@ use App\Swagger\Annotations\AccessDeniedResponse;
 use App\Swagger\Annotations\UnauthorizedResponse;
 use App\Swagger\Annotations\TokenParameter;
 use App\Swagger\Annotations\OfferStatisticSchema;
-use App\Swagger\Annotations\OfferWithCompensationsSchema;
+use App\Swagger\Annotations\OfferForEmployeeSchema;
 use App\Swagger\Annotations\BadRequestResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -57,7 +57,7 @@ class EmployeeOfferController
      *      description = "Список получен",
      *      @SWG\Schema(
      *          type = "array",
-     *          items = @OfferWithCompensationsSchema()
+     *          items = @OfferForEmployeeSchema()
      *      )
      *  ),
      *

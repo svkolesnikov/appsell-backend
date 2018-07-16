@@ -12,17 +12,24 @@ use App\Entity\UserOfferLink;
 use App\Lib\Enum\CurrencyEnum;
 use App\Lib\Enum\OfferExecutionStatusEnum;
 use App\Lib\Enum\SdkEventSourceEnum;
+use App\Lib\Enum\UserGroupEnum;
+use App\Security\UserGroupManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\Query\Expr\Join;
 
 class SdkEventCreating
 {
+    /** @var EntityManagerInterface */
     protected $entityManager;
 
-    public function __construct(EntityManagerInterface $em)
+    /** @var UserGroupManager */
+    protected $userGroupManager;
+
+    public function __construct(EntityManagerInterface $em, UserGroupManager $gm)
     {
         $this->entityManager = $em;
+        $this->userGroupManager = $gm;
     }
 
     /**
@@ -134,10 +141,15 @@ class SdkEventCreating
 
             // Далее рассчитываем суммы (если необходимо), для конкретного события
             // и всех участником схемы
+            // А необходимо только если передан referrer_id и он является сотрудником продавца
 
             $amountForService = 0;
             $amountForSeller = 0;
             $amountForEmployee = 0;
+
+            if (null !== $employee && $this->userGroupManager->hasGroup($employee, UserGroupEnum::EMPLOYEE())) {
+
+            }
 
             // А вот теперь начинаем формировать событие для сохранения
 

@@ -2,7 +2,7 @@
 
 namespace App\DataSource;
 
-use App\DataSource\Dto\Offer;
+use App\DataSource\Dto\EmployeeOffer;
 use App\DataSource\Dto\StatisticItem;
 use App\Entity\User;
 use App\Exception\Api\DataSourceException;
@@ -28,7 +28,7 @@ class EmployeeOfferDataSource
      * @param int $limit
      * @param int $offset
      * @param OfferTypeEnum|null $type
-     * @return array|Offer[]
+     * @return array|EmployeeOffer[]
      * @throws DataSourceException
      */
     public function getAvailableOffers(User $employee, int $limit, int $offset, OfferTypeEnum $type = null): array
@@ -184,7 +184,7 @@ SQL;
                 $item['compensations'] = (array) json_decode($item['compensations'], true);
                 $item['links'] = (array) json_decode($item['links'], true);
 
-                return new Offer($item);
+                return new EmployeeOffer($item);
 
             }, $statement->fetchAll(FetchMode::ASSOCIATIVE));
 

@@ -2,8 +2,8 @@
 
 namespace App\DataSource;
 
-use App\DataSource\Dto\Offer;
 use App\DataSource\Dto\StatisticItem;
+use App\DataSource\Dto\SellerOffer;
 use App\Entity\User;
 use App\Exception\Api\DataSourceException;
 use App\Lib\Enum\OfferExecutionStatusEnum;
@@ -28,7 +28,7 @@ class SellerOfferDataSource
      * @param int $limit
      * @param int $offset
      * @param OfferTypeEnum|null $type
-     * @return array|Offer[]
+     * @return array|SellerOffer[]
      * @throws DataSourceException
      */
     public function getAvailableOffers(User $seller, int $limit, int $offset, OfferTypeEnum $type = null): array
@@ -100,9 +100,12 @@ select
     from app_links L
     where L.offer_id = O.id
     order by L.type
-  ) as r) as links
+  ) as r) as links,
+  
+  (AO.id is not null) as is_approved
   
 from offers O
+left join offerdata.seller_approved_offer AO on AO.offer_id = O.id and AO.seller_id = :seller_id
 order by O.mtime desc
 limit :limit 
 offset :offset
@@ -122,7 +125,7 @@ SQL;
                 $item['compensations'] = (array) json_decode($item['compensations'], true);
                 $item['links'] = (array) json_decode($item['links'], true);
 
-                return new Offer($item);
+                return new SellerOffer($item);
 
             }, $statement->fetchAll(FetchMode::ASSOCIATIVE));
 
