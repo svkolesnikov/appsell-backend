@@ -7,6 +7,7 @@ use App\Entity\OfferExecution;
 use App\Entity\OfferLink;
 use App\Kernel;
 use App\Lib\Controller\FormTrait;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityNotFoundException;
 use Psr\Container\ContainerInterface;
@@ -147,6 +148,12 @@ class SdkController
                 $request->server->all()
             );
 
+            return new JsonResponse(null, JsonResponse::HTTP_CREATED);
+
+        } catch (UniqueConstraintViolationException $ex) {
+
+            // Если не удалось добавить событие по причине его наличия в БД
+            // говорим, что все ок :)
             return new JsonResponse(null, JsonResponse::HTTP_CREATED);
 
         } catch (EntityNotFoundException $ex) {
