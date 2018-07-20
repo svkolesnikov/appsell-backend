@@ -44,8 +44,9 @@ RUN curl -sS https://getcomposer.org/installer | php \
  && php composer.phar install --no-interaction --no-scripts --no-autoloader
 
 # Копирование кода приложения
-COPY ./.bowerrc      /var/www/app/
-COPY ./bower.json    /var/www/app/
+COPY ./yarn.lock     /var/www/app/
+COPY ./.yarnrc       /var/www/app/
+COPY ./package.json  /var/www/app/
 COPY ./bin           /var/www/app/bin
 COPY ./config        /var/www/app/config
 COPY ./src           /var/www/app/src
@@ -55,8 +56,8 @@ COPY ./translations  /var/www/app/translations
 # Итоговое построение карты autoload
 RUN php composer.phar dump-autoload --optimize --classmap-authoritative
 
-RUN npm install -g bower
-RUN bower install --allow-root
+RUN npm install -g yarn
+RUN yarn
 
 VOLUME /var/www/app
 VOLUME /var/www/app/var
