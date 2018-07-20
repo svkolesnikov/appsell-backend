@@ -99,7 +99,7 @@ class OwnerOfferController
             $limit    = (int)$request->get('limit', 20);
             $offset   = (int)$request->get('offset', 0);
 
-            $criteria = ['owner' => $user];
+            $criteria = ['owner' => $user, 'is_deleted' => false];
 
             if (null !== $request->get('type')) {
                 $criteria['type'] = new OfferTypeEnum($request->get('type'));
