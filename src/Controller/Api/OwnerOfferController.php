@@ -345,7 +345,7 @@ class OwnerOfferController
 
             /** @var User $user */
             $user   = $this->tokenStorage->getToken()->getUser();
-            $status = $request->get('status') ? new OfferExecutionStatusEnum($request->get('status')) : null;
+            $status = new OfferExecutionStatusEnum($request->get('status'));
 
             if (!$groupManager->hasGroup($user, UserGroupEnum::OWNER())) {
                 throw new AccessDeniedHttpException('Owner only access');

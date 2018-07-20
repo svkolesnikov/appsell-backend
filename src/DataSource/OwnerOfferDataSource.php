@@ -46,9 +46,9 @@ WITH data as (
     WHERE o.owner_id = :owner_id AND oe.status = :status
 )
 
-SELECT id, title, COUNT(*), SUM(price)
+SELECT id, title, null as reason, COUNT(*), SUM(price)
 FROM data
-GROUP BY id, title;
+GROUP BY id, title, reason;
 SQL;
 
         try {

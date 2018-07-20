@@ -158,9 +158,9 @@ WITH data as (
     WHERE p.employer_id = :employer_id AND oe.status = :status
 )
 
-SELECT user_id as id, fullname as title, COUNT(*), SUM(price)
+SELECT user_id as id, fullname as title, null as reason, COUNT(*), SUM(price)
 FROM data
-GROUP BY user_id , fullname;
+GROUP BY user_id , fullname, reason;
 SQL;
 
         try {
