@@ -2,11 +2,13 @@
 
 namespace App\Controller\Api;
 
+use App\DCI\ActionLogging;
 use App\DCI\SdkEventCreating;
 use App\Entity\OfferExecution;
 use App\Entity\OfferLink;
 use App\Kernel;
 use App\Lib\Controller\FormTrait;
+use App\Lib\Enum\ActionLogItemTypeEnum;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityNotFoundException;
@@ -119,12 +121,13 @@ class SdkController
      * @Route("/events", methods = { "POST" })
      * @param Request $request
      * @param SdkEventCreating $creating
+     * @param ActionLogging $logging
      * @return JsonResponse
      * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
      * @throws \App\Exception\Api\FormValidationException
      * @throws \Exception
      */
-    public function createEventAction(Request $request, SdkEventCreating $creating): JsonResponse
+    public function createEventAction(Request $request, SdkEventCreating $creating, ActionLogging $logging): JsonResponse
     {
         $form = $this->createFormBuilder()
             ->setMethod($request->getMethod())
@@ -152,12 +155,28 @@ class SdkController
 
         } catch (UniqueConstraintViolationException $ex) {
 
+            $logging->log(
+                ActionLogItemTypeEnum::SDK_EVENT(),
+                'Получено дублирующее событие от SDK (уже было записано ранее)',
+                ['form' => $data],
+                $request
+            );
+
             // Если не удалось добавить событие по причине его наличия в БД
             // говорим, что все ок :)
             return new JsonResponse(null, JsonResponse::HTTP_CREATED);
 
         } catch (EntityNotFoundException $ex) {
+
+            $logging->log(
+                ActionLogItemTypeEnum::SDK_EVENT(),
+                'Получено событие от SDK, но были переданы ID несуществующих сущностей',
+                ['form' => $data],
+                $request
+            );
+
             throw new NotFoundHttpException($ex->getMessage(), $ex);
+
         }
     }
 
