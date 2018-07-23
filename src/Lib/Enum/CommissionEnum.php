@@ -8,7 +8,7 @@ use MyCLabs\Enum\Enum;
  * @method static CommissionEnum SERVICE()
  * @method static CommissionEnum SELLER()
  */
-final class CommissionEnum extends Enum
+final class CommissionEnum extends Enum implements TitlesAwareInterface
 {
     use TitlesAwareTrait;
 

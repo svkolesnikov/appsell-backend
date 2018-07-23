@@ -8,7 +8,7 @@ use MyCLabs\Enum\Enum;
  * @method static CompensationTypeEnum BASE()
  * @method static CompensationTypeEnum ADDITIONAL()
  */
-final class CompensationTypeEnum extends Enum
+final class CompensationTypeEnum extends Enum implements TitlesAwareInterface
 {
     use TitlesAwareTrait;
 
