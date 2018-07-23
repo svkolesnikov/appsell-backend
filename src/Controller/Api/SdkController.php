@@ -179,25 +179,4 @@ class SdkController
 
         }
     }
-
-    /**
-     * @Route("/tmp2", methods = { "POST" })
-     * @param Request $request
-     * @param ContainerInterface $container
-     * @return JsonResponse
-     */
-    public function test2Action(Request $request, ContainerInterface $container): JsonResponse
-    {
-        /** @var Kernel $kernel */
-        $kernel = $container->get('kernel');
-        $path   = $kernel->getProjectDir() . '/var/tmp2params.log';
-
-        file_put_contents(
-            $path,
-            date('Y-m-d H:i:s') . PHP_EOL . print_r($request->request->all(), true) . PHP_EOL,
-            FILE_APPEND
-        );
-
-        return new JsonResponse(null, JsonResponse::HTTP_CREATED);
-    }
 }
