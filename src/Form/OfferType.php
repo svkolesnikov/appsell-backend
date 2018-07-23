@@ -3,7 +3,10 @@
 namespace App\Form;
 
 use App\Entity\Offer;
+use App\Form\DataTransformer\StringToOfferTypeDataTransformer;
+use App\Lib\Enum\OfferTypeEnum;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -18,6 +21,11 @@ class OfferType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
+            ->add('type',           ChoiceType::class,      [
+                'required'      => true,
+                'label'         => 'Тип',
+                'choices'       => array_flip(OfferTypeEnum::getTitles()),
+            ])
             ->add('title',          TextType::class,        ['required' => true, 'label' => 'Наименование'])
             ->add('description',    TextareaType::class,    ['required' => false, 'label' => 'Описание'])
             ->add('active_from',    DateType::class,        [
@@ -58,6 +66,8 @@ class OfferType extends AbstractType
                 'delete_empty'  => true
             ])
         ;
+
+        $builder->get('type')->addModelTransformer(new StringToOfferTypeDataTransformer());
     }
 
     public function configureOptions(OptionsResolver $resolver)

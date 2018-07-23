@@ -10,6 +10,14 @@ use MyCLabs\Enum\Enum;
  */
 final class OfferTypeEnum extends Enum
 {
+    use TitlesAwareTrait;
+
     public const APP = 'app';
+
     public const SERVICE = 'service';
+
+    protected static $titles = [
+        self::APP       => 'Приложение',
+        self::SERVICE   => 'Услуга'
+    ];
 }
