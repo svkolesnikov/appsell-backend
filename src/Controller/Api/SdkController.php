@@ -42,7 +42,7 @@ class SdkController
      *
      *  path = "/sdk/deep-link",
      *  summary = "Переход в приложение по deferred deep link",
-     *  description = "Redirect to: app_<app_id>://referrer/...id",
+     *  description = "Redirect to: app-<app_id>://referrer/...id",
      *  tags = { "SDK" },
      *
      *  @SWG\Parameter(name = "app_id", required = true, in = "query", type = "string"),
@@ -83,7 +83,7 @@ class SdkController
             }
         }
 
-        return new RedirectResponse(sprintf('app_%s://referrer/%s', $offerLinkId, $employeeId));
+        return new RedirectResponse(sprintf('app-%s://referrer/%s', $offerLinkId, $employeeId));
     }
 
     /**

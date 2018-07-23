@@ -149,6 +149,11 @@ class SdkEventCreating
 
             if (null !== $employee && $this->userGroupManager->hasGroup($employee, UserGroupEnum::EMPLOYEE())) {
 
+                $employer = $employee->getProfile()->getEmployer();
+                if (null !== $employer) {
+
+
+                }
             }
 
             // А вот теперь начинаем формировать событие для сохранения
