@@ -49,9 +49,11 @@
             </td>
             <td>
                 <div class="btn-group">
+                    {% if false == offer.isDeleted %}
                     {% include 'pages/offer/buttons/_change_activity.html.twig' %}
-                    {% include 'pages/offer/buttons/_edit.html.twig' %}
                     {% include 'pages/offer/buttons/_hide.html.twig' %}
+                    {% endif %}
+                    {% include 'pages/offer/buttons/_edit.html.twig' %}
                     {% include 'pages/offer/buttons/_delete.html.twig' %}
                 </div>
             </td>
