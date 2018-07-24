@@ -105,6 +105,7 @@ class Offer
         $this->active_to     = new \DateTime();
         $this->is_active     = false;
         $this->is_deleted    = false;
+        $this->type          = OfferTypeEnum::SERVICE;
     }
 
     /**

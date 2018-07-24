@@ -271,6 +271,28 @@ class OfferController extends BaseController
 
         try {
 
+            if ((bool)$request->get('active')) {
+                $now = new \DateTime();
+
+                $errors = [];
+
+                if (0 === \count($offer->getLinks())) {
+                    $errors[] = 'отсутствуют ссылки';
+                }
+
+                if (0 === \count($offer->getCompensations())) {
+                    $errors[] = 'отсутствуют компенсации';
+                }
+
+                if ($offer->getActiveFrom() > $now || $offer->getActiveTo() < $now) {
+                    $errors[] = 'неверный срок оффера';
+                }
+
+                if (0 !== \count($errors)) {
+                    throw new \Exception('Причины: ' . implode(', ', $errors));
+                }
+            }
+
             $offer->setActive((bool)$request->get('active'));
 
             $this->em->persist($offer);

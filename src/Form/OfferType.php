@@ -96,6 +96,10 @@ class OfferType extends AbstractType
 
     public function validateCompensation($payload, ExecutionContextInterface $context)
     {
+        if (0 === count($payload)) {
+            return;
+        }
+
         $baseCompensationCount = 0;
 
         /** @var Compensation $item */
