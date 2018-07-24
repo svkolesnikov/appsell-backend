@@ -139,6 +139,21 @@
 {% block page_content %}
 
     {{ form_start(form) }}
+
+        {% if 0 != form.vars.errors|length %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="alert alert-danger alert-error">
+                    <ul>
+                    {% for error in form.vars.errors %}
+                        <li>{{ error.message }}</li>
+                    {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
         <div class="row">
             <div class="col-md-12">
                 <div class="box box-primary">
