@@ -210,7 +210,7 @@ WITH data as (
       oe.status
     FROM actiondata.user_offer_link ol
     INNER JOIN offerdata.offer o ON o.id = ol.offer_id
-    INNER JOIN actiondata.offer_execution oe ON oe.offer_id = o.id
+    INNER JOIN actiondata.offer_execution oe ON oe.offer_id = ol.offer_id AND oe.source_link_id = ol.id
     LEFT JOIN actiondata.sdk_event se ON se.offer_execution_id = oe.id AND se.ctime BETWEEN o.active_from AND o.active_to
     WHERE ol.user_id = :employee_id AND oe.status = :status
 )

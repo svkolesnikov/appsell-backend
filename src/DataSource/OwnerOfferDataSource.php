@@ -33,7 +33,8 @@ class OwnerOfferDataSource
     {
         $sql = <<<SQL
 WITH data as (
-    SELECT
+    SELECT DISTINCT
+        se.id as event_id,
         o.id,
         o.title,
         c.price,
