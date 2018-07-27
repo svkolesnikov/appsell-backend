@@ -38,3 +38,9 @@ services:
     arguments:
       - '@App\Notification\Notificator\EmailNotificator'
       - '%system.notification_receivers%'
+
+  # rabbitmq processors
+
+  queue.example_processor:
+    class: App\Queue\Processor\ExampleProcessor
+    public: true
