@@ -79,9 +79,9 @@ class User implements UserInterface, \Serializable
     protected $groups;
 
     /**
-     * @var SellerBaseCommission.php
-     *
-     * @ORM\OneToOne(targetEntity = "SellerBaseCommission", mappedBy = "seller", cascade={"persist", "remove"})
+     * @var SellerBaseCommission
+     * @ORM\OneToOne(targetEntity = "SellerBaseCommission", cascade={"persist", "remove"})
+     * @ORM\JoinColumn(name = "id", referencedColumnName = "seller_id")
      */
     protected $sellerCommission;
 
