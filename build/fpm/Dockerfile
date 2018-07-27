@@ -6,6 +6,7 @@ RUN apk add --no-cache \
     nodejs \
     nodejs-npm \
     libevent \
+    rabbitmq-c \
     'su-exec>=0.2'
 
 RUN apk add --no-cache --virtual .build-deps \
@@ -17,6 +18,7 @@ RUN apk add --no-cache --virtual .build-deps \
     make \
     pcre-dev \
     libevent-dev \
+    rabbitmq-c-dev \
  && docker-php-ext-install \
     mbstring \
     xml \
@@ -26,6 +28,7 @@ RUN apk add --no-cache --virtual .build-deps \
     zip \
     opcache \
     sockets \
+ && pecl install amqp-1.9.3 && docker-php-ext-enable amqp \
  && pecl install event && docker-php-ext-enable event \
  && mv /usr/local/etc/php/conf.d/docker-php-ext-event.ini \
        /usr/local/etc/php/conf.d/docker-php-ext-zz-event.ini \
