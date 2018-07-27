@@ -1,0 +1,29 @@
+---
+
+- hosts: all
+  become_user: root
+
+  vars:
+    data_dir: /datadrive/db/rabbit37/data
+
+  tasks:
+
+    - name: Создание каталогов БД
+      file:
+        state: directory
+        name: "{{ item }}"
+      with_items:
+        - "{{ data_dir }}"
+
+    - name: Запуск Rabbit 3.7
+      docker_container:
+        name: rabbitmq37
+        image: rabbitmq:3.7-management-alpine
+        state: started
+        restart_policy: unless-stopped
+        hostname: "rabbitmq"
+        ports:
+          - 5672:5672
+          - 15672:15672
+        volumes:
+          - "{{ data_dir }}:/var/lib/rabbitmq"

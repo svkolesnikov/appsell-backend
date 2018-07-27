@@ -1,0 +1,9 @@
+---
+
+- hosts: all
+  tasks:
+
+    - name: Остановка Rabbit
+      docker_container:
+        name: rabbitmq37
+        state: absent
