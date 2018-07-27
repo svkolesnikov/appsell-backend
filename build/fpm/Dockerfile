@@ -63,9 +63,9 @@ VOLUME /var/www/app/var
 
 EXPOSE 9000
 
-COPY ./build/php-fpm/php-fpm.conf           /usr/local/etc/php-fpm.conf
-COPY ./build/php-fpm/www.conf               /usr/local/etc/php-fpm.d/www.conf
-COPY ./build/php-fpm/docker-entry-point.sh  /usr/local/bin/docker-entry-point
+COPY ./build/fpm/php-fpm.conf           /usr/local/etc/php-fpm.conf
+COPY ./build/fpm/www.conf               /usr/local/etc/php-fpm.d/www.conf
+COPY ./build/fpm/docker-entry-point.sh  /usr/local/bin/docker-entry-point
 
 RUN chmod +x /usr/local/bin/docker-entry-point
 
