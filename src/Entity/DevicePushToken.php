@@ -8,10 +8,10 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="userdata.device_token")
+ * @ORM\Table(name="userdata.device_push_token")
  * @ORM\HasLifecycleCallbacks
  */
-class DeviceToken
+class DevicePushToken
 {
     /**
      * @ORM\Id
