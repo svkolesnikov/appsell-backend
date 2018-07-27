@@ -25,11 +25,11 @@
       docker_container:
         pull: yes
         name: appsell_backend_fpm
-        image: "{{ registry_host }}:{{ registry_port }}/backend/app"
+        image: "{{ registry_host }}:{{ registry_port }}/backend/fpm"
         state: started
         recreate: yes
         restart_policy: unless-stopped
-        hostname: "{{ ansible_hostname }}.backend.app"
+        hostname: "{{ ansible_hostname }}.backend.fpm"
         dns_servers: ["8.8.8.8", "8.8.4.4"]
         volumes: ["{{ var_dir }}:/var/www/app/var"]
         env:
@@ -53,17 +53,16 @@
 
     - name: app - nginx
       docker_container:
-        pull: yes
         name: appsell_backend_nginx
-        image: "{{ registry_host }}:{{ registry_port }}/backend/nginx"
+        image: nginx:1.15-alpine
         state: started
         restart_policy: unless-stopped
         recreate: yes
         ports:
           - 8001:80
-        #dns_servers: ["{{ ansible_docker0.ipv4.address }}"]
         volumes_from:
           - appsell_backend_fpm
         links:
           - appsell_backend_fpm:php-fpm
           - appsell_backend_swagger_ui:swagger-ui
+        command: /bin/sh -c "cp -f /var/www/app/config/nginx.vhosts.conf /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"

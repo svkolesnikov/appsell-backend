@@ -1,6 +1,6 @@
 # Тут у нас переменные всякие будут
 
-FPM_CONTAINER_TAG=10.1.4.5:5000/backend/app:latest
+FPM_CONTAINER_TAG=10.1.4.5:5000/backend/fpm:latest
 
 # КОМАНДЫ:
 # Для локального запуска
