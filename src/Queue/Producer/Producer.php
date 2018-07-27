@@ -5,7 +5,7 @@ namespace App\Queue\Producer;
 use Interop\Amqp\AmqpContext;
 use Psr\Container\ContainerInterface;
 
-class CommonProducer
+class Producer
 {
     /** @var AmqpContext */
     protected $context;
@@ -17,9 +17,14 @@ class CommonProducer
 
     public function send(string $queue, array $message): void
     {
+        // По этому полю будет определяться обработчик на выходе
+        $message['queue'] = $queue;
+
+        // Получим очередь
         $amqpQueue = $this->context->createQueue($queue);
         $this->context->declareQueue($amqpQueue);
 
+        // Опубликуем сообщение
         $amqpMessage = $this->context->createMessage(json_encode($message));
         $this->context->createProducer()->send($amqpQueue, $amqpMessage);
     }

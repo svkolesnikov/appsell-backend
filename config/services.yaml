@@ -41,6 +41,6 @@ services:
 
   # rabbitmq processors
 
-  queue.example_processor:
-    class: App\Queue\Processor\ExampleProcessor
+  queue.processor:
+    class: App\Queue\Processor\Processor
     public: true
