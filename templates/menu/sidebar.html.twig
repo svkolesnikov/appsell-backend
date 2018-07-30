@@ -30,6 +30,12 @@
         </li>
     {% endif %}
 
+    {% if is_granted(['ROLE_APP_REPORT_LIST']) %}
+        <li>
+            <a href="{{ path('app_report_list') }}"><i class="fa fa-tasks"></i>Отчеты</a>
+        </li>
+    {% endif %}
+
     {% if is_granted(['ROLE_APP_COMMISSION_LIST']) %}
         <li>
             <a href="{{ path('app_commission_list') }}"><i class="fa fa-money"></i>Комиссии</a>

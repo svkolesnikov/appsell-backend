@@ -30,6 +30,8 @@ security:
 
             - ROLE_APP_STAT_LIST
 
+            - ROLE_APP_REPORT_LIST
+
         ROLE_SUPER_ADMIN:
             - ROLE_ADMIN
 
