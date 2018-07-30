@@ -2,13 +2,18 @@
 
 namespace App\DCI;
 
+use App\Entity\BaseCommission;
 use App\Entity\Compensation;
 use App\Entity\EventType;
+use App\Entity\ForOfferCommission;
+use App\Entity\ForUserCommission;
 use App\Entity\OfferExecution;
 use App\Entity\OfferLink;
 use App\Entity\SdkEvent;
+use App\Entity\SellerBaseCommission;
 use App\Entity\User;
 use App\Entity\UserOfferLink;
+use App\Lib\Enum\CommissionEnum;
 use App\Lib\Enum\CurrencyEnum;
 use App\Lib\Enum\OfferExecutionStatusEnum;
 use App\Lib\Enum\SdkEventSourceEnum;
@@ -152,7 +157,67 @@ class SdkEventCreating
                 $employer = $employee->getProfile()->getEmployer();
                 if (null !== $employer) {
 
+                    // Рассчет комиссии сервиса
 
+                    /** @var ForOfferCommission $serviceForOfferCommission */
+                    $serviceForOfferCommission = $this->entityManager
+                        ->getRepository('App:ForOfferCommission')
+                        ->findOneBy(['offer' => $link->getOffer(), 'by_user' => null]);
+
+                    /** @var ForUserCommission $serviceForUserCommission */
+                    $serviceForUserCommission = $this->entityManager
+                        ->getRepository('App:ForUserCommission')
+                        ->findOneBy(['user' => $employer, 'by_user' => null]);
+
+                    /** @var BaseCommission $serviceBaseCommission */
+                    $serviceBaseCommission = $this->entityManager
+                        ->getRepository('App:BaseCommission')
+                        ->findOneBy(['type' => CommissionEnum::SERVICE]);
+
+                    if (null !== $serviceForOfferCommission) {
+                        $servicePercent = $serviceForOfferCommission->getPercent();
+                    } elseif (null !== $serviceForUserCommission) {
+                        $servicePercent = $serviceForUserCommission->getPercent();
+                    } elseif (null !== $serviceBaseCommission) {
+                        $servicePercent = $serviceBaseCommission->getPercent();
+                    } else {
+                        $servicePercent = 0;
+                    }
+
+                    $amountForService = round($compensation->getPrice() * $servicePercent / 100, 2);
+
+                    // Рассчет комиссии компании
+
+                    /** @var ForOfferCommission $serviceForOfferCommission */
+                    $sellerForOfferCommission = $this->entityManager
+                        ->getRepository('App:ForOfferCommission')
+                        ->findOneBy(['offer' => $link->getOffer(), 'by_user' => $employer]);
+
+                    /** @var SellerBaseCommission $sellersBaseCommission */
+                    $sellersBaseCommission = $this->entityManager
+                        ->getRepository('App:SellerBaseCommission')
+                        ->findOneBy(['seller' => $employer]);
+
+                    /** @var BaseCommission $sellerBaseCommission */
+                    $sellerBaseCommission = $this->entityManager
+                        ->getRepository('App:BaseCommission')
+                        ->findOneBy(['type' => CommissionEnum::SELLER]);
+
+                    if (null !== $sellerForOfferCommission) {
+                        $sellerPercent = $sellerForOfferCommission->getPercent();
+                    } elseif (null !== $sellersBaseCommission) {
+                        $sellerPercent = $sellersBaseCommission->getPercent();
+                    } elseif (null !== $sellerBaseCommission) {
+                        $sellerPercent = $sellerBaseCommission->getPercent();
+                    } else {
+                        $sellerPercent = 0;
+                    }
+
+                    $amountForSeller = round(($compensation->getPrice() - $amountForService) * $sellerPercent / 100, 2);
+
+                    // Сумма для сотрудника
+
+                    $amountForEmployee = $compensation->getPrice() - $amountForService - $amountForSeller;
                 }
             }
 
