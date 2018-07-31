@@ -49,8 +49,6 @@ class ReportService
      */
     public function create(User $user, \DateTime $startDate, \DateTime $endDate): void
     {
-        $data = [];
-
         if ($this->userGroupManager->hasGroup($user, UserGroupEnum::OWNER())) {
             $data = $this->ownerDataSource->getFinanceReport($user, $startDate, $endDate);
 

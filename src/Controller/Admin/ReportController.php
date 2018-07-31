@@ -44,7 +44,7 @@ class ReportController extends BaseController
         }
 
         try {
-            $items = $this->em->getRepository(Report::class)->findBy($criteria, [], $perPage, $offset);
+            $items = $this->em->getRepository(Report::class)->findBy($criteria, ['ctime' => 'DESC'], $perPage, $offset);
         } catch (\Exception $ex) {
             $this->addFlash('error', 'Не удалось получить список отчетов. ' . $ex->getMessage());
         }

@@ -15,7 +15,7 @@ class ReportItem
         $this->id       = $props['id'];
         $this->title    = $props['title'];
         $this->count    = (int) $props['count'];
-        $this->sum      = rtrim($props['sum'], 0);
-        $this->tax      = rtrim($props['tax'], 0);
+        $this->sum      = (double) $props['sum'];
+        $this->tax      = (double) $props['tax'];
     }
 }
