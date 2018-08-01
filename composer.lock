@@ -1568,26 +1568,29 @@
         },
         {
             "name": "martin-georgiev/postgresql-for-doctrine",
-            "version": "0.10",
+            "version": "v0.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/martin-georgiev/postgresql-for-doctrine.git",
-                "reference": "2b8d47b55a14198fc7f4ef103995372a922e58a0"
+                "reference": "2920ef95704eed6831ddd804606a6d4a2ea1afa7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/martin-georgiev/postgresql-for-doctrine/zipball/2b8d47b55a14198fc7f4ef103995372a922e58a0",
-                "reference": "2b8d47b55a14198fc7f4ef103995372a922e58a0",
+                "url": "https://api.github.com/repos/martin-georgiev/postgresql-for-doctrine/zipball/2920ef95704eed6831ddd804606a6d4a2ea1afa7",
+                "reference": "2920ef95704eed6831ddd804606a6d4a2ea1afa7",
                 "shasum": ""
             },
             "require": {
                 "doctrine/dbal": "~2.5",
                 "doctrine/orm": "~2.5",
-                "php": ">=5.5"
+                "php": ">=5.6"
             },
             "require-dev": {
-                "phpunit/phpunit": "~4.0",
-                "squizlabs/php_codesniffer": "*"
+                "friendsofphp/php-cs-fixer": "*",
+                "jakub-onderka/php-parallel-lint": "^1.0",
+                "phpstan/phpstan": "^0.10.2",
+                "phpunit/phpunit": "^5.7",
+                "sensiolabs/security-checker": "^4.1"
             },
             "type": "library",
             "extra": {
@@ -1597,8 +1600,7 @@
             },
             "autoload": {
                 "psr-4": {
-                    "MartinGeorgiev\\": "src/MartinGeorgiev/",
-                    "MartinGeorgiev\\Tests\\": "tests/MartinGeorgiev/"
+                    "MartinGeorgiev\\": "src/MartinGeorgiev/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -1611,17 +1613,17 @@
                     "email": "martin.georgiev@gmail.com"
                 }
             ],
-            "description": "PostgreSQL enhancements for Doctrine2. Provides support for JSONB and array data types and operators and other specific functions.",
+            "description": "PostgreSQL enhancements for Doctrine. Provides support for JSONB and array data types and operators and other specific functions.",
             "keywords": [
                 "array data types",
                 "dbal",
-                "doctrine2",
+                "doctrine",
                 "jsonb",
                 "martin georgiev",
                 "postgres",
                 "postgresql"
             ],
-            "time": "2017-03-21T12:48:21+00:00"
+            "time": "2018-07-31T10:55:53+00:00"
         },
         {
             "name": "monolog/monolog",
@@ -3008,16 +3010,16 @@
         },
         {
             "name": "symfony/flex",
-            "version": "v1.0.86",
+            "version": "v1.0.89",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/flex.git",
-                "reference": "a7cede75f0abbac1c2859cf22352a8c79a77028c"
+                "reference": "26be754f42c3c3f21139af2bdd74118ef8f82757"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/flex/zipball/a7cede75f0abbac1c2859cf22352a8c79a77028c",
-                "reference": "a7cede75f0abbac1c2859cf22352a8c79a77028c",
+                "url": "https://api.github.com/repos/symfony/flex/zipball/26be754f42c3c3f21139af2bdd74118ef8f82757",
+                "reference": "26be754f42c3c3f21139af2bdd74118ef8f82757",
                 "shasum": ""
             },
             "require": {
@@ -3051,7 +3053,7 @@
                 }
             ],
             "description": "Composer plugin for Symfony",
-            "time": "2018-07-26T17:33:48+00:00"
+            "time": "2018-07-29T16:20:30+00:00"
         },
         {
             "name": "symfony/form",

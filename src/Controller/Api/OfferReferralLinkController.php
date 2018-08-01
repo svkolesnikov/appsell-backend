@@ -7,7 +7,6 @@ use App\Lib\Enum\OfferLinkTypeEnum;
 use App\Lib\Enum\OfferTypeEnum;
 use App\Lib\Enum\UserGroupEnum;
 use App\Security\UserGroupManager;
-use BrowserDetection;
 use Doctrine\DBAL\DBALException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Cookie;
@@ -28,6 +27,7 @@ use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Templating\EngineInterface;
 use Doctrine\ORM\Query\Expr;
+use Wolfcast\BrowserDetection;
 
 class OfferReferralLinkController
 {
@@ -134,7 +134,7 @@ class OfferReferralLinkController
             throw new NotFoundHttpException();
         }
 
-        $appStorePlatforms   = [BrowserDetection::PLATFORM_IPHONE, BrowserDetection::PLATFORM_IPAD, BrowserDetection::PLATFORM_IPOD];
+        $appStorePlatforms   = [BrowserDetection::PLATFORM_IOS];
         $googlePlayPlatforms = [BrowserDetection::PLATFORM_ANDROID, BrowserDetection::PLATFORM_BLACKBERRY];
 
         $requestedType = $request->get('type');
