@@ -38,7 +38,7 @@ WITH data as (
         se.id as event_id,
         o.id,
         o.title,
-        c.price,
+        COALESCE(c.price, 0) as price,
         oe.status
     FROM offerdata.offer o
     LEFT JOIN actiondata.user_offer_link ol ON o.id = ol.offer_id
@@ -87,7 +87,7 @@ WITH data as (
         se.id as event_id,
         o.id,
         o.title,
-        c.price
+        COALESCE(c.price, 0) as price
     FROM offerdata.offer o
     LEFT JOIN actiondata.user_offer_link ol ON o.id = ol.offer_id
     LEFT JOIN actiondata.offer_execution oe ON oe.offer_id = ol.offer_id
@@ -96,7 +96,7 @@ WITH data as (
     WHERE o.owner_id = :owner_id AND oe.status IN ('processing', 'complete') AND se.ctime BETWEEN :start_date AND :end_date
 )
 
-SELECT id, title, COUNT(*), SUM(price), (SUM(price) * 18 / 100) as tax 
+SELECT id, title, COUNT(*), SUM(price), (SUM(price) * 18 / 100) as tax
 FROM data
 GROUP BY id, title;
 SQL;

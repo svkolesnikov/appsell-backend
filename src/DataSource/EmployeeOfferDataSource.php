@@ -206,7 +206,7 @@ WITH data as (
     SELECT
       o.id as offer_id, 
       o.title as offer_title, 
-      se.amount_for_employee as price, 
+      COALESCE(se.amount_for_employee, 0) as price, 
       oe.status
     FROM actiondata.user_offer_link ol
     INNER JOIN offerdata.offer o ON o.id = ol.offer_id

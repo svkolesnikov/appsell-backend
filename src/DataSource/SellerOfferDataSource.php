@@ -150,7 +150,7 @@ WITH data as (
     SELECT
       p.user_id,
       CONCAT(u.email, ' (', p.lastname, ' ', p.firstname,')') as fullname,
-      se.amount_for_seller as price,
+      COALESCE(se.amount_for_seller, 0) as price
       oe.status
     FROM userdata.profile p
     INNER JOIN userdata.user u ON u.id = p.user_id
@@ -199,7 +199,7 @@ WITH data as (
     SELECT
       o.id,
       o.title,
-      se.amount_for_seller as price
+      COALESCE(se.amount_for_seller, 0) as price
     FROM userdata.profile p
     INNER JOIN actiondata.user_offer_link ol ON ol.user_id = p.user_id
     INNER JOIN actiondata.offer_execution oe ON oe.offer_id = ol.offer_id AND oe.source_link_id = ol.id
