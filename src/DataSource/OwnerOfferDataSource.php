@@ -48,7 +48,7 @@ WITH data as (
     WHERE o.owner_id = :owner_id AND oe.status = :status
 )
 
-SELECT id, title, null as reason, COUNT(*), round(SUM(price), 2)
+SELECT id, title, null as reason, COUNT(*), round(SUM(price), 2) as sum
 FROM data
 GROUP BY id, title, reason;
 SQL;
@@ -96,7 +96,7 @@ WITH data as (
     WHERE o.owner_id = :owner_id AND oe.status IN ('processing', 'complete') AND se.ctime BETWEEN :start_date AND :end_date
 )
 
-SELECT id, title, COUNT(*), round(SUM(price), 2), round((SUM(price) * 18 / 100), 2) as tax
+SELECT id, title, COUNT(*), round(SUM(price), 2) as sum, round((SUM(price) * 18 / 100), 2) as tax
 FROM data
 GROUP BY id, title;
 SQL;

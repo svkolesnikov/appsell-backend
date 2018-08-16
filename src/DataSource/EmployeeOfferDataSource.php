@@ -215,7 +215,7 @@ WITH data as (
     WHERE ol.user_id = :employee_id AND oe.status = :status
 )
 
-SELECT offer_id as id, offer_title as title, null as reason, COUNT(*), round(SUM(price), 2)
+SELECT offer_id as id, offer_title as title, null as reason, COUNT(*), round(SUM(price), 2) as sum
 FROM data
 GROUP BY offer_id , offer_title, reason;
 SQL;
