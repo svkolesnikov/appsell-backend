@@ -3,9 +3,9 @@
 namespace App\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Security\Core\User\AdvancedUserInterface;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Doctrine\ORM\Mapping as ORM;
 use App\Lib\Orm\UuidGenerator;
 
 /**
@@ -80,8 +80,7 @@ class User implements UserInterface, \Serializable
 
     /**
      * @var SellerBaseCommission
-     * @ORM\OneToOne(targetEntity = "SellerBaseCommission", cascade={"persist", "remove"})
-     * @ORM\JoinColumn(name = "id", referencedColumnName = "seller_id")
+     * @ORM\OneToOne(targetEntity = "SellerBaseCommission", mappedBy = "seller")
      */
     protected $sellerCommission;
 
@@ -212,7 +211,8 @@ class User implements UserInterface, \Serializable
 
     public function getProfile(): UserProfile
     {
-        return $this->profile ?? (new UserProfile())->setUser($this);
+        return $this->profile
+            ?? $this->profile = (new UserProfile())->setUser($this);
     }
 
     public function setProfile(UserProfile $profile): void
@@ -247,7 +247,8 @@ class User implements UserInterface, \Serializable
 
     public function getConfirmation(): UserConfirmation
     {
-        return $this->confirmation ?? (new UserConfirmation())->setUser($this);
+        return $this->confirmation
+            ?? $this->confirmation = (new UserConfirmation())->setUser($this);
     }
 
     public function setConfirmation(UserConfirmation $confirmation)

@@ -15,8 +15,7 @@ class SellerBaseCommission
      * @var User
      *
      * @ORM\Id
-     * @ORM\OneToOne(targetEntity = "User")
-     * @ORM\JoinColumn(name = "seller_id", referencedColumnName = "id")
+     * @ORM\OneToOne(targetEntity = "User", inversedBy = "sellerCommission")
      */
     protected $seller;
 

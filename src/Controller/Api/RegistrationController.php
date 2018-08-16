@@ -275,7 +275,6 @@ class RegistrationController
     {
         try {
 
-            $this->entityManager->persist($profile);
             $this->entityManager->persist($profile->getUser());
             $this->entityManager->flush();
 
