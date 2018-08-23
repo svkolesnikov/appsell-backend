@@ -28,6 +28,10 @@ security:
             - ROLE_APP_EVENT_TYPE_CREATE
             - ROLE_APP_EVENT_TYPE_DELETE
 
+            - ROLE_APP_NOTIFICATION_LIST
+            - ROLE_APP_NOTIFICATION_CREATE
+            - ROLE_APP_NOTIFICATION_DELETE
+
             - ROLE_APP_STAT_LIST
 
             - ROLE_APP_REPORT_LIST

@@ -3,6 +3,7 @@ namespace App\Form;
 
 use App\Entity\User;
 use App\Entity\UserProfile;
+use App\Lib\Enum\UserGroupEnum;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -37,7 +38,7 @@ class UserProfileType extends AbstractType
                         ->createQueryBuilder('u')
                         ->innerJoin('u.groups', 'g')
                         ->where('g.code = :code')
-                        ->setParameter(':code', 'seller');
+                        ->setParameter(':code', UserGroupEnum::SELLER);
                 },
             ])
         ;

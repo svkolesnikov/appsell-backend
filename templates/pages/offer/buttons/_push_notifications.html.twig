@@ -1,0 +1,10 @@
+{% if is_granted('ROLE_APP_NOTIFICATION_CREATE') %}
+    <a href="{{ path('app_notification_create', { offer_id: offer.id }) }}" class="btn btn-sm btn-default">
+        <i class="fa fa-bell-o"></i>
+        Отправить уведомление
+    </a>
+    {#<a href="{{ path('app_notification_list', { filter: { offer_id: offer.id } } ) }}" class="btn btn-sm btn-default">#}
+        {#<i class="fa fa-history"></i>#}
+        {#История уведомлений#}
+    {#</a>#}
+{% endif %}

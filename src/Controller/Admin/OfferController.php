@@ -6,6 +6,7 @@ use App\DataSource\EmployeeOfferDataSource;
 use App\DataSource\SellerOfferDataSource;
 use App\Entity\ForOfferCommission;
 use App\Entity\Offer;
+use App\Entity\PushNotification;
 use App\Entity\SellerApprovedOffer;
 use App\Form\OfferType;
 use App\Lib\Enum\UserGroupEnum;
@@ -374,5 +375,52 @@ class OfferController extends BaseController
         }
 
         return $this->redirectToRoute('app_offer_list');
+    }
+
+    /**
+     * @Route("/admin/offers/{id}/notifications", name="app_offer_notifications")
+     *
+     * @Security("has_role('ROLE_APP_OFFER_PUSH_NOTIFICATIONS')")
+     *
+     * @param Request $request
+     *
+     * @param Offer $offer
+     * @return Response
+     */
+    public function notificationsAction(Request $request, Offer $offer): Response
+    {
+//        if ( ! $this->isGranted('ROLE_SUPER_ADMIN') && $offer->getOwner() !== $this->getUser()) {
+//            $this->addFlash('error', 'Доступ запрещен!');
+//            return $this->redirectToRoute('app_offer_list');
+//        }
+
+//        $form = $this->createForm(OfferType::class, $offer);
+//        $form->handleRequest($request);
+//
+//        if ($form->isSubmitted() && $form->isValid()) {
+//
+//            try {
+//
+//                $this->em->persist($offer);
+//                $this->em->flush();
+//
+//                $this->addFlash('success', 'Запись обновлена');
+//
+//                return $this->redirectToRoute('app_offer_list');
+//
+//            } catch (\Exception $ex) {
+//                $this->addFlash('error', 'Ошибка при обновлении записи: ' . $ex->getMessage());
+//            }
+//        }
+
+        $notifications = $this->em->getRepository(PushNotification::class)->findBy([
+            'sender' => $this->getUser(),
+            'offer'  => $offer
+        ]);
+
+        return $this->render('pages/offer/push_notifications.html.twig', [
+//            'form' => $form->createView(),
+            'notifications' => $notifications
+        ]);
     }
 }

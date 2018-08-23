@@ -1,0 +1,100 @@
+{% extends 'base.html.twig' %}
+
+{% block top_nav_menu_buttons %}
+    <ul class="nav navbar-nav navbar-right">
+        <li>
+            <a href="{{ path('app_notification_list') }}"><i class="fa fa-list" aria-hidden="true"></i>
+                Вернуться к списку
+            </a>
+        </li>
+    </ul>
+{% endblock %}
+
+{% block page_content %}
+<section class="content">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="box box-primary">
+                <div class="box-header with-border">
+                    <h4 class="box-title">Уведомление</h4>
+                </div>
+                <div class="box-body">
+                    <table class="table table-hover table-striped">
+                        <tbody>
+                        <tr>
+                            <th style="width:20%">Отправитель:</th>
+                            <td>{{ item.sender.email }}</td>
+                        </tr>
+
+                        {% if item.offer is not null %}
+                        <tr>
+                            <th style="width:20%">Оффер:</th>
+                            <td>{{ item.offer.title }}</td>
+                        </tr>
+                        {% endif %}
+
+                        <tr>
+                            <th style="width:20%">Сообщение:</th>
+                            <td>{{ item.message }}</td>
+                        </tr>
+                        <tr>
+                            <th style="width:20%">Дата создания:</th>
+                            <td>{{ item.ctime|date('Y-m-d H:i:s') }}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="box box-primary">
+                <div class="box-header with-border">
+                    <h4 class="box-title">Лог отправки</h4>
+                </div>
+                <div class="box-body">
+                    <table class="table table-hover table-striped">
+                        <thead>
+                        <tr>
+                            <th>Получатель</th>
+                            <th>Устройство</th>
+                            <th>Статус</th>
+                            <th>Информация</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% if 0 == item.logs|length %}
+                        <tr>
+                            <td colspan="4">Данных не обнаружено</td>
+                        </tr>
+                        {% endif %}
+                        {% for log in item.logs %}
+                        <tr>
+                            <td>{{ log.user.email }}</td>
+                            <td>{% if log.device is not null %}{{ log.device.type ~ ': ' ~ log.device.id }}{% endif %}</td>
+                            <td>
+                                {% if 0 == log.success %}
+                                    <small class="label bg-red">Ошибка</small>
+                                {% else %}
+                                    <small class="label bg-green">Отправлено</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if 1 == log.success %}
+                                    {{ log.info }}
+                                {% else %}
+                                    {{ log.error }}
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

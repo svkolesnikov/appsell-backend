@@ -84,6 +84,12 @@ class User implements UserInterface, \Serializable
      */
     protected $sellerCommission;
 
+    /**
+     * @var DevicePushToken[]|ArrayCollection
+     * @ORM\OneToMany(targetEntity="DevicePushToken", mappedBy="user", cascade={"persist", "remove"}, orphanRemoval=true)
+     */
+    protected $devices;
+
     public function __construct()
     {
         $this->is_active = false;
@@ -272,5 +278,10 @@ class User implements UserInterface, \Serializable
     {
         $this->token_salt = substr(md5(mt_rand()), 5, 10);
         return $this;
+    }
+
+    public function getDevices()
+    {
+        return $this->devices;
     }
 }

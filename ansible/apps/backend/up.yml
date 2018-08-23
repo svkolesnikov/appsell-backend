@@ -40,6 +40,7 @@
           MAILER_URL: "gmail://appsell@sixdays.ru:%H$b2Bp2[vMcPL5@smtp.gmail.com:465?encryption=ssl"
           CORS_ALLOW_ORIGIN: "^https?://localhost:?[0-9]*$"
           RABBITMQ_DSN: "amqp://admin:c58znNLBxWqzuT5@10.1.4.5:5672/appsell"
+          FIREBASE_API_KEY: "AAAAwxBBPL4:APA91bFVrKfPUiCGFpO942f0DlaIEevXADVujey_O7yTmaRE80G-GBl7c1Zj_UJzISRm8LOJ2asJBtD0e4AIoG2MlGsFX47luVtRW2fJv0Az0n7k16weHGLTW_ITt7vHr_QAmQAXQ3sBuTiDkrvOYQ74GCGUCMfGjw"
 
     - name: app - swagger ui
       docker_container:

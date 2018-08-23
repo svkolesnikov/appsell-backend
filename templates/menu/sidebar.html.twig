@@ -42,4 +42,10 @@
         </li>
     {% endif %}
 
+    {% if is_granted(['ROLE_APP_NOTIFICATION_LIST']) %}
+        <li>
+            <a href="{{ path('app_notification_list') }}"><i class="fa fa-bell-o"></i>Уведомления</a>
+        </li>
+    {% endif %}
+
 {% endblock %}
