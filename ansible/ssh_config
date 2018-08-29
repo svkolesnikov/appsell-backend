@@ -3,8 +3,8 @@ Host *
     ServerAliveInterval 300
     ServerAliveCountMax 2
 
-Host app-dev-1
-    Hostname 95.163.215.170
+Host app-dev
+    Hostname 95.163.214.30
 
 Host app-dev-tmp
     Hostname 95.163.215.203

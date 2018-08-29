@@ -4,7 +4,7 @@
   become_user: root
 
   vars:
-    registry_host: 10.1.4.5
+    registry_host: 11.1.1.5
     registry_port: 5000
 
   tasks:
