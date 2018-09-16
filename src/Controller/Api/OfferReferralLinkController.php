@@ -9,7 +9,6 @@ use App\Lib\Enum\UserGroupEnum;
 use App\Security\UserGroupManager;
 use Doctrine\DBAL\DBALException;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Swagger\Annotations as SWG;
@@ -206,18 +205,17 @@ SQL;
                     }
 
                     // Обнаружили ссылку, переходим
-                    $response = new RedirectResponse($link->getUrl());
-                    $response->headers->setCookie(new Cookie(
-                        'employee_id',
-                        $userOfferLink->getUser()->getId(),
-                        0,
-                        '/api/sdk/deep-link',
-                        null,
-                        false,
-                        true
-                    ));
+                    // Добавим к ссылке referrer (информацию об employee)
 
-                    return $response;
+                    $linkParts = parse_url($link->getUrl());
+                    $resultLink =
+                        ($linkParts['scheme'] ?? 'https://') .
+                        ($linkParts['host'] ?? '') .
+                        ($linkParts['path'] ?? '') . '?' .
+                        ($linkParts['query'] ?? '') .
+                        '&referrer=utm_content%3D' . $userOfferLink->getUser()->getId();
+
+                    return new RedirectResponse($resultLink);
                 }
             }
 
