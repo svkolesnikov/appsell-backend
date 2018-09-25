@@ -147,7 +147,7 @@ select
   
   (select json_agg(r) from (
     select
-      P.price,
+      round(P.price, 1) price,
       P.currency,
       P.type,
       P.description
