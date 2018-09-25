@@ -253,9 +253,17 @@ class SdkEventCreating
                 return $c->getEventType()->getCode();
             })->toArray();
 
-            $sdkEvents = $offerExecution->getEvents()->map(function (SdkEvent $e) {
-                return $e->getEventType()->getCode();
-            })->toArray();
+            $sdkEvents = $offerExecution->getEvents()
+
+                // Интересуют только ивенты, присланные с конкретного deviceId
+                ->filter(function (SdkEvent $e) use ($deviceId) {
+                    return $e->getDeviceId() === $deviceId;
+                })
+
+                // Получим только их коды
+                ->map(function (SdkEvent $e) {
+                    return $e->getEventType()->getCode();
+                })->toArray();
 
             sort($compensationEvents);
             sort($sdkEvents);
