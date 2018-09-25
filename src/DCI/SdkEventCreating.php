@@ -141,6 +141,19 @@ class SdkEventCreating
                 $offerExecution->setSourceLink($userOfferLink);
                 $offerExecution->setStatus(OfferExecutionStatusEnum::PROCESSING());
 
+                $offerExecution->setSourceReferrerInfo(array_intersect_key(
+                    $requestInfo,
+                    array_flip([
+                        'HTTP_USER_AGENT',
+                        'REMOTE_ADDR'
+                    ])
+                ));
+
+                $offerExecution->setSourceReferrerFingerprint(md5(
+                    $requestInfo['HTTP_USER_AGENT'] .
+                    $requestInfo['REMOTE_ADDR']
+                ));
+
                 $this->entityManager->persist($offerExecution);
             }
 
