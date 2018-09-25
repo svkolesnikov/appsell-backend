@@ -160,6 +160,13 @@ class OfferReferralLinkController
             $linkType = OfferLinkTypeEnum::WEB();
         }
 
+        // Если тип ссылки не удалось определить
+        // но при этом в оффере ссылка одна – переходим по ней
+
+        if (null === $linkType && 1 === $offer->getLinks()->count()) {
+            $linkType = $offer->getLinks()->first()->getType();
+        }
+
         if (null !== $linkType) {
             foreach ($offer->getLinks() as $link) {
                 if ($link->getType()->equals($linkType)) {
@@ -209,7 +216,7 @@ SQL;
 
                     $linkParts = parse_url($link->getUrl());
                     $resultLink =
-                        ($linkParts['scheme'] ?? 'https://') .
+                        ($linkParts['scheme'] ?? 'https') . '://' .
                         ($linkParts['host'] ?? '') .
                         ($linkParts['path'] ?? '') . '?' .
                         ($linkParts['query'] ?? '') .
