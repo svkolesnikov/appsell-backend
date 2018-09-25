@@ -160,10 +160,9 @@ class OfferReferralLinkController
             $linkType = OfferLinkTypeEnum::WEB();
         }
 
-        // Если тип ссылки не удалось определить
-        // но при этом в оффере ссылка одна – переходим по ней
+        // Если у оффера всего одна ссылка - просто переходим по ней
 
-        if (null === $linkType && 1 === $offer->getLinks()->count()) {
+        if (1 === $offer->getLinks()->count()) {
             $linkType = $offer->getLinks()->first()->getType();
         }
 
