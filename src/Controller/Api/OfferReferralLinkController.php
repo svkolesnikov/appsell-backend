@@ -195,7 +195,15 @@ SQL;
                         $execution->setOffer($offer);
                         $execution->setOfferLink($link);
                         $execution->setSourceLink($userOfferLink);
-                        $execution->setSourceReferrerInfo($request->server->all());
+
+                        $execution->setSourceReferrerInfo(array_intersect_key(
+                            $request->server->all(),
+                            array_flip([
+                                'HTTP_USER_AGENT',
+                                'REMOTE_ADDR'
+                            ])
+                        ));
+
                         $execution->setSourceReferrerFingerprint(md5(
                             $request->headers->get('user-agent') .
                             $request->server->get('REMOTE_ADDR')

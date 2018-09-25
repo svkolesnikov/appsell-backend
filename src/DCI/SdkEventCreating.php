@@ -226,7 +226,6 @@ class SdkEventCreating
             $newEvent = new SdkEvent();
             $newEvent->setEventType($eventType);
             $newEvent->setDeviceId($deviceId);
-            $newEvent->setSourceInfo($requestInfo);
             $newEvent->setCurrency(CurrencyEnum::RUB());
             $newEvent->setAmountForService($amountForService);
             $newEvent->setAmountForSeller($amountForSeller);
@@ -235,6 +234,14 @@ class SdkEventCreating
             $newEvent->setOfferLink($link);
             $newEvent->setSource(SdkEventSourceEnum::APP());
             $newEvent->setEmployee($employee);
+            $newEvent->setSourceInfo(array_intersect_key(
+                $requestInfo,
+                array_flip([
+                    'HTTP_USER_AGENT',
+                    'REMOTE_ADDR'
+                ])
+            ));
+
             $offerExecution->addEvent($newEvent);
 
             $this->entityManager->persist($newEvent);
