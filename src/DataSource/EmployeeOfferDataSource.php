@@ -202,22 +202,27 @@ SQL;
     public function getExecutionStatistic(User $employee, OfferExecutionStatusEnum $status): array
     {
         $sql = <<<SQL
-WITH data as (
+WITH source_data AS (
     SELECT
-      o.id as offer_id, 
-      o.title as offer_title, 
-      COALESCE(se.amount_for_employee, 0) as price, 
+      o.id AS offer_id,
+      o.title AS offer_title,
+      COALESCE(se.amount_for_employee, 0) AS price,
+      oe.id AS execution_id,
       oe.status
     FROM actiondata.user_offer_link ol
     INNER JOIN offerdata.offer o ON o.id = ol.offer_id
     INNER JOIN actiondata.offer_execution oe ON oe.offer_id = ol.offer_id AND oe.source_link_id = ol.id
     LEFT JOIN actiondata.sdk_event se ON se.offer_execution_id = oe.id AND se.ctime BETWEEN o.active_from AND o.active_to
     WHERE ol.user_id = :employee_id AND oe.status = :status
+), distinct_data AS (
+    SELECT offer_id AS id, offer_title AS title, execution_id, null AS reason, round(SUM(price)) AS sum_price
+    FROM source_data
+    GROUP BY offer_id , offer_title, execution_id
 )
 
-SELECT offer_id as id, offer_title as title, null as reason, COUNT(*), round(SUM(price), 2) as sum
-FROM data
-GROUP BY offer_id , offer_title, reason;
+SELECT id, title, null AS reason, COUNT(id), round(SUM(sum_price)) AS sum
+FROM distinct_data
+GROUP BY id, title, reason
 SQL;
 
         try {

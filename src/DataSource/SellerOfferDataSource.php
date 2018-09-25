@@ -146,11 +146,12 @@ SQL;
     public function getExecutionStatistic(User $seller, OfferExecutionStatusEnum $status): array
     {
         $sql = <<<SQL
-WITH data as (
+WITH source_data AS (
     SELECT
       p.user_id,
-      CONCAT(u.email, ' (', p.lastname, ' ', p.firstname,')') as fullname,
-      COALESCE(se.amount_for_seller, 0) as price,
+      CONCAT(u.email, ' (', p.lastname, ' ', p.firstname,')') AS fullname,
+      COALESCE(se.amount_for_seller, 0) AS price,
+      oe.id AS execution_id,
       oe.status
     FROM userdata.profile p
     INNER JOIN userdata.user u ON u.id = p.user_id
@@ -159,11 +160,15 @@ WITH data as (
     INNER JOIN offerdata.offer o ON o.id = ol.offer_id
     INNER JOIN actiondata.sdk_event se ON se.offer_execution_id = oe.id AND se.ctime BETWEEN o.active_from AND o.active_to
     WHERE p.employer_id = :employer_id AND oe.status = :status
+), distinct_data AS (
+    SELECT user_id AS id, fullname AS title, execution_id, null AS reason, round(SUM(price)) AS sum_price
+    FROM source_data
+    GROUP BY user_id , fullname, execution_id
 )
 
-SELECT user_id as id, fullname as title, null as reason, COUNT(*), round(SUM(price), 2) as sum
-FROM data
-GROUP BY user_id , fullname, reason;
+SELECT id, title, null AS reason, COUNT(id), ROUND(SUM(sum_price)) AS sum
+FROM distinct_data
+GROUP BY id, title, reason
 SQL;
 
         try {
@@ -195,11 +200,13 @@ SQL;
     public function getFinanceReport(User $seller, \DateTime $startDate, \DateTime $endDate): array
     {
         $sql = <<<SQL
-WITH data as (
+        
+WITH source_data AS (
     SELECT
       o.id,
       o.title,
-      COALESCE(se.amount_for_seller, 0) as price
+      COALESCE(se.amount_for_seller, 0) AS price,
+      oe.id AS execution_id
     FROM userdata.profile p
     INNER JOIN actiondata.user_offer_link ol ON ol.user_id = p.user_id
     INNER JOIN actiondata.offer_execution oe ON oe.offer_id = ol.offer_id AND oe.source_link_id = ol.id
@@ -208,11 +215,15 @@ WITH data as (
     WHERE p.employer_id = :employer_id 
         AND oe.status IN ('processing', 'complete') 
         AND se.ctime BETWEEN :start_date AND :end_date
+), distinct_data AS (
+    SELECT id, title, execution_id, round(SUM(price), 2) AS sum_price, round((SUM(price) * 18 / 100), 2) AS sum_tax
+    FROM source_data
+    GROUP BY id, title
 )
 
-SELECT id, title, COUNT(*), round(SUM(price), 2) as sum, round((SUM(price) * 18 / 100), 2) as tax
-FROM data
-GROUP BY id, title;
+SELECT id, title, COUNT(*), SUM(sum_price) AS sum, SUM(sum_tax) AS tax
+FROM distinct_data
+GROUP BY id, title
 SQL;
 
         try {
