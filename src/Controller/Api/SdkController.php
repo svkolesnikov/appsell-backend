@@ -6,6 +6,7 @@ use App\DCI\ActionLogging;
 use App\DCI\SdkEventCreating;
 use App\Entity\OfferExecution;
 use App\Entity\OfferLink;
+use App\Exception\Api\EventWithoutReferrerException;
 use App\Kernel;
 use App\Lib\Controller\FormTrait;
 use App\Lib\Enum\ActionLogItemTypeEnum;
@@ -177,6 +178,18 @@ class SdkController
 
             throw new NotFoundHttpException($ex->getMessage(), $ex);
 
+        } catch (EventWithoutReferrerException $ex) {
+
+            $logging->log(
+                ActionLogItemTypeEnum::SDK_EVENT(),
+                'Получено событие от SDK без referrer_id',
+                ['form' => $data],
+                $request
+            );
+
+            // Если не удалось добавить событие по причине отсутствия referrer_id
+            // говорим, что все ок :)
+            return new JsonResponse(null, JsonResponse::HTTP_CREATED);
         }
     }
 }

@@ -13,6 +13,7 @@ use App\Entity\SdkEvent;
 use App\Entity\SellerBaseCommission;
 use App\Entity\User;
 use App\Entity\UserOfferLink;
+use App\Exception\Api\EventWithoutReferrerException;
 use App\Lib\Enum\CommissionEnum;
 use App\Lib\Enum\CurrencyEnum;
 use App\Lib\Enum\OfferExecutionStatusEnum;
@@ -73,6 +74,9 @@ class SdkEventCreating
 
         /** @var User $employee */
         $employee = $referrerId ? $this->entityManager->find('App:User', $referrerId) : null;
+        if (null === $employee) {
+            throw new EventWithoutReferrerException('ReferrerId отсутствует в присланом событии');
+        }
 
         // Вытащим еще и событие
         // Проверять, получили ли мы сам ивент смысла нет, тк до этого мы получили с
@@ -104,36 +108,29 @@ class SdkEventCreating
                 ->where('e.offer = :offer')
                 ->andWhere('e.offer_link = :app_link')
                 ->andWhere('ee.id is null')
+                ->andWhere('ul.user = :employee')
                 ->setParameters([
-                    'offer' => $link->getOffer(),
-                    'app_link' => $link,
+                    'offer'      => $link->getOffer(),
+                    'app_link'   => $link,
                     'event_type' => $eventType,
-                    'device_id' => $deviceId
+                    'device_id'  => $deviceId,
+                    'employee'   => $employee
                 ]);
-
-            if (null !== $employee) {
-                $qb = $qb
-                    ->andWhere('ul.user = :employee')
-                    ->setParameter('employee', $employee);
-            }
 
             /** @var OfferExecution $offerExecution */
             $offerExecution = $qb->getQuery()->getOneOrNullResult();
 
             if (null === $offerExecution) {
 
-                /** @var UserOfferLink $userOfferLink */
-                $userOfferLink = null;
-                if (null !== $employee) {
+                // Вообще, если пришел ивент с referrer_id, значит ссылка была
+                // так что просто пытаемся ее достать, для привязки к ней очередного
+                // исполнения оффера
 
-                    // Вообще, если пришел ивент с referrer_id, значит ссылка была
-                    // так что просто пытаемся ее достать, для привязки к ней очередного
-                    // исполнения оффера
-                    $userOfferLink = $this->entityManager->getRepository('App:UserOfferLink')->findOneBy([
-                        'user' => $employee,
-                        'offer' => $link->getOffer()
-                    ]);
-                }
+                /** @var UserOfferLink $userOfferLink */
+                $userOfferLink = $this->entityManager->getRepository('App:UserOfferLink')->findOneBy([
+                    'user'  => $employee,
+                    'offer' => $link->getOffer()
+                ]);
 
                 $offerExecution = new OfferExecution();
                 $offerExecution->setOfferLink($link);
