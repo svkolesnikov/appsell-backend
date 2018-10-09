@@ -2,10 +2,12 @@
 
 namespace App\Controller\Api;
 
+use App\DCI\ActionLogging;
 use App\Exception\Api\ApiException;
 use App\Exception\Api\AuthException;
 use App\Exception\AppException;
 use App\Lib\Controller\FormTrait;
+use App\Lib\Enum\ActionLogItemTypeEnum;
 use App\Lib\Enum\UserGroupEnum;
 use App\Security\UserGroupManager;
 use App\SolarStaff\Client;
@@ -31,10 +33,14 @@ class SolarStaffController
     /** @var EntityManagerInterface */
     protected $entityManager;
 
-    public function __construct(Client $ssc, EntityManagerInterface $em)
+    /** @var ActionLogging */
+    protected $actionLogging;
+
+    public function __construct(Client $ssc, EntityManagerInterface $em, ActionLogging $al)
     {
         $this->client = $ssc;
         $this->entityManager = $em;
+        $this->actionLogging = $al;
     }
 
     /**
@@ -164,6 +170,16 @@ class SolarStaffController
             // пользователь у нас не создастся
 
             $this->entityManager->rollback();
+
+            // Залогируем попытку регистрации
+
+            $this->actionLogging->log(
+                ActionLogItemTypeEnum::SOLAR_STAFF_REGISTRATION(),
+                'Неудачная попытка регистрации: ' . $ex->getMessage(),
+                ['email' => $data['email']],
+                $request
+            );
+
             throw $ex;
         }
 
