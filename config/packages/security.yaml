@@ -65,7 +65,8 @@ security:
         - { path: ^/api/referral-links/\d+$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api/registration,        role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api/users/password,      role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/api.*,                   role: ROLE_USER }
+        - { path: ^/api$,                    role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api.+,                   role: ROLE_USER }
 
         # Admin login page needs to be accessed without credential
         - { path: ^/admin/login$,       role: IS_AUTHENTICATED_ANONYMOUSLY }
