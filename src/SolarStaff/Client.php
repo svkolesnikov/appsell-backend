@@ -17,6 +17,7 @@ class Client
     {
         $this->transport = $transport;
         $this->ofertaUrl = $ofertaUrl;
+        $this->loginUrl  = $loginUrl;
     }
 
     public function getLoginUrl(): string
