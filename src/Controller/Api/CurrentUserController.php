@@ -86,13 +86,14 @@ class CurrentUserController
         }
 
         return new JsonResponse([
-            'email' => $user->getEmail(),
-            'group' => $baseGroup,
-            'phone' => $profile->getPhone(),
-            'lastname' => $profile->getLastname(),
-            'firstname' => $profile->getFirstname(),
-            'company_id' => $companyInfo->getCompanyId(),
-            'company_title' => $companyInfo->getCompanyTitle()
+            'email'                     => $user->getEmail(),
+            'group'                     => $baseGroup,
+            'phone'                     => $profile->getPhone(),
+            'lastname'                  => $profile->getLastname(),
+            'firstname'                 => $profile->getFirstname(),
+            'company_id'                => $companyInfo->getCompanyId(),
+            'company_title'             => $companyInfo->getCompanyTitle(),
+            'is_solar_staff_connected'  => (bool) $profile->getSolarStaffId()
         ]);
     }
 

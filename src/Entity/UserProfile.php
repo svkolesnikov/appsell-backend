@@ -58,6 +58,11 @@ class UserProfile
     protected $company_title;
 
     /**
+     * @ORM\Column(type="integer")
+     */
+    protected $solar_staff_id;
+
+    /**
      * @var User
      *
      * @ORM\ManyToOne(targetEntity = "User")
@@ -163,6 +168,17 @@ class UserProfile
     public function setCompanyTitle($title)
     {
         $this->company_title = $title;
+        return $this;
+    }
+
+    public function getSolarStaffId(): ?int
+    {
+        return $this->solar_staff_id;
+    }
+
+    public function setSolarStaffId(?int $id)
+    {
+        $this->solar_staff_id = $id;
         return $this;
     }
 }

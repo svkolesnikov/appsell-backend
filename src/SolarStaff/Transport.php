@@ -2,6 +2,8 @@
 
 namespace App\SolarStaff;
 
+use App\Exception\Api\SolarStaffException;
+
 class Transport
 {
     /** @var string */
@@ -20,6 +22,12 @@ class Transport
         $this->salt = $salt;
     }
 
+    /**
+     * @param string $method
+     * @param array $params
+     * @return array
+     * @throws SolarStaffException
+     */
     public function sendRequest(string $method, array $params = []): array
     {
         $ch = curl_init();
@@ -34,6 +42,9 @@ class Transport
         curl_setopt($ch, CURLOPT_POSTFIELDS, $this->getSignedParams($params));
 
         $curlResponse = curl_exec($ch);
+        if (false === $curlResponse) {
+            throw new SolarStaffException(curl_error($ch));
+        }
 
         return json_decode($curlResponse, true);
     }

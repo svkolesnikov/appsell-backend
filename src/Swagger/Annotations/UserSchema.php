@@ -21,7 +21,8 @@ class UserSchema extends Schema
                 new Property(['property' => 'lastname', 'type' => 'string']),
                 new Property(['property' => 'firstname', 'type' => 'string']),
                 new Property(['property' => 'company_id', 'type' => 'string']),
-                new Property(['property' => 'company_title', 'type' => 'string'])
+                new Property(['property' => 'company_title', 'type' => 'string']),
+                new Property(['property' => 'is_solar_staff_connected', 'type' => 'boolean'])
             ]
         ], $properties));
     }

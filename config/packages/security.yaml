@@ -58,16 +58,17 @@ security:
     access_control:
 
         # REST API rules
-        - { path: ^/api/auth/login,          role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/api/swagger,             role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/api/doc,                 role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/api/sdk,                 role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/api/referral-links/\d+$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/api/registration,        role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/api/users/password,      role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/api/solar-staff$,        role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/api$,                    role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/api.+,                   role: ROLE_USER }
+        - { path: ^/api/auth/login,               role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/swagger,                  role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/doc,                      role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/sdk,                      role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/referral-links/\d+$,      role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/registration,             role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/users/password,           role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/solar-staff$,             role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/solar-staff/registration, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api$,                         role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api.+,                        role: ROLE_USER }
 
         # Admin login page needs to be accessed without credential
         - { path: ^/admin/login$,       role: IS_AUTHENTICATED_ANONYMOUSLY }

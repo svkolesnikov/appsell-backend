@@ -191,7 +191,7 @@ class RegistrationController
      *  @SWG\Parameter(name = "request", description = "Запрос", required = true, in = "body",
      *     @SWG\Schema(
      *      type = "object",
-     *      required = { "email", "phone" , "company_id" },
+     *      required = { "email", "password", "company_id" },
      *      properties = {
      *          @SWG\Property(property = "email", type = "string"),
      *          @SWG\Property(property = "password", type = "string"),

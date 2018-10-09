@@ -12,6 +12,7 @@ parameters:
   solar_staff.api_salt:      '%env(SOLAR_STAFF_API_SALT)%'
   solar_staff.oferta_url:    'https://www.solar-staff.com/docs/ofertafreelancer.pdf'
   solar_staff.login_url:     '%env(SOLAR_STAFF_LOGIN_URL)%'
+  solar_staff.employer_id:   'bc3f8f87-1d37-438c-8a70-2349bb80a354'
 
 services:
   # default configuration for services in *this* file
@@ -62,6 +63,7 @@ services:
       - '@App\SolarStaff\Transport'
       - '%solar_staff.login_url%'
       - '%solar_staff.oferta_url%'
+      - '%solar_staff.employer_id%'
 
   # rabbitmq processors
 
