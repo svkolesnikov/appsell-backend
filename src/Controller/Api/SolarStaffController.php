@@ -11,6 +11,7 @@ use App\Lib\Enum\ActionLogItemTypeEnum;
 use App\Lib\Enum\UserGroupEnum;
 use App\Security\UserGroupManager;
 use App\SolarStaff\Client;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -164,6 +165,11 @@ class SolarStaffController
             $this->entityManager->flush();
 
             $this->entityManager->commit();
+        } catch (UniqueConstraintViolationException $ex) {
+
+            $this->entityManager->rollback();
+            throw new AuthException('Email already exists', $ex);
+
         } catch (\Exception $ex) {
 
             // Если что не так пошло - откатываем транзакцию
