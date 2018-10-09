@@ -29,7 +29,7 @@ class StartController
     public function indexAction(): JsonResponse
     {
         return new JsonResponse([
-            'oferta' => 'https://appsell.me'
+            'oferta_url' => 'https://appsell.me'
         ]);
     }
 }
