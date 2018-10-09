@@ -1,9 +1,17 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
+
   access_token.secret:            'e2374ce25abcd4342ed59f24fd3d317bb01a9e01'
   access_token.expires_in:        2592000 # 30 дней
   system.notification_receivers:  ['andrey@sixdays.ru'] # Получатель уведомлений от системы
+
+  # Данные для доступа к API solar-staff.com
+  solar_staff.api_url:       '%env(SOLAR_STAFF_API_URL)%'
+  solar_staff.api_client_id: '%env(SOLAR_STAFF_API_CLIENT_ID)%'
+  solar_staff.api_salt:      '%env(SOLAR_STAFF_API_SALT)%'
+  solar_staff.oferta_url:    'https://www.solar-staff.com/docs/ofertafreelancer.pdf'
+  solar_staff.login_url:     '%env(SOLAR_STAFF_LOGIN_URL)%'
 
 services:
   # default configuration for services in *this* file
@@ -42,6 +50,18 @@ services:
     arguments:
       - '@App\Notification\Notificator\EmailNotificator'
       - '%system.notification_receivers%'
+
+  App\SolarStaff\Transport:
+    arguments:
+      - '%solar_staff.api_url%'
+      - '%solar_staff.api_client_id%'
+      - '%solar_staff.api_salt%'
+
+  App\SolarStaff\Client:
+    arguments:
+      - '@App\SolarStaff\Transport'
+      - '%solar_staff.login_url%'
+      - '%solar_staff.oferta_url%'
 
   # rabbitmq processors
 

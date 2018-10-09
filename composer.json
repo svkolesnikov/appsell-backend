@@ -4,6 +4,8 @@
     "require": {
         "php": "^7.1.3",
         "ext-iconv": "*",
+        "ext-curl": "*",
+        "ext-json": "*",
         "doctrine/doctrine-bundle": "^1.9",
         "enqueue/amqp-ext": "^0.8.24",
         "enqueue/enqueue-bundle": "^0.8.33",

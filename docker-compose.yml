@@ -27,6 +27,10 @@ services:
       CORS_ALLOW_ORIGIN: ^https?://localhost:?[0-9]*$$
       RABBITMQ_DSN: amqp://admin:c58znNLBxWqzuT5@11.1.1.5:5672/appsell
       FIREBASE_API_KEY: AAAAwxBBPL4:APA91bFVrKfPUiCGFpO942f0DlaIEevXADVujey_O7yTmaRE80G-GBl7c1Zj_UJzISRm8LOJ2asJBtD0e4AIoG2MlGsFX47luVtRW2fJv0Az0n7k16weHGLTW_ITt7vHr_QAmQAXQ3sBuTiDkrvOYQ74GCGUCMfGjw
+      SOLAR_STAFF_API_URL: https://test.solar-api.com
+      SOLAR_STAFF_API_CLIENT_ID: 435
+      SOLAR_STAFF_API_SALT: 8e2a9b046a23d563a93aaf
+      SOLAR_STAFF_LOGIN_URL: https://test.solar-staff.com/#login
 
   appsell_nginx:
     container_name: appsell_nginx
