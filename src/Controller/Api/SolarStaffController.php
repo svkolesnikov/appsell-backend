@@ -13,7 +13,7 @@ use App\Security\UserGroupManager;
 use App\SolarStaff\Client;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Swagger\Annotations as SWG;
 use App\Swagger\Annotations\SolarStaffInfoSchema;

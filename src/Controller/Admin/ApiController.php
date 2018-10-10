@@ -10,9 +10,8 @@ use App\Entity\User;
 use App\Exception\Admin\OfferNotFoundException;
 use App\Exception\Admin\UserNotFoundException;
 use Doctrine\ORM\EntityManagerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -27,10 +26,13 @@ class ApiController extends BaseController
     }
 
     /**
-     * @Route("/admin/api/commissions/seller", name="api_commissions_seller_base")
-     * @Method({"POST"})
-     * @param Request $request
+     * @Route(
+     *     "/admin/api/commissions/seller",
+     *     methods = { "POST" },
+     *     name="api_commissions_seller_base"
+     * )
      *
+     * @param Request $request
      * @return JsonResponse
      */
     public function updateSellerCommissionAction(Request $request): JsonResponse
@@ -65,10 +67,14 @@ class ApiController extends BaseController
     }
 
     /**
-     * @Route("/admin/api/commissions/offer/{id}/{by_user}", name="api_commissions_for_offer", defaults={"by_user"=null})
-     * @Method({"POST"})
-     * @param Request $request
+     * @Route(
+     *     "/admin/api/commissions/offer/{id}/{by_user}",
+     *     methods = { "POST" },
+     *     name="api_commissions_for_offer",
+     *     defaults={"by_user"=null}
+     * )
      *
+     * @param Request $request
      * @return JsonResponse
      */
     public function updateForOfferCommissionAction(Request $request): JsonResponse
@@ -123,10 +129,14 @@ class ApiController extends BaseController
     }
 
     /**
-     * @Route("/admin/api/commissions/user/{id}/{by_user}", name="api_commissions_for_user", defaults={"by_user"=null})
-     * @Method({"POST"})
-     * @param Request $request
+     * @Route(
+     *     "/admin/api/commissions/user/{id}/{by_user}",
+     *     methods = { "POST" },
+     *     name="api_commissions_for_user",
+     *     defaults={"by_user"=null}
+     * )
      *
+     * @param Request $request
      * @return JsonResponse
      */
     public function updateForUserCommissionAction(Request $request): JsonResponse

@@ -3,7 +3,7 @@
 namespace App\Controller\Api;
 
 //use App\Lib\Http\JsonResponse;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\Routing\Annotation\Route;
 use Swagger\Annotations as SWG;
 //use App\Swagger\Annotations\CurrentUserDefinition;
 use function Swagger\scan;

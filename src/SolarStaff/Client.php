@@ -53,7 +53,7 @@ class Client
             'password' => $password,
             'first_name' => '…',
             'last_name' => '…',
-            'specialization' => 385,
+            'specialization' => 8,
             'country' => 'RU',
             'send_message' => 1
         ]);
@@ -61,14 +61,28 @@ class Client
         return $response['response']['id'];
     }
 
-    public function payout(array $params): array
+    /**
+     * Вывод денег на внутренний счет в Solar Staff
+     *
+     * @param int $workerId Идентификатор в solar staff
+     * @param int $amount Сумма
+     * @param array $attributes todo_attributes
+     * @return array Информация о транзакции
+     * @throws \App\Exception\Api\SolarStaffException
+     */
+    public function payout(int $workerId, int $amount, array $attributes): array
     {
-//        [
-//            "action" => "payout",
-//            "worker_id" => "",
-//            "currency" => "RUB",
-//            "amount" => 3000,
-//            "todo_attributes" => "http://some.domain.com",
-//        ]
+        $response = $this->transport->sendRequest('/v1/payment', [
+            'action'          => 'payout',
+            'worker_id'       => $workerId,
+            'currency'        => 'RUB',
+            'amount'          => $amount,
+            'todo_type'       => 27,
+            'todo_attributes' => implode(';', $attributes),
+        ]);
+
+        var_dump($response);
+
+        return $response['response'];
     }
 }

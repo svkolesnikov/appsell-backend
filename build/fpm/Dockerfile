@@ -44,7 +44,7 @@ COPY ./public       /var/www/app/public
 # Установка вендоров на основании composer.lock
 RUN curl -sS https://getcomposer.org/installer | php \
  && chmod +x composer.phar \
- && php composer.phar install --no-interaction --no-scripts --no-autoloader
+ && php composer.phar install --no-interaction --no-dev --no-scripts --no-autoloader
 
 # Копирование кода приложения
 COPY ./.bowerrc      /var/www/app/

@@ -8,7 +8,7 @@ use App\DataSource\SellerOfferDataSource;
 use App\Lib\Enum\OfferExecutionStatusEnum;
 use App\Lib\Enum\UserGroupEnum;
 use App\Security\UserGroupManager;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
