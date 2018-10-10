@@ -8,6 +8,7 @@ use App\Entity\User;
 use App\Exception\Api\DataSourceException;
 use App\Lib\Enum\OfferExecutionStatusEnum;
 use App\Lib\Enum\OfferTypeEnum;
+use App\SolarStaff\Client;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
@@ -18,9 +19,13 @@ class EmployeeOfferDataSource
     /** @var EntityManagerInterface */
     protected $entityManager;
 
-    public function __construct(EntityManagerInterface $em)
+    /** @var Client */
+    protected $solarStaffClient;
+
+    public function __construct(EntityManagerInterface $em, Client $ssc)
     {
         $this->entityManager = $em;
+        $this->solarStaffClient = $ssc;
     }
 
     /**
@@ -33,6 +38,12 @@ class EmployeeOfferDataSource
      */
     public function getAvailableOffers(User $employee, int $limit, int $offset, OfferTypeEnum $type = null): array
     {
+        // Идентификатор компании-продавца, которая соответствует SS
+        // Для сотрудников этой компании видны все офферы, которые активны.
+        // В отличии от остальных сотрудников, для которых их компания продавец
+        // должна одобрить отображение оффера
+        $solarStaffEmployerId = $this->solarStaffClient->getEmployerId();
+
         $types = null === $type
             ? implode("', '", OfferTypeEnum::toArray())
             : $type->getValue();
@@ -56,16 +67,19 @@ with employer as (
       and by_user_id is null limit 1
   ),
   offers as (
-    select
+    select distinct
       O.*
     from offerdata.offer O
-    join offerdata.seller_approved_offer AO on AO.offer_id = O.id
+    left join offerdata.seller_approved_offer AO on AO.offer_id = O.id
     where
       O.is_active = true AND
       O.active_from < now() AND
       O.active_to > now() and
       O.type in ('$types') and
-      AO.seller_id = (select id from employer limit 1)
+      (
+        AO.seller_id = (select id from employer limit 1) or          -- Условие для простых сотрудников компаний
+        '$solarStaffEmployerId' = (select id from employer limit 1)  -- Условие для сотрудников solar-staff
+      )
   ),
   app_links as (
     select * from offerdata.offer_link where offer_id in (
