@@ -56,7 +56,15 @@ class AccessTokenAuthenticator implements SimplePreAuthenticatorInterface
 
     public function createToken(Request $request, $providerKey)
     {
-        $authorizationHeader = $request->headers->get('authorization', '');
+        // Токен будем получать либо из заголовов
+        // либо из URL параметра access_token
+
+        $authorizationHeader = $request->headers->get('authorization', '')
+                            ?: $request->query->get('access_token');
+
+        // Если из заголовков, то там надо префикс вырезать
+        // который к токену отношения не имеет
+
         $accessToken = preg_replace('/^bearer /i', '', $authorizationHeader);
 
         if (!$accessToken) {
