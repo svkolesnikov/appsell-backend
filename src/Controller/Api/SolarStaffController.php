@@ -18,6 +18,9 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Swagger\Annotations as SWG;
 use App\Swagger\Annotations\SolarStaffInfoSchema;
 use App\Swagger\Annotations\BadRequestResponse;
+use App\Swagger\Annotations\TokenParameter;
+use App\Swagger\Annotations\PayoutInfoSchema;
+use App\Swagger\Annotations\PayoutResultSchema;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Form\Extension\Core\Type;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
@@ -190,5 +193,59 @@ class SolarStaffController
         }
 
         return new JsonResponse(null, JsonResponse::HTTP_CREATED);
+    }
+
+    /**
+     * @SWG\Get(
+     *
+     *  path = "/solar-staff/payout",
+     *  summary = "Получение информации о доступном для вывода остатке средств",
+     *  description = "",
+     *  tags = { "Solar-Staff" },
+     *
+     *  @TokenParameter(),
+     *
+     *  @SWG\Response(
+     *      response = 200,
+     *      description = "Информация получена",
+     *      @PayoutInfoSchema()
+     *  )
+     * )
+     *
+     * @Route("/solar-staff/payout", methods = { "GET" })
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function payoutInfoAction(Request $request): JsonResponse
+    {
+
+    }
+
+    /**
+     * @SWG\Post(
+     *
+     *  path = "/solar-staff/payout",
+     *  summary = "Вывод средств на внутренний счет пользователя в Solar Staff",
+     *  description = "",
+     *  tags = { "Solar-Staff" },
+     *
+     *  @TokenParameter(),
+     *
+     *  @SWG\Response(
+     *      response = 201,
+     *      description = "Вывод средств завершен",
+     *      @PayoutResultSchema()
+     *  )
+     * )
+     *
+     * @Route("/solar-staff/payout", methods = { "POST" })
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function doPayoutAction(Request $request): JsonResponse
+    {
+
     }
 }
