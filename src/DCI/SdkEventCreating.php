@@ -103,9 +103,10 @@ class SdkEventCreating
                 ->select('e')
                 ->from('App:OfferExecution', 'e')
                 ->join('e.source_link', 'ul', Join::WITH)
-                ->leftJoin('e.events', 'ee', Join::WITH, 'ee.event_type = :event_type AND ee.device_id = :device_id')
+                ->leftJoin('e.events', 'ee', Join::WITH, 'ee.event_type = :event_type')
                 ->setMaxResults(1)
                 ->where('e.offer = :offer')
+                ->andWhere('e.status = :status')
                 ->andWhere('e.offer_link = :app_link')
                 ->andWhere('ee.id is null')
                 ->andWhere('ul.user = :employee')
@@ -113,8 +114,8 @@ class SdkEventCreating
                     'offer'      => $link->getOffer(),
                     'app_link'   => $link,
                     'event_type' => $eventType,
-                    'device_id'  => $deviceId,
-                    'employee'   => $employee
+                    'employee'   => $employee,
+                    'status'     => OfferExecutionStatusEnum::PROCESSING
                 ]);
 
             /** @var OfferExecution $offerExecution */
@@ -265,12 +266,6 @@ class SdkEventCreating
 
             $sdkEvents = $offerExecution->getEvents()
 
-                // Интересуют только ивенты, присланные с конкретного deviceId
-                ->filter(function (SdkEvent $e) use ($deviceId) {
-                    return $e->getDeviceId() === $deviceId;
-                })
-
-                // Получим только их коды
                 ->map(function (SdkEvent $e) {
                     return $e->getEventType()->getCode();
                 })->toArray();
