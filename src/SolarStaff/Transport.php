@@ -47,7 +47,11 @@ class Transport
         }
 
         $response = json_decode($curlResponse, true);
-        // todo: обрабатывать ответ с ошибкой
+        if (200 !== $response['code']) {
+            throw new SolarStaffException(
+                $response['response']['error_text'] ?? 'Неизвестная ошибка при обращении к API solar staff'
+            );
+        }
 
         return $response;
     }

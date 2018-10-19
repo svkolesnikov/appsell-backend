@@ -5,7 +5,7 @@ namespace App\Lib\Enum;
 use MyCLabs\Enum\Enum;
 
 /**
- * @method static ActionLogItemTypeEnum SOLAR_STAFF()
+ * @method static PayoutDestinationEnum SOLAR_STAFF()
  */
 final class PayoutDestinationEnum extends Enum
 {

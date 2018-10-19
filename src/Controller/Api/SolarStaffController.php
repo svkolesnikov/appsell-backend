@@ -9,16 +9,20 @@ use App\Exception\Api\AuthException;
 use App\Exception\AppException;
 use App\Lib\Controller\FormTrait;
 use App\Lib\Enum\ActionLogItemTypeEnum;
+use App\Lib\Enum\PayoutDestinationEnum;
 use App\Lib\Enum\UserGroupEnum;
 use App\Security\UserGroupManager;
 use App\SolarStaff\Client;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Swagger\Annotations as SWG;
 use App\Swagger\Annotations\SolarStaffInfoSchema;
 use App\Swagger\Annotations\BadRequestResponse;
+use App\Swagger\Annotations\AccessDeniedResponse;
 use App\Swagger\Annotations\TokenParameter;
 use App\Swagger\Annotations\PayoutInfoSchema;
 use App\Swagger\Annotations\PayoutResultSchema;
@@ -226,24 +230,9 @@ class SolarStaffController
     {
         /** @var OfferExecutionRepository $repository */
         $repository = $this->entityManager->getRepository('App:OfferExecution');
-        $executions = $repository->getPayoutAvailable($this->tokenStorage->getToken()->getUser());
+        $amount = $repository->getPayoutAvailableAmount($this->tokenStorage->getToken()->getUser());
 
-        // Рассчитаем итоговую сумму для выплаты
-
-        $amount = array_reduce($executions, function ($amount, Entity\OfferExecution $e) {
-
-            $eventAmount = $e->getEvents()->map(function (Entity\SdkEvent $event) {
-                return $event->getAmountForEmployee();
-            })->toArray();
-
-            return $amount + array_sum($eventAmount);
-
-        }, 0);
-
-        // Сумма для выплаты должна быть в рублях, целым числом
-        // округляется в менбшую сторону
-
-        return new JsonResponse(['amount' => floor($amount)]);
+        return new JsonResponse(['amount' => $amount]);
     }
 
     /**
@@ -260,16 +249,128 @@ class SolarStaffController
      *      response = 201,
      *      description = "Вывод средств завершен",
      *      @PayoutResultSchema()
-     *  )
+     *  ),
+     *
+     *  @BadRequestResponse(),
+     *  @AccessDeniedResponse()
      * )
      *
      * @Route("/solar-staff/payout", methods = { "POST" })
      *
      * @param Request $request
      * @return JsonResponse
+     * @throws \Exception
      */
     public function doPayoutAction(Request $request): JsonResponse
     {
+        /** @var OfferExecutionRepository $repository */
+        $repository = $this->entityManager->getRepository('App:OfferExecution');
 
+        /** @var Entity\User $employee */
+        $employee = $this->tokenStorage->getToken()->getUser();
+
+        if (null === $employee->getProfile()->getSolarStaffId()) {
+            throw new AccessDeniedHttpException('Вывод средств доступен только после регистрации через SolarStaff');
+        }
+
+        $executions = $repository->getPayoutAvailable($employee);
+        $amount     = $repository->getAmountFor($executions);
+
+        if ($amount < 1) {
+            throw new BadRequestHttpException('Недостаточно средств для вывода');
+        }
+
+        // Сформируем список выполненных приложений, для отчетночти
+        // в solar staff
+
+        $attributes = [];
+        $offers     = [];
+
+        foreach ($executions as $e) {
+
+            $offerTitle = $e->getOffer()->getTitle();
+            if (!isset($offers[$offerTitle])) {
+                $offers[$offerTitle] = 0;
+            }
+
+            $offers[$offerTitle]++;
+        }
+
+        // Должно получиться что-то вроде:
+        //
+        // Яндекс еда - 7;
+        // Телеграмм - 52;
+        // eBox - 21
+
+        foreach ($offers as $title => $count) {
+            $attributes[] = sprintf('%s – %d', $title, $count);
+        }
+
+        // Поехали выводить бабло
+
+        $this->entityManager->beginTransaction();
+
+        try {
+
+            // Сформируем вывод средств в ЛК solar staff
+
+            $response = $this->client->payout($employee->getProfile()->getSolarStaffId(), $amount, $attributes);
+
+            // Сохраним информацию о транзакции к себе в БД
+
+            $transaction = new Entity\PayoutTransaction();
+            $transaction->setReceiver($employee);
+            $transaction->setAmount($amount);
+            $transaction->setDestination(PayoutDestinationEnum::SOLAR_STAFF());
+            $transaction->setInfo([
+
+                // Информация о клиенте
+                'request' => array_intersect_key(
+                    $request->server->all(),
+                    array_flip([
+                        'HTTP_USER_AGENT',
+                        'REMOTE_ADDR'
+                    ])
+                ),
+
+                // Информация об ответе от SS
+                'response' => $response
+            ]);
+
+            $this->entityManager->persist($transaction);
+
+            foreach ($executions as $e) {
+                $e->setPayoutTransaction($transaction);
+                $this->entityManager->persist($e);
+            }
+
+            // Готово
+
+            $this->entityManager->flush();
+            $this->entityManager->commit();
+
+            return new JsonResponse([
+                'amount' => $amount,
+                'redirect_url' => $this->client->getLoginUrl()
+            ], JsonResponse::HTTP_CREATED);
+
+        } catch (\Exception $ex) {
+
+            // Если что не так пошло - откатываем транзакцию
+            // пользователь у нас не создастся
+
+            $this->entityManager->rollback();
+
+            // Залогируем попытку регистрации
+
+            $this->actionLogging->log(
+                ActionLogItemTypeEnum::SOLAR_STAFF_PAYOUT(),
+                'Неудачная попытка вывода средств: ' . $ex->getMessage(),
+                ['email' => $employee->getEmail()],
+                $request
+            );
+
+            throw $ex;
+        }
     }
 }

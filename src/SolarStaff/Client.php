@@ -81,8 +81,6 @@ class Client
             'todo_attributes' => implode(';', $attributes),
         ]);
 
-        var_dump($response);
-
         return $response['response'];
     }
 }
