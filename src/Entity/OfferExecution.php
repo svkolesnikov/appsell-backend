@@ -76,6 +76,13 @@ class OfferExecution
      */
     protected $mtime;
 
+    /**
+     * @var PayoutTransaction
+     * @ORM\ManyToOne(targetEntity = "PayoutTransaction")
+     * @ORM\JoinColumn(name = "payout_transaction_id", referencedColumnName = "id")
+     */
+    protected $payout_transaction;
+
 
     public function __construct()
     {
@@ -210,6 +217,17 @@ class OfferExecution
             $this->events->removeElement($event);
         }
 
+        return $this;
+    }
+
+    public function getPayoutTransaction(): ?PayoutTransaction
+    {
+        return $this->payout_transaction;
+    }
+
+    public function setPayoutTransaction(PayoutTransaction $transaction)
+    {
+        $this->payout_transaction = $transaction;
         return $this;
     }
 }

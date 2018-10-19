@@ -46,7 +46,10 @@ class Transport
             throw new SolarStaffException(curl_error($ch));
         }
 
-        return json_decode($curlResponse, true);
+        $response = json_decode($curlResponse, true);
+        // todo: обрабатывать ответ с ошибкой
+
+        return $response;
     }
 
     protected function getSignedParams(array $params = []): array
