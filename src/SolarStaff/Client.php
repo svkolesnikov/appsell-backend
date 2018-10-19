@@ -51,7 +51,7 @@ class Client
             'action' => 'worker_create',
             'email' => $email,
             'password' => $password,
-            'first_name' => '…',
+            'first_name' => $email,
             'last_name' => '…',
             'specialization' => 8,
             'country' => 'RU',
