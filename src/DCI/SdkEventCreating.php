@@ -110,6 +110,7 @@ class SdkEventCreating
                 ->andWhere('e.offer_link = :app_link')
                 ->andWhere('ee.id is null')
                 ->andWhere('ul.user = :employee')
+                ->orderBy('e.ctime', 'asc')
                 ->setParameters([
                     'offer'      => $link->getOffer(),
                     'app_link'   => $link,
