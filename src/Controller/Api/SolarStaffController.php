@@ -3,6 +3,7 @@
 namespace App\Controller\Api;
 
 use App\DCI\ActionLogging;
+use App\Entity\Repository\OfferExecutionRepository;
 use App\Exception\Api\ApiException;
 use App\Exception\Api\AuthException;
 use App\Exception\AppException;
@@ -23,6 +24,7 @@ use App\Swagger\Annotations\PayoutInfoSchema;
 use App\Swagger\Annotations\PayoutResultSchema;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Form\Extension\Core\Type;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Validator\Constraints;
 use App\Entity;
@@ -40,11 +42,15 @@ class SolarStaffController
     /** @var ActionLogging */
     protected $actionLogging;
 
-    public function __construct(Client $ssc, EntityManagerInterface $em, ActionLogging $al)
+    /** @var TokenStorageInterface */
+    protected $tokenStorage;
+
+    public function __construct(Client $ssc, EntityManagerInterface $em, ActionLogging $al, TokenStorageInterface $ts)
     {
         $this->client = $ssc;
         $this->entityManager = $em;
         $this->actionLogging = $al;
+        $this->tokenStorage = $ts;
     }
 
     /**
@@ -214,12 +220,30 @@ class SolarStaffController
      *
      * @Route("/solar-staff/payout", methods = { "GET" })
      *
-     * @param Request $request
      * @return JsonResponse
      */
-    public function payoutInfoAction(Request $request): JsonResponse
+    public function payoutInfoAction(): JsonResponse
     {
+        /** @var OfferExecutionRepository $repository */
+        $repository = $this->entityManager->getRepository('App:OfferExecution');
+        $executions = $repository->getPayoutAvailable($this->tokenStorage->getToken()->getUser());
 
+        // Рассчитаем итоговую сумму для выплаты
+
+        $amount = array_reduce($executions, function ($amount, Entity\OfferExecution $e) {
+
+            $eventAmount = $e->getEvents()->map(function (Entity\SdkEvent $event) {
+                return $event->getAmountForEmployee();
+            })->toArray();
+
+            return $amount + array_sum($eventAmount);
+
+        }, 0);
+
+        // Сумма для выплаты должна быть в рублях, целым числом
+        // округляется в менбшую сторону
+
+        return new JsonResponse(['amount' => floor($amount)]);
     }
 
     /**
