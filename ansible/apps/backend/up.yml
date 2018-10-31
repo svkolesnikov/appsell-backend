@@ -55,7 +55,7 @@
         recreate: yes
         restart_policy: unless-stopped
         env:
-          API_URL: "http://backend.appsell.me/api/swagger"
+          API_URL: "https://appsell.me/api/swagger"
 
     - name: app - nginx
       docker_container:
