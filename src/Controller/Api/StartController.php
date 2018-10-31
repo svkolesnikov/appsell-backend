@@ -2,6 +2,7 @@
 
 namespace App\Controller\Api;
 
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Swagger\Annotations as SWG;
@@ -25,11 +26,21 @@ class StartController
      * )
      *
      * @Route("/", methods = { "GET" })
+     * @param Request $request
+     * @return JsonResponse
      */
-    public function indexAction(): JsonResponse
+    public function indexAction(Request $request): JsonResponse
     {
+        $docsUrl = sprintf(
+            '%s://%s/docs',
+            $request->server->get('HTTP_SCHEME'),
+            $request->server->get('HTTP_HOST')
+        );
+
         return new JsonResponse([
-            'oferta_url' => 'https://appsell.me'
+            'end_user_agreement' => $docsUrl . '/end_user_agreement.pdf',
+            'privacy_policy'     => $docsUrl . '/privacy_policy.pdf',
+            'terms_of_use'       => $docsUrl . '/terms_of_use.pdf'
         ]);
     }
 }

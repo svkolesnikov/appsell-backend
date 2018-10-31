@@ -15,7 +15,9 @@ class ApiInfoSchema extends Schema
         parent::__construct(array_merge_recursive([
             'type' => 'object',
             'properties' => [
-                new Property(['property' => 'oferta_url', 'type' => 'string'])
+                new Property(['property' => 'end_user_agreement', 'type' => 'string']),
+                new Property(['property' => 'privacy_policy', 'type' => 'string']),
+                new Property(['property' => 'terms_of_use', 'type' => 'string'])
             ]
         ], $properties));
     }
