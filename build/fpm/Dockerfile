@@ -39,7 +39,6 @@ ENV COMPOSER_ALLOW_SUPERUSER 1
 
 COPY ./composer.*   /var/www/app/
 COPY ./symfony.lock /var/www/app/symfony.lock
-COPY ./public       /var/www/app/public
 
 # Установка вендоров на основании composer.lock
 RUN curl -sS https://getcomposer.org/installer | php \
@@ -49,6 +48,7 @@ RUN curl -sS https://getcomposer.org/installer | php \
 # Копирование кода приложения
 COPY ./.bowerrc      /var/www/app/
 COPY ./bower.json    /var/www/app/
+COPY ./public        /var/www/app/public
 COPY ./bin           /var/www/app/bin
 COPY ./config        /var/www/app/config
 COPY ./src           /var/www/app/src
