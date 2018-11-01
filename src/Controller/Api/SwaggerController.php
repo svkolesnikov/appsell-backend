@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
  * @SWG\Swagger(
  *
  *      basePath = "/api",
- *      schemes = {"http"},
+ *      schemes = {"http", "https"},
  *      produces = {"application/json"},
  *
  *      @SWG\Info(
