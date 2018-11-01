@@ -126,7 +126,7 @@
                 // instead be a number based on how many items we have
                 newForm = newForm.replace(/__name__/g, index);
 
-                linkCollectionHolder.data('index', index + 1);
+                collectionHolder.data('index', index + 1);
 
                 var newFormTr = $('#tmpl_new_record_form').tmpl({ form: newForm });
                 newContainer.before(newFormTr);
