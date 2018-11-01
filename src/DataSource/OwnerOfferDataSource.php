@@ -47,7 +47,7 @@ WITH source_data AS (
     INNER JOIN offerdata.compensation c ON c.offer_id = o.id AND c.event_type = se.event_type
     WHERE o.owner_id = :owner_id AND oe.status = :status
 ), distinct_data AS (
-    SELECT id, title, execution_id, null AS reason, ROUND(SUM(price)) AS sum_price
+    SELECT id, title, execution_id, null AS reason, SUM(price) AS sum_price
     FROM source_data
     GROUP BY id, title, execution_id
 )

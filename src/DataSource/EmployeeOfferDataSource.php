@@ -229,7 +229,7 @@ WITH source_data AS (
     LEFT JOIN actiondata.sdk_event se ON se.offer_execution_id = oe.id AND se.ctime BETWEEN o.active_from AND o.active_to
     WHERE ol.user_id = :employee_id AND oe.status = :status
 ), distinct_data AS (
-    SELECT offer_id AS id, offer_title AS title, execution_id, null AS reason, round(SUM(price)) AS sum_price
+    SELECT offer_id AS id, offer_title AS title, execution_id, null AS reason, SUM(price) AS sum_price
     FROM source_data
     GROUP BY offer_id , offer_title, execution_id
 )

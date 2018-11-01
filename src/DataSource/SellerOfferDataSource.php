@@ -161,7 +161,7 @@ WITH source_data AS (
     INNER JOIN actiondata.sdk_event se ON se.offer_execution_id = oe.id AND se.ctime BETWEEN o.active_from AND o.active_to
     WHERE p.employer_id = :employer_id AND oe.status = :status
 ), distinct_data AS (
-    SELECT user_id AS id, fullname AS title, execution_id, null AS reason, round(SUM(price)) AS sum_price
+    SELECT user_id AS id, fullname AS title, execution_id, null AS reason, SUM(price) AS sum_price
     FROM source_data
     GROUP BY user_id , fullname, execution_id
 )
