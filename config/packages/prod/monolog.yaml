@@ -3,14 +3,8 @@ monolog:
   handlers:
 
     main:
-      type:          fingers_crossed
-      action_level:  error
-      excluded_404s: ['^/']
-      handler:       file
-      channels:      ["!event"]
-
-    file:
-      type:      rotating_file
-      path:      '%kernel.logs_dir%/%kernel.environment%.log'
-      level:     debug
+      type: rotating_file
+      path: '%kernel.logs_dir%/%kernel.environment%.log'
+      level: debug
       max_files: 30
+      channels: ["!event"]

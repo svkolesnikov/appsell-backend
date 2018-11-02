@@ -1,0 +1,58 @@
+---
+
+- name: Создание каталога var
+  file:
+    state: directory
+    name: "{{ var_dir }}"
+
+- name: app - fpm
+  docker_container:
+    pull: yes
+    name: appsell_backend_fpm
+    image: "{{ registry_host }}:{{ registry_port }}/backend/fpm"
+    state: started
+    recreate: yes
+    restart_policy: unless-stopped
+    hostname: "{{ ansible_hostname }}.backend.fpm"
+    dns_servers: ["8.8.8.8", "8.8.4.4"]
+    volumes: ["{{ var_dir }}:/var/www/app/var"]
+    env:
+      APP_ENV: "{{ app_env"
+      APP_LOCALE: "{{ app_locale }}"
+      APP_SECRET: "{{ app_secret"
+      DATABASE_URL: "{{ database_url }}"
+      MAILER_URL: "{{ mailer_url"
+      CORS_ALLOW_ORIGIN: "{{ cors_allow_origin }}"
+      RABBITMQ_DSN: "{{ rabbitmq_dsn"
+      FIREBASE_API_KEY: "{{ firebase_api_key }}"
+      SOLAR_STAFF_API_URL: "{{ solar_staff_api_url"
+      SOLAR_STAFF_API_CLIENT_ID: "{{ solar_staff_api_client_id }}"
+      SOLAR_STAFF_API_SALT: "{{ solar_staff_api_salt"
+      SOLAR_STAFF_LOGIN_URL: "{{ solar_staff_login_url }}"
+
+- name: app - swagger ui
+  docker_container:
+    pull: yes
+    name: appsell_backend_swagger_ui
+    image: "swaggerapi/swagger-ui"
+    state: started
+    recreate: yes
+    restart_policy: unless-stopped
+    env:
+      API_URL: "https://appsell.me/api/swagger"
+
+- name: app - nginx
+  docker_container:
+    name: appsell_backend_nginx
+    image: amd64/nginx:1.15-alpine
+    state: started
+    restart_policy: unless-stopped
+    recreate: yes
+    ports:
+      - 8001:80
+    volumes_from:
+      - appsell_backend_fpm
+    links:
+      - appsell_backend_fpm:php-fpm
+      - appsell_backend_swagger_ui:swagger-ui
+  command: /bin/sh -c "cp -f /var/www/app/config/nginx.vhosts.conf /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
