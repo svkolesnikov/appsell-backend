@@ -38,6 +38,11 @@ class UserOfferLink
     protected $usage_count;
 
     /**
+     * @ORM\Column(type="integer")
+     */
+    protected $create_request_count;
+
+    /**
      * @var \DateTime
      * @ORM\Column(type="datetime")
      */
@@ -52,6 +57,7 @@ class UserOfferLink
     public function __construct()
     {
         $this->usage_count = 0;
+        $this->create_request_count = 0;
     }
 
     /**
@@ -117,5 +123,16 @@ class UserOfferLink
     public function getMtime(): \DateTime
     {
         return $this->mtime;
+    }
+
+    public function getCreateRequestCount(): int
+    {
+        return $this->create_request_count;
+    }
+
+    public function setCreateRequestCount(int $count)
+    {
+        $this->create_request_count = $count;
+        return $this;
     }
 }
