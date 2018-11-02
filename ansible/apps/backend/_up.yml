@@ -17,17 +17,17 @@
     dns_servers: ["8.8.8.8", "8.8.4.4"]
     volumes: ["{{ var_dir }}:/var/www/app/var"]
     env:
-      APP_ENV: "{{ app_env"
+      APP_ENV: "{{ app_env }}"
       APP_LOCALE: "{{ app_locale }}"
-      APP_SECRET: "{{ app_secret"
+      APP_SECRET: "{{ app_secret }}"
       DATABASE_URL: "{{ database_url }}"
-      MAILER_URL: "{{ mailer_url"
+      MAILER_URL: "{{ mailer_url }}"
       CORS_ALLOW_ORIGIN: "{{ cors_allow_origin }}"
-      RABBITMQ_DSN: "{{ rabbitmq_dsn"
+      RABBITMQ_DSN: "{{ rabbitmq_dsn }}"
       FIREBASE_API_KEY: "{{ firebase_api_key }}"
-      SOLAR_STAFF_API_URL: "{{ solar_staff_api_url"
+      SOLAR_STAFF_API_URL: "{{ solar_staff_api_url }}"
       SOLAR_STAFF_API_CLIENT_ID: "{{ solar_staff_api_client_id }}"
-      SOLAR_STAFF_API_SALT: "{{ solar_staff_api_salt"
+      SOLAR_STAFF_API_SALT: "{{ solar_staff_api_salt }}"
       SOLAR_STAFF_LOGIN_URL: "{{ solar_staff_login_url }}"
 
 - name: app - swagger ui
