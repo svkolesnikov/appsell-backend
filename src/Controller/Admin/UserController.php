@@ -9,6 +9,7 @@ use App\Lib\Enum\UserGroupEnum;
 use App\Form\UserType;
 use App\Security\UserGroupManager;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\Request;
@@ -43,7 +44,9 @@ class UserController extends BaseController
     {
         $page        = $request->get('_page', 1);
         $perPage     = $request->get('_per_page', 16);
-        $offset      =  ($page-1) * $perPage;
+        $offset      = ($page - 1) * $perPage;
+        $filter      = new ParameterBag($request->get('filter', []));
+
         $commissions = [];
         $users       = [];
 
@@ -63,6 +66,31 @@ class UserController extends BaseController
                     ->setParameter(':user', $this->getUser());
             }
 
+            // поиск по email'у
+            $email = $filter->get('email');
+            if (!empty($email)) {
+                $qb->andWhere(
+                    $qb->expr()->like('u.email', $qb->expr()->literal("%$email%")
+                ));
+            }
+
+            // поиск по работодателю
+            $seller = $filter->get('seller');
+            if (!empty($seller)) {
+                $qb->innerJoin('u.profile', 'p')
+                    ->andWhere('p.employer = :seller')
+                    ->setParameter(':seller', $seller);
+            }
+
+            // поиск по телефону
+            $phone = $filter->get('phone');
+            if (!empty($phone)) {
+                $qb
+                    ->innerJoin('u.profile', 'p')
+                    ->andWhere('p.phone = :phone')
+                    ->setParameter(':phone', $phone);
+            }
+
             $users = $qb->getQuery()->getResult();
 
             $byUser = $this->isGranted('ROLE_ADMIN') ? null : $this->getUser();
@@ -76,14 +104,26 @@ class UserController extends BaseController
             $this->addFlash('error', 'Ошибка при получении списка пользователей: ' . $ex->getMessage());
         }
 
+        $sellers = $this->em
+            ->createQueryBuilder()
+            ->select('u')
+            ->from(User::class, 'u')
+            ->innerJoin('u.groups', 'g')
+            ->where('g.code = :code')
+            ->setParameter(':code', UserGroupEnum::SELLER)
+            ->getQuery()
+            ->getResult();
+
         return $this->render('pages/user/list.html.twig', [
             'commissions'   => $commissions,
             'users'         => $users,
+            'sellers'       => $sellers,
             'pager'         => [
                 '_per_page' => $perPage,
                 '_page'     => $page,
                 '_has_more' => \count($users) >= $perPage
-            ]
+            ],
+            'filter'        => $filter->all()
         ]);
     }
 

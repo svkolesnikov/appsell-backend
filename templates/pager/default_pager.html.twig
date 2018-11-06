@@ -19,11 +19,11 @@
             <label class="control-label" for="_per_page">Записей на страницу: </label>
             <div class="select2-container per-page small">
                 <select style="width: 100%" id="_per_page" name="_per_page">
-                    <option value="{{ path(app.request.attributes.get('_route'), { _page: 1, _per_page: 16, filter: filter is defined ? filter : [] }) }}" {% if pager._per_page == 16 %}selected{% endif %}>16</option>
-                    <option value="{{ path(app.request.attributes.get('_route'), { _page: 1, _per_page: 32, filter: filter is defined ? filter : [] }) }}" {% if pager._per_page == 32 %}selected{% endif %}>32</option>
-                    <option value="{{ path(app.request.attributes.get('_route'), { _page: 1, _per_page: 64, filter: filter is defined ? filter : [] }) }}" {% if pager._per_page == 64 %}selected{% endif %}>64</option>
-                    <option value="{{ path(app.request.attributes.get('_route'), { _page: 1, _per_page: 128, filter: filter is defined ? filter : [] }) }}" {% if pager._per_page == 128 %}selected{% endif %}>128</option>
-                    <option value="{{ path(app.request.attributes.get('_route'), { _page: 1, _per_page: 192, filter: filter is defined ? filter : [] }) }}" {% if pager._per_page == 192 %}selected{% endif %}>192</option>
+                    <option value="16" data-url="{{ path(app.request.attributes.get('_route'), { _page: 1, _per_page: 16, filter: filter is defined ? filter : [] }) }}" {% if pager._per_page == 16 %}selected{% endif %}>16</option>
+                    <option value="32" data-url="{{ path(app.request.attributes.get('_route'), { _page: 1, _per_page: 32, filter: filter is defined ? filter : [] }) }}" {% if pager._per_page == 32 %}selected{% endif %}>32</option>
+                    <option value="64" data-url="{{ path(app.request.attributes.get('_route'), { _page: 1, _per_page: 64, filter: filter is defined ? filter : [] }) }}" {% if pager._per_page == 64 %}selected{% endif %}>64</option>
+                    <option value="128" data-url="{{ path(app.request.attributes.get('_route'), { _page: 1, _per_page: 128, filter: filter is defined ? filter : [] }) }}" {% if pager._per_page == 128 %}selected{% endif %}>128</option>
+                    <option value="192" data-url="{{ path(app.request.attributes.get('_route'), { _page: 1, _per_page: 192, filter: filter is defined ? filter : [] }) }}" {% if pager._per_page == 192 %}selected{% endif %}>192</option>
                 </select>
             </div>
         </div>
