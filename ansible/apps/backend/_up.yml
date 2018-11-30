@@ -22,7 +22,6 @@
       APP_SECRET: "{{ app_secret }}"
       DATABASE_URL: "{{ database_url }}"
       MAILER_URL: "{{ mailer_url }}"
-      CORS_ALLOW_ORIGIN: "{{ cors_allow_origin }}"
       RABBITMQ_DSN: "{{ rabbitmq_dsn }}"
       FIREBASE_API_KEY: "{{ firebase_api_key }}"
       SOLAR_STAFF_API_URL: "{{ solar_staff_api_url }}"
