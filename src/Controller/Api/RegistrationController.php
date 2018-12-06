@@ -279,7 +279,7 @@ class RegistrationController
             $this->entityManager->flush();
 
         } catch (UniqueConstraintViolationException $ex) {
-            throw new AuthException('Email already exists', $ex);
+            throw new AuthException('Указанный адрес электронной почты уже зарегистрирован', $ex);
         }
     }
 }

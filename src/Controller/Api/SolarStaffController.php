@@ -181,7 +181,7 @@ class SolarStaffController
         } catch (UniqueConstraintViolationException $ex) {
 
             $this->entityManager->rollback();
-            throw new AuthException('Email already exists', $ex);
+            throw new AuthException('Указанный адрес электронной почты уже зарегистрирован', $ex);
 
         } catch (\Exception $ex) {
 
