@@ -41,24 +41,18 @@ class Client
 
     /**
      * @param string $email
-     * @param string $password
      * @return int Идентификатор сотрудника на стороне solar staff
      * @throws \App\Exception\Api\SolarStaffException
      */
-    public function createWorker(string $email, string $password): int
+    public function createWorker(string $email): int
     {
         $response = $this->transport->sendRequest('/v1/workers', [
-            'action' => 'worker_create',
+            'action' => 'worker_invite',
             'email' => $email,
-            'password' => $password,
-            'first_name' => $email,
-            'last_name' => '…',
-            'specialization' => 8,
-            'country' => 'RU',
-            'send_message' => 1
+            'language' => 'ru',
         ]);
 
-        return $response['response']['id'];
+        return $response['response']['worker_id'];
     }
 
     /**

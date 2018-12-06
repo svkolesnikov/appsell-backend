@@ -172,7 +172,7 @@ class SolarStaffController
             // После успешного сохранения зарегистрируем в Solar-Staff
             // и запишем ID сотрудника из SS в профиль
 
-            $profile->setSolarStaffId($this->client->createWorker($data['email'], $data['password']));
+            $profile->setSolarStaffId($this->client->createWorker($data['email']));
 
             $this->entityManager->persist($profile);
             $this->entityManager->flush();
