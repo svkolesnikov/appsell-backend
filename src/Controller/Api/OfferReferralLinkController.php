@@ -101,7 +101,7 @@ class OfferReferralLinkController
         $this->entityManager->flush();
 
         return new JsonResponse(
-            ['url' => 'http://apsl.me/' . $offerLink->getId()],
+            ['url' => 'https://apsl.me/' . $offerLink->getId()],
             JsonResponse::HTTP_CREATED
         );
     }
