@@ -100,8 +100,10 @@ class OfferReferralLinkController
         $this->entityManager->persist($offerLink);
         $this->entityManager->flush();
 
-        $url = $this->router->generate('app_api_offer_referral_link_follow', ['id' => $offerLink->getId()], RouterInterface::ABSOLUTE_URL);
-        return new JsonResponse(['url' => $url], JsonResponse::HTTP_CREATED);
+        return new JsonResponse(
+            ['url' => 'http://apsl.me/' . $offerLink->getId()],
+            JsonResponse::HTTP_CREATED
+        );
     }
 
     /**
