@@ -3,6 +3,7 @@
 namespace App\SolarStaff;
 
 use App\Exception\Api\SolarStaffException;
+use Psr\Log\LoggerInterface;
 
 class Transport
 {
@@ -15,11 +16,15 @@ class Transport
     /** @var string */
     protected $salt;
 
-    public function __construct(string $url, string $clientId, string $salt)
+    /** @var LoggerInterface */
+    protected $logger;
+
+    public function __construct(string $url, string $clientId, string $salt, LoggerInterface $logger)
     {
         $this->url = $url;
         $this->clientId = $clientId;
         $this->salt = $salt;
+        $this->logger = $logger;
     }
 
     /**
@@ -30,6 +35,8 @@ class Transport
      */
     public function sendRequest(string $method, array $params = []): array
     {
+        $this->logger->debug('Отправка запроса в API SolarStaff', $params);
+
         $ch = curl_init();
 
         curl_setopt($ch, CURLOPT_HEADER, false);
@@ -42,16 +49,25 @@ class Transport
 
         $curlResponse = curl_exec($ch);
         if (false === $curlResponse) {
+
+            $this->logger->error('Ошибка обращения к API SolarStaff: ' . curl_error($ch));
             throw new SolarStaffException(curl_error($ch));
+
         }
 
         $response = json_decode($curlResponse, true);
         if (200 !== $response['code']) {
+
+            // Залогируем ответ солара
+            $this->logger->error('Ошибка обращения к API SolarStaff: ' . $curlResponse);
+
+            // Выбросим исключение
             throw new SolarStaffException(
                 $response['response']['error_text'] ?? 'Неизвестная ошибка при обращении к API solar staff'
             );
         }
 
+        $this->logger->debug('Успешный ответ от API SolarStaff', (array) $response);
         return $response;
     }
 

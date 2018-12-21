@@ -57,6 +57,7 @@ services:
       - '%solar_staff.api_url%'
       - '%solar_staff.api_client_id%'
       - '%solar_staff.api_salt%'
+      - '@logger'
 
   App\SolarStaff\Client:
     arguments:
