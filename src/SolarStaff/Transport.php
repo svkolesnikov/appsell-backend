@@ -37,7 +37,7 @@ class Transport
     {
         $ch = curl_init();
 
-        $apiEndpoint = $this->url . '/' . $method;
+        $apiEndpoint = $this->url . $method;
         $postFields  = $this->getSignedParams($params);
 
         curl_setopt($ch, CURLOPT_HEADER, false);
