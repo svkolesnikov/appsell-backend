@@ -35,17 +35,24 @@ class Transport
      */
     public function sendRequest(string $method, array $params = []): array
     {
-        $this->logger->debug('Отправка запроса в API SolarStaff', $params);
-
         $ch = curl_init();
+
+        $apiEndpoint = $this->url . '/' . $method;
+        $postFields  = $this->getSignedParams($params);
 
         curl_setopt($ch, CURLOPT_HEADER, false);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
-        curl_setopt($ch, CURLOPT_URL, $this->url . '/' . $method);
+        curl_setopt($ch, CURLOPT_URL, $apiEndpoint);
         curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $this->getSignedParams($params));
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $postFields);
+
+        $this->logger->debug('Отправка запроса в API SolarStaff', [
+            'params'      => $params,
+            'url'         => $apiEndpoint,
+            'post_fields' => $postFields
+        ]);
 
         $curlResponse = curl_exec($ch);
         if (false === $curlResponse) {
