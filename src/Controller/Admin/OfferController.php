@@ -8,6 +8,7 @@ use App\Entity\ForOfferCommission;
 use App\Entity\Offer;
 use App\Entity\PushNotification;
 use App\Entity\SellerApprovedOffer;
+use App\Entity\User;
 use App\Form\OfferType;
 use App\Lib\Enum\UserGroupEnum;
 use App\Security\UserGroupManager;
@@ -212,6 +213,24 @@ class OfferController extends BaseController
             try {
 
                 $this->em->persist($offer);
+
+                // костыль для ревью
+                // нужно сразу открыть оффер для всех продавцов
+                $sellers = $this->em
+                    ->createQueryBuilder()
+                    ->select('u')
+                    ->from(User::class, 'u')
+                    ->innerJoin('u.groups', 'g')
+                    ->where('g.code = :code')
+                    ->setParameter(':code', UserGroupEnum::SELLER)
+                    ->getQuery()
+                    ->getResult();
+
+                foreach ($sellers as $seller) {
+                    $approve = $approve ?? (new SellerApprovedOffer())->setOffer($offer)->setSeller($seller);
+                    $this->em->persist($approve);
+                }
+
                 $this->em->flush();
 
                 $this->addFlash('success', 'Запись создана');
