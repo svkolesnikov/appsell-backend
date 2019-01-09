@@ -6,6 +6,7 @@ doctrine:
     default_connection: appsell
     connections:
       appsell:
+        server_version: 10.3
         driver: 'pdo_pgsql'
         charset: UTF8
         url: '%env(DATABASE_URL)%'
