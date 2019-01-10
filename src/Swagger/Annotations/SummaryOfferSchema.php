@@ -19,6 +19,7 @@ class SummaryOfferSchema extends Schema
                 new Property(['property' => 'title', 'type' => 'string']),
                 new Property(['property' => 'description', 'type' => 'string']),
                 new Property(['property' => 'type', 'type' => 'string']),
+                new Property(['property' => 'image', 'type' => 'string']),
                 new Property(['property' => 'active_from', 'type' => 'string']),
                 new Property(['property' => 'active_to', 'type' => 'string']),
                 new Property(['property' => 'is_active', 'type' => 'boolean']),
@@ -38,6 +39,7 @@ class SummaryOfferSchema extends Schema
                         new Property(['property' => 'id', 'type' => 'string']),
                         new Property(['property' => 'type', 'type' => 'string']),
                         new Property(['property' => 'url', 'type' => 'string']),
+                        new Property(['property' => 'image', 'type' => 'string']),
                     ]
                 ])]),
             ]

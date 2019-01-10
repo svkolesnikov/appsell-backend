@@ -18,6 +18,7 @@ class OfferForSellerSchema extends Schema
                 new Property(['property' => 'id', 'type' => 'string']),
                 new Property(['property' => 'title', 'type' => 'string']),
                 new Property(['property' => 'description', 'type' => 'string']),
+                new Property(['property' => 'image', 'type' => 'string']),
                 new Property(['property' => 'type', 'type' => 'string']),
                 new Property(['property' => 'is_approved', 'type' => 'boolean']),
                 new Property(['property' => 'compensations', 'type' => 'array', 'items' => new Schema([

@@ -19,6 +19,7 @@ class EmployeeOfferSchema extends Schema
                 new Property(['property' => 'title', 'type' => 'string']),
                 new Property(['property' => 'description', 'type' => 'string']),
                 new Property(['property' => 'type', 'type' => 'string']),
+                new Property(['property' => 'image', 'type' => 'string']),
                 new Property(['property' => 'compensations', 'type' => 'array', 'items' => new Schema([
                     'properties' => [
                         new Property(['property' => 'type', 'type' => 'string']),
