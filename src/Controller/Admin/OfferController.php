@@ -189,7 +189,7 @@ class OfferController extends BaseController
 
                     try {
 
-                        $path = $imageService->saveFromHTML($link);
+                        $path = $imageService->saveFromHTML($link->getUrl());
                         $imageService->remove($link->getImage());
                         $link->setImage($path);
 
