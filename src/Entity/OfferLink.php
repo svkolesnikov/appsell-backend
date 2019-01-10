@@ -39,6 +39,11 @@ class OfferLink
     protected $url;
 
     /**
+     * @ORM\Column(type="string")
+     */
+    protected $image;
+
+    /**
      * @var \DateTime
      * @ORM\Column(type="datetime")
      */
@@ -132,6 +137,17 @@ class OfferLink
     public function setType(OfferLinkTypeEnum $type)
     {
         $this->type = $type->getValue();
+        return $this;
+    }
+
+    public function getImage()
+    {
+        return $this->image;
+    }
+
+    public function setImage($image)
+    {
+        $this->image = $image;
         return $this;
     }
 }

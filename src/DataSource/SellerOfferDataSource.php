@@ -9,6 +9,7 @@ use App\Entity\User;
 use App\Exception\Api\DataSourceException;
 use App\Lib\Enum\OfferExecutionStatusEnum;
 use App\Lib\Enum\OfferTypeEnum;
+use App\Service\ImageService;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
@@ -19,9 +20,13 @@ class SellerOfferDataSource
     /** @var EntityManagerInterface */
     protected $entityManager;
 
-    public function __construct(EntityManagerInterface $em)
+    /** @var ImageService */
+    protected $imageService;
+
+    public function __construct(EntityManagerInterface $em, ImageService $imageService)
     {
         $this->entityManager = $em;
+        $this->imageService = $imageService;
     }
 
     /**
@@ -97,7 +102,8 @@ select
   
   (select json_agg(r) from (
     select
-      L.type
+      L.type,
+      L.image
     from app_links L
     where L.offer_id = O.id
     order by L.type
@@ -123,8 +129,20 @@ SQL;
 
             return array_map(function (array $item) {
 
+                $item['image'] = null;
                 $item['compensations'] = (array) json_decode($item['compensations'], true);
                 $item['links'] = (array) json_decode($item['links'], true);
+
+                foreach ($item['links'] as $link) {
+
+                    if (empty($link['image'])) {
+                        continue;
+                    }
+
+                    $item['image'] = $this->imageService->getPublicUrl($link['image']);
+
+                    break;
+                }
 
                 return new SellerOffer($item);
 

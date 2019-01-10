@@ -12,8 +12,10 @@ use App\Entity\User;
 use App\Form\OfferType;
 use App\Lib\Enum\UserGroupEnum;
 use App\Security\UserGroupManager;
+use App\Service\ImageService;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\Request;
@@ -33,15 +35,21 @@ class OfferController extends BaseController
     /** @var  EmployeeOfferDataSource */
     protected $employeeOfferDataSource;
 
+    /** @var LoggerInterface */
+    protected $logger;
+
     public function __construct(EntityManagerInterface $em,
                                 UserGroupManager $userGroupManager,
                                 SellerOfferDataSource $sds,
-                                EmployeeOfferDataSource $eds)
+                                EmployeeOfferDataSource $eds,
+                                LoggerInterface $l
+    )
     {
         $this->em = $em;
         $this->userGroupManager = $userGroupManager;
         $this->sellerOfferDataSource = $sds;
         $this->employeeOfferDataSource = $eds;
+        $this->logger = $l;
     }
 
     protected function checkAccess(Offer $offer)
@@ -157,9 +165,10 @@ class OfferController extends BaseController
      * @param Request $request
      *
      * @param Offer $offer
+     * @param ImageService $imageService
      * @return Response
      */
-    public function editAction(Request $request, Offer $offer): Response
+    public function editAction(Request $request, Offer $offer, ImageService $imageService): Response
     {
         if ( ! $this->isGranted('ROLE_SUPER_ADMIN') && $offer->getOwner() !== $this->getUser()) {
             $this->addFlash('error', 'Доступ запрещен!');
@@ -170,6 +179,23 @@ class OfferController extends BaseController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+
+            // для всех ссылей попробуем получить картинки
+            foreach ($offer->getLinks() as $link) {
+
+                try {
+
+                    $path = $imageService->saveFromHTML($link->getUrl());
+                    $link->setImage($path);
+
+                } catch (\Exception $ex) {
+                    // операция не блокирующая, просто запишем в лог
+                    $this->logger->error(
+                        'Не удалось получить изображение для ссылки ' . $link->getUrl(),
+                        ['error' => $ex->getMessage()]
+                    );
+                }
+            }
 
             try {
 
@@ -197,10 +223,10 @@ class OfferController extends BaseController
      * @Security("has_role('ROLE_APP_OFFER_CREATE')")
      *
      * @param Request $request
+     * @param ImageService $imageService
      * @return Response
-     * @throws \LogicException
      */
-    public function createAction(Request $request): Response
+    public function createAction(Request $request, ImageService $imageService): Response
     {
         $offer  = new Offer();
         $offer->setOwner($this->getUser());
@@ -209,6 +235,23 @@ class OfferController extends BaseController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+
+            // для всех ссылей попробуем получить картинки
+            foreach ($offer->getLinks() as $link) {
+
+                try {
+
+                    $path = $imageService->saveFromHTML($link->getUrl());
+                    $link->setImage($path);
+
+                } catch (\Exception $ex) {
+                    // операция не блокирующая, просто запишем в лог
+                    $this->logger->error(
+                        'Не удалось получить изображение для ссылки ' . $link->getUrl(),
+                        ['error' => $ex->getMessage()]
+                    );
+                }
+            }
 
             try {
 
@@ -408,38 +451,15 @@ class OfferController extends BaseController
      */
     public function notificationsAction(Request $request, Offer $offer): Response
     {
-//        if ( ! $this->isGranted('ROLE_SUPER_ADMIN') && $offer->getOwner() !== $this->getUser()) {
-//            $this->addFlash('error', 'Доступ запрещен!');
-//            return $this->redirectToRoute('app_offer_list');
-//        }
-
-//        $form = $this->createForm(OfferType::class, $offer);
-//        $form->handleRequest($request);
-//
-//        if ($form->isSubmitted() && $form->isValid()) {
-//
-//            try {
-//
-//                $this->em->persist($offer);
-//                $this->em->flush();
-//
-//                $this->addFlash('success', 'Запись обновлена');
-//
-//                return $this->redirectToRoute('app_offer_list');
-//
-//            } catch (\Exception $ex) {
-//                $this->addFlash('error', 'Ошибка при обновлении записи: ' . $ex->getMessage());
-//            }
-//        }
-
         $notifications = $this->em->getRepository(PushNotification::class)->findBy([
             'sender' => $this->getUser(),
             'offer'  => $offer
         ]);
 
         return $this->render('pages/offer/push_notifications.html.twig', [
-//            'form' => $form->createView(),
             'notifications' => $notifications
         ]);
     }
+
+
 }

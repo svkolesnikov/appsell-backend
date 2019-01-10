@@ -8,6 +8,7 @@ class SellerOffer
     public $title;
     public $description;
     public $type;
+    public $image;
     public $is_approved;
 
     /** @var OfferCompensation[] */
@@ -22,6 +23,7 @@ class SellerOffer
         $this->title        = $props['title'];
         $this->description  = $props['description'];
         $this->type         = $props['type'];
+        $this->image        = $props['image'];
         $this->is_approved  = $props['is_approved'];
 
         $this->compensations = array_map(function (array $comp) {

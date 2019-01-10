@@ -31,7 +31,9 @@
         "symfony/validator": "^4.0",
         "symfony/yaml": "^4.0",
         "wolfcast/browser-detection": "^2.5",
-        "zircote/swagger-php": "^2.0"
+        "zircote/swagger-php": "^2.0",
+        "ext-dom": "*",
+        "ext-libxml": "*"
     },
     "require-dev": {
         "roave/security-advisories": "dev-master",

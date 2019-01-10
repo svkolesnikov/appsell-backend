@@ -8,6 +8,7 @@ class EmployeeOffer
     public $title;
     public $description;
     public $type;
+    public $image;
 
     /** @var OfferCompensation[] */
     public $compensations;
@@ -17,10 +18,11 @@ class EmployeeOffer
 
     public function __construct(array $props)
     {
-        $this->id = $props['id'];
-        $this->title = $props['title'];
-        $this->description = $props['description'];
-        $this->type = $props['type'];
+        $this->id           = $props['id'];
+        $this->title        = $props['title'];
+        $this->description  = $props['description'];
+        $this->type         = $props['type'];
+        $this->image        = $props['image'];
 
         $this->compensations = array_map(function (array $comp) {
             return new OfferCompensation($comp);

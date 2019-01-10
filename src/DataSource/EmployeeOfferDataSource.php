@@ -8,6 +8,7 @@ use App\Entity\User;
 use App\Exception\Api\DataSourceException;
 use App\Lib\Enum\OfferExecutionStatusEnum;
 use App\Lib\Enum\OfferTypeEnum;
+use App\Service\ImageService;
 use App\SolarStaff\Client;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\FetchMode;
@@ -22,10 +23,14 @@ class EmployeeOfferDataSource
     /** @var Client */
     protected $solarStaffClient;
 
-    public function __construct(EntityManagerInterface $em, Client $ssc)
+    /** @var ImageService */
+    protected $imageService;
+
+    public function __construct(EntityManagerInterface $em, Client $ssc, ImageService $imageService)
     {
         $this->entityManager = $em;
         $this->solarStaffClient = $ssc;
+        $this->imageService = $imageService;
     }
 
     /**
@@ -172,7 +177,8 @@ select
   
   (select json_agg(r) from (
     select
-      L.type
+      L.type,
+      L.image
     from app_links L
     where L.offer_id = O.id
     order by L.type
@@ -195,8 +201,20 @@ SQL;
 
             return array_map(function (array $item) {
 
+                $item['image'] = null;
                 $item['compensations'] = (array) json_decode($item['compensations'], true);
                 $item['links'] = (array) json_decode($item['links'], true);
+
+                foreach ($item['links'] as $link) {
+
+                    if (empty($link['image'])) {
+                        continue;
+                    }
+
+                    $item['image'] = $this->imageService->getPublicUrl($link['image']);
+
+                    break;
+                }
 
                 return new EmployeeOffer($item);
 

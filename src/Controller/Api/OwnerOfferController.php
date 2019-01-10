@@ -16,6 +16,7 @@ use App\Lib\Enum\OfferExecutionStatusEnum;
 use App\Lib\Enum\OfferTypeEnum;
 use App\Lib\Enum\UserGroupEnum;
 use App\Security\UserGroupManager;
+use App\Service\ImageService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
@@ -86,11 +87,11 @@ class OwnerOfferController
      *
      * @Route("/current/offers", methods = { "GET" })
      * @param Request $request
+     * @param ImageService $imageService
      * @return JsonResponse
-     * @throws \Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException
      * @throws FormValidationException
      */
-    public function getOffersAction(Request $request): JsonResponse
+    public function getOffersAction(Request $request, ImageService $imageService): JsonResponse
     {
         try {
 
@@ -113,7 +114,7 @@ class OwnerOfferController
                 ->getRepository(Offer::class)
                 ->findBy($criteria, ['mtime' => 'DESC'], $limit, $offset);
 
-            return new JsonResponse(array_values(array_map(function(Offer $offer) {
+            return new JsonResponse(array_values(array_map(function(Offer $offer) use ($imageService) {
 
                 $compensation = array_map(function(Compensation $c) {
                     return [
@@ -125,13 +126,17 @@ class OwnerOfferController
                     ];
                 }, $offer->getCompensations()->toArray());
 
-                $links = array_map(function(OfferLink $l) {
+                $links = array_map(function(OfferLink $l) use ($imageService) {
                     return [
                         'id' => $l->getId(),
                         'type' => $l->getType(),
-                        'url' => $l->getUrl()
+                        'url' => $l->getUrl(),
+                        'image' => $imageService->getPublicUrl($l->getImage())
                     ];
                 }, $offer->getLinks()->toArray());
+
+                $images = array_filter(array_column($links, 'image'));
+                $image  = array_shift($images);
 
                 $arr = [
                     'id' => $offer->getId(),
@@ -144,7 +149,8 @@ class OwnerOfferController
                     'ctime' => $offer->getCtime()->format('d-m-Y H:i:s'),
                     'mtime' => $offer->getMtime()->format('d-m-Y H:i:s'),
                     'compensations' => $compensation,
-                    'links' => $links
+                    'links' => $links,
+                    'image' => $image
                 ];
 
                 return $arr;
