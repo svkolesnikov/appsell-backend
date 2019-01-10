@@ -180,26 +180,28 @@ class OfferController extends BaseController
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            // для всех ссылей попробуем получить картинки
-            foreach ($offer->getLinks() as $link) {
-
-                try {
-
-                    $path = $imageService->saveFromHTML($link->getUrl());
-                    $link->setImage($path);
-
-                } catch (\Exception $ex) {
-                    // операция не блокирующая, просто запишем в лог
-                    $this->logger->error(
-                        'Не удалось получить изображение для ссылки ' . $link->getUrl(),
-                        ['error' => $ex->getMessage()]
-                    );
-                }
-            }
-
             try {
 
                 $this->em->persist($offer);
+
+                // для всех ссылей попробуем получить картинки
+                foreach ($offer->getLinks() as $link) {
+
+                    try {
+
+                        $path = $imageService->saveFromHTML($link);
+                        $imageService->remove($link->getImage());
+                        $link->setImage($path);
+
+                    } catch (\Exception $ex) {
+                        // операция не блокирующая, просто запишем в лог
+                        $this->logger->error(
+                            'Не удалось получить изображение для ссылки ' . $link->getUrl(),
+                            ['error' => $ex->getMessage()]
+                        );
+                    }
+                }
+
                 $this->em->flush();
 
                 $this->addFlash('success', 'Запись обновлена');
@@ -236,26 +238,26 @@ class OfferController extends BaseController
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            // для всех ссылей попробуем получить картинки
-            foreach ($offer->getLinks() as $link) {
-
-                try {
-
-                    $path = $imageService->saveFromHTML($link->getUrl());
-                    $link->setImage($path);
-
-                } catch (\Exception $ex) {
-                    // операция не блокирующая, просто запишем в лог
-                    $this->logger->error(
-                        'Не удалось получить изображение для ссылки ' . $link->getUrl(),
-                        ['error' => $ex->getMessage()]
-                    );
-                }
-            }
-
             try {
 
                 $this->em->persist($offer);
+
+                // для всех ссылей попробуем получить картинки
+                foreach ($offer->getLinks() as $link) {
+
+                    try {
+
+                        $path = $imageService->saveFromHTML($link->getUrl());
+                        $link->setImage($path);
+
+                    } catch (\Exception $ex) {
+                        // операция не блокирующая, просто запишем в лог
+                        $this->logger->error(
+                            'Не удалось получить изображение для ссылки ' . $link->getUrl(),
+                            ['error' => $ex->getMessage()]
+                        );
+                    }
+                }
 
                 // костыль для ревью
                 // нужно сразу открыть оффер для всех продавцов

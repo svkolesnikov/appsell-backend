@@ -55,6 +55,11 @@ class ImageService
         return $fileName;
     }
 
+    public function remove($url)
+    {
+        unlink($this->imageStorage . '/' . $url);
+    }
+
     public function getPublicUrl($url)
     {
         if (empty($url)) {
