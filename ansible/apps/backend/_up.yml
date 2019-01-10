@@ -3,7 +3,10 @@
 - name: Создание каталога var
   file:
     state: directory
-    name: "{{ var_dir }}"
+    name: "{{ item }}"
+  with_items:
+    - "{{ var_dir }}"
+    - "{{ images_dir }}"
 
 - name: app - fpm
   docker_container:
@@ -15,7 +18,9 @@
     restart_policy: unless-stopped
     hostname: "{{ ansible_hostname }}.backend.fpm"
     dns_servers: ["8.8.8.8", "8.8.4.4"]
-    volumes: ["{{ var_dir }}:/var/www/app/var"]
+    volumes:
+      - "{{ var_dir }}:/var/www/app/var"
+      - "{{ images_dir }}:/var/www/app/public/images"
     env:
       APP_ENV: "{{ app_env }}"
       APP_LOCALE: "{{ app_locale }}"

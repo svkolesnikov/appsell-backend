@@ -63,6 +63,7 @@ RUN bower install --allow-root
 
 VOLUME /var/www/app
 VOLUME /var/www/app/var
+VOLUME /var/www/app/public/images
 
 EXPOSE 9000
 
