@@ -229,7 +229,7 @@ class OwnerOfferController
             throw new ApiException('Не удалось добавить оффер', $ex);
         }
 
-        return new JsonResponse(null, JsonResponse::HTTP_CREATED);
+        return new JsonResponse(['id' => $offer->getId()], JsonResponse::HTTP_CREATED);
     }
 
     /**
