@@ -9,6 +9,7 @@ class StatisticItem
     public $count;
     public $sum;
     public $reason;
+    public $image;
 
     public function __construct(array $props)
     {
@@ -17,5 +18,6 @@ class StatisticItem
         $this->count    = $props['count'];
         $this->sum      = $props['sum'];
         $this->reason   = $props['reason'];
+        $this->image    = $props['image'];
     }
 }

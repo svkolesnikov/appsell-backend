@@ -240,21 +240,28 @@ WITH source_data AS (
       o.title AS offer_title,
       COALESCE(se.amount_for_employee, 0) AS price,
       oe.id AS execution_id,
-      oe.status
+      oe.status,
+      ( 
+        SELECT image 
+        FROM offerdata.offer_link 
+        WHERE offer_id = oe.offer_id AND image IS NOT NULL
+        ORDER BY type 
+        LIMIT 1
+      ) AS image
     FROM actiondata.user_offer_link ol
     INNER JOIN offerdata.offer o ON o.id = ol.offer_id
     INNER JOIN actiondata.offer_execution oe ON oe.offer_id = ol.offer_id AND oe.source_link_id = ol.id
     LEFT JOIN actiondata.sdk_event se ON se.offer_execution_id = oe.id AND se.ctime BETWEEN o.active_from AND o.active_to
     WHERE ol.user_id = :employee_id AND oe.status = :status
 ), distinct_data AS (
-    SELECT offer_id AS id, offer_title AS title, execution_id, null AS reason, SUM(price) AS sum_price
+    SELECT offer_id AS id, offer_title AS title, execution_id, null AS reason, SUM(price) AS sum_price, image
     FROM source_data
-    GROUP BY offer_id , offer_title, execution_id
+    GROUP BY offer_id , offer_title, execution_id, image
 )
 
-SELECT id, title, null AS reason, COUNT(id), round(SUM(sum_price)) AS sum
+SELECT id, title, image, null AS reason, COUNT(id), round(SUM(sum_price)) AS sum
 FROM distinct_data
-GROUP BY id, title, reason
+GROUP BY id, title, image, reason
 SQL;
 
         try {
@@ -266,7 +273,13 @@ SQL;
             $statement->execute();
 
             return array_map(function (array $item) {
+
+                if (!empty($item['image'])) {
+                    $item['image'] = $this->imageService->getPublicUrl($item['image']);
+                }
+
                 return new StatisticItem($item);
+
             }, $statement->fetchAll(FetchMode::ASSOCIATIVE));
 
         } catch (DBALException $ex) {

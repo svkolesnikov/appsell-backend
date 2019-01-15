@@ -7,6 +7,7 @@ use App\DataSource\Dto\StatisticItem;
 use App\Entity\User;
 use App\Exception\Api\DataSourceException;
 use App\Lib\Enum\OfferExecutionStatusEnum;
+use App\Service\ImageService;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
@@ -17,9 +18,13 @@ class OwnerOfferDataSource
     /** @var EntityManagerInterface */
     protected $entityManager;
 
-    public function __construct(EntityManagerInterface $em)
+    /** @var ImageService */
+    protected $imageService;
+
+    public function __construct(EntityManagerInterface $em, ImageService $imageService)
     {
         $this->entityManager = $em;
+        $this->imageService = $imageService;
     }
 
     /**
@@ -39,7 +44,14 @@ WITH source_data AS (
         o.title,
         COALESCE(c.price, 0) as price,
         oe.status,
-        oe.id AS execution_id
+        oe.id AS execution_id,
+        ( 
+          SELECT image 
+          FROM offerdata.offer_link 
+          WHERE offer_id = oe.offer_id AND image IS NOT NULL
+          ORDER BY type 
+          LIMIT 1
+        ) AS image
     FROM offerdata.offer o
     LEFT JOIN actiondata.user_offer_link ol ON o.id = ol.offer_id
     LEFT JOIN actiondata.offer_execution oe ON oe.offer_id = ol.offer_id
@@ -47,14 +59,14 @@ WITH source_data AS (
     INNER JOIN offerdata.compensation c ON c.offer_id = o.id AND c.event_type = se.event_type
     WHERE o.owner_id = :owner_id AND oe.status = :status
 ), distinct_data AS (
-    SELECT id, title, execution_id, null AS reason, SUM(price) AS sum_price
+    SELECT id, title, execution_id, null AS reason, SUM(price) AS sum_price, image
     FROM source_data
-    GROUP BY id, title, execution_id
+    GROUP BY id, title, execution_id, image
 )
 
-SELECT id, title, null AS reason, COUNT(id), ROUND(SUM(sum_price)) AS sum
+SELECT id, title, image, null AS reason, COUNT(id), ROUND(SUM(sum_price)) AS sum
 FROM distinct_data
-GROUP BY id, title, reason
+GROUP BY id, title, reason, image
 SQL;
 
         try {
@@ -66,7 +78,13 @@ SQL;
             $statement->execute();
 
             return array_map(function (array $item) {
+
+                if (!empty($item['image'])) {
+                    $item['image'] = $this->imageService->getPublicUrl($item['image']);
+                }
+
                 return new StatisticItem($item);
+
             }, $statement->fetchAll(FetchMode::ASSOCIATIVE));
 
         } catch (DBALException $ex) {

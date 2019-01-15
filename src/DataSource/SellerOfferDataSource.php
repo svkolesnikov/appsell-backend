@@ -170,7 +170,14 @@ WITH source_data AS (
       CONCAT(u.email, ' (', p.lastname, ' ', p.firstname,')') AS fullname,
       COALESCE(se.amount_for_seller, 0) AS price,
       oe.id AS execution_id,
-      oe.status
+      oe.status,
+      ( 
+        SELECT image 
+        FROM offerdata.offer_link 
+        WHERE offer_id = oe.offer_id AND image IS NOT NULL
+        ORDER BY type 
+        LIMIT 1
+      ) AS image
     FROM userdata.profile p
     INNER JOIN userdata.user u ON u.id = p.user_id
     INNER JOIN actiondata.user_offer_link ol ON ol.user_id = p.user_id
@@ -179,14 +186,14 @@ WITH source_data AS (
     INNER JOIN actiondata.sdk_event se ON se.offer_execution_id = oe.id AND se.ctime BETWEEN o.active_from AND o.active_to
     WHERE p.employer_id = :employer_id AND oe.status = :status
 ), distinct_data AS (
-    SELECT user_id AS id, fullname AS title, execution_id, null AS reason, SUM(price) AS sum_price
+    SELECT user_id AS id, fullname AS title, execution_id, null AS reason, SUM(price) AS sum_price, image
     FROM source_data
-    GROUP BY user_id , fullname, execution_id
+    GROUP BY user_id , fullname, execution_id, image
 )
 
-SELECT id, title, null AS reason, COUNT(id), ROUND(SUM(sum_price)) AS sum
+SELECT id, title, image, null AS reason, COUNT(id), ROUND(SUM(sum_price)) AS sum
 FROM distinct_data
-GROUP BY id, title, reason
+GROUP BY id, title, image, reason
 SQL;
 
         try {
@@ -198,6 +205,11 @@ SQL;
             $statement->execute();
 
             return array_map(function (array $item) {
+
+                if (!empty($item['image'])) {
+                    $item['image'] = $this->imageService->getPublicUrl($item['image']);
+                }
+
                 return new StatisticItem($item);
             }, $statement->fetchAll(FetchMode::ASSOCIATIVE));
 
