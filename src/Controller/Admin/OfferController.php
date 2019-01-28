@@ -428,6 +428,7 @@ class OfferController extends BaseController
         try {
 
             $offer->setDeleted(true);
+            $offer->setActive(false);
 
             $this->em->persist($offer);
             $this->em->flush();
