@@ -22,3 +22,4 @@
     volumes:
       - "{{ nginx_vhosts_dir }}:/etc/nginx/conf.d"
       - "{{ letsencrypt_dir }}:/etc/letsencrypt"
+      - "/tmp:/tmp"
