@@ -100,7 +100,8 @@ class PasswordRecoveryController
 
         $this->clientProducer->produce(NotificationTypeEnum::PASSWORD_RECOVERY(), [
             'subject' => 'Код восстановления пароля на сервисе AppSell',
-            'code' => $confirmation->getPasswordRecoveryCode()
+            'code' => $confirmation->getPasswordRecoveryCode(),
+            'to' => $user->getEmail()
         ]);
 
         return new JsonResponse(null, JsonResponse::HTTP_CREATED);

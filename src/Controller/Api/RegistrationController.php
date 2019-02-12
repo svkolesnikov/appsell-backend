@@ -261,7 +261,8 @@ class RegistrationController
 
         $this->clientProducer->produce(NotificationTypeEnum::CONFIRM_EMAIL(), [
             'subject' => 'Код активации email на сервисе AppSell',
-            'code' => $confirmation->getEmailConfirmationCode()
+            'code' => $confirmation->getEmailConfirmationCode(),
+            'to' => $user->getEmail()
         ]);
 
         return new JsonResponse(null, JsonResponse::HTTP_CREATED);
