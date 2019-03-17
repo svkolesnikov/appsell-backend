@@ -171,29 +171,35 @@ WITH source_data AS (
       COALESCE(se.amount_for_seller, 0) AS price,
       oe.id AS execution_id,
       oe.status,
-      ( 
-        SELECT image 
-        FROM offerdata.offer_link 
-        WHERE offer_id = oe.offer_id AND image IS NOT NULL
-        ORDER BY type 
-        LIMIT 1
-      ) AS image
+      o.id as offer_id
     FROM userdata.profile p
     INNER JOIN userdata.user u ON u.id = p.user_id
     INNER JOIN actiondata.user_offer_link ol ON ol.user_id = p.user_id
     INNER JOIN actiondata.offer_execution oe ON oe.offer_id = ol.offer_id AND oe.source_link_id = ol.id
     INNER JOIN offerdata.offer o ON o.id = ol.offer_id
-    INNER JOIN actiondata.sdk_event se ON se.offer_execution_id = oe.id AND se.ctime BETWEEN o.active_from AND o.active_to
+    LEFT JOIN actiondata.sdk_event se ON se.offer_execution_id = oe.id AND se.ctime BETWEEN o.active_from AND o.active_to
     WHERE p.employer_id = :employer_id AND oe.status = :status
 ), distinct_data AS (
-    SELECT user_id AS id, fullname AS title, execution_id, null AS reason, SUM(price) AS sum_price, image
+    SELECT user_id AS id, fullname AS title, execution_id, null AS reason, SUM(price) AS sum_price, offer_id
     FROM source_data
-    GROUP BY user_id , fullname, execution_id, image
+    GROUP BY user_id , fullname, execution_id, offer_id
 )
 
-SELECT id, title, image, null AS reason, COUNT(id), ROUND(SUM(sum_price)) AS sum
+SELECT 
+    id, 
+    title,
+    ( 
+        SELECT image 
+        FROM offerdata.offer_link 
+        WHERE offer_id = offer_id AND image IS NOT NULL
+        ORDER BY type 
+        LIMIT 1
+    ) AS image,
+   null AS reason, 
+   COUNT(id), 
+   ROUND(SUM(sum_price)) AS sum
 FROM distinct_data
-GROUP BY id, title, image, reason
+GROUP BY id, title, reason
 SQL;
 
         try {
