@@ -18,12 +18,13 @@ $(document).ready(function() {
         theme: "bootstrap",
         language: "ru"
     });
-    $("#_per_page").on('select2:select', function (e) {
-        window.location = e.params.data.id;
+
+    $("#_per_page").on('select2:selecting', function (e) {
+        window.location = $(e.params.args.data.element).attr('data-url');
     });
 
-    $("[role=_filter]").on('select2:select', function (e) {
-        window.location = e.params.data.id;
+    $("[role=_filter]").on('select2:selecting', function (e) {
+        window.location = e.val;
     });
 
     /////////////////////////
