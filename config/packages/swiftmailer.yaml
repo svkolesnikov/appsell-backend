@@ -1,4 +1,4 @@
 swiftmailer:
   url: '%env(MAILER_URL)%'
   spool: { type: 'memory' }
-  sender_address: 'we@appsell.me'
+  sender_address: 'noreply@appsell.me'
