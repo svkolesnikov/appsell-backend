@@ -24,7 +24,7 @@ $(document).ready(function() {
     });
 
     $("[role=_filter]").on('select2:selecting', function (e) {
-        window.location = e.val;
+        window.location = $(e.params.args.data.element).val();
     });
 
     /////////////////////////

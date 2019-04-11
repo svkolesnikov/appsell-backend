@@ -1,25 +1,46 @@
 {% extends 'base.html.twig' %}
 
 {% block top_nav_menu_buttons %}
+
     <ul class="nav navbar-nav navbar-left">
-        <li class="dropdown {% if status == 'complete' %}active{% endif %}">
-            <a class="" href="{{ path('app_stat_list', { status: 'complete' } ) }}">
-                <i class="fa fa-check" aria-hidden="true"></i>
-                Исполнено
-            </a>
-        </li>
-        <li class="dropdown {% if status == 'processing' %}active{% endif %}">
-            <a class="" href="{{ path('app_stat_list', { status: 'processing' } ) }}">
-                <i class="fa fa-refresh" aria-hidden="true"></i>
-                В процессе
-            </a>
-        </li>
-        <li class="dropdown {% if status == 'rejected' %}active{% endif %}">
-            <a class="" href="{{ path('app_stat_list', { status: 'rejected' } ) }}">
-                <i class="fa fa-close" aria-hidden="true"></i>
-                Отклонено
-            </a>
-        </li>
+    {% if is_granted('ROLE_SUPER_ADMIN') %}
+    <li>
+        <div class="navbar-left">
+            <div style="padding-top: 8px; width:450px; margin-right: 10px;">
+                <select id="user" name="user" role="_filter" style="width:450px;">
+                    {% for u in users %}
+                        <option value="{{ path('app_stat_list', { user: u['id'] }) }}"
+                                {% if user.id is defined and u['id'] == user.id %}selected{% endif %}
+                        >{{ u['email'] }} ({{ u['name'] }})</option>
+                    {% endfor %}
+
+                </select>
+            </div>
+        </div>
+
+        <div class="navbar-left">
+            <div style="padding-top: 8px; width:150px; margin-right: 10px;">
+                <select id="status" name="status" role="_filter" style="width:150px;">
+                    {% for key, item in statusList %}
+                        <option value="{{ path('app_stat_list', { status: key, user: user.id }) }}"
+                            {% if status is defined and key == status %}selected{% endif %}
+                        >{{ item }}</option>
+                    {% endfor %}
+
+                </select>
+            </div>
+        </div>
+    </li>
+    {% else %}
+        {% for key, item in statusList %}
+            <li class="dropdown {% if status == key %}active{% endif %}">
+                <a class="" href="{{ path('app_stat_list', { status: key } ) }}">
+                    <i class="fa fa-check" aria-hidden="true"></i>
+                    {{ item }}
+                </a>
+            </li>
+        {% endfor %}
+    {% endif %}
     </ul>
 {% endblock %}
 
