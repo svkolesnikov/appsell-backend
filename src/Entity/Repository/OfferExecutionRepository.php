@@ -15,9 +15,8 @@ class OfferExecutionRepository extends EntityRepository
      */
     public function getPayoutAvailable(Entity\User $employee): array
     {
-        return $this->createQueryBuilder('oe')
+        return $this->createQueryBuilder('e')
             ->select('e')
-            ->from('App:OfferExecution', 'e')
             ->join('e.source_link', 'ul')
             ->where('ul.user = :user and e.status = :status and e.payout_transaction is null')
             ->setParameters([
