@@ -81,7 +81,7 @@ class Transport
             if ($isCompletePayout) {
 
                 $this->logger->warning(
-                    'Вывод средств в SolarStaff прошел успешно. Но была получена ошибка' . $curlResponse
+                    'Вывод средств в SolarStaff прошел успешно. Но была получена ошибка: ' . $curlResponse
                 );
 
             } else {
