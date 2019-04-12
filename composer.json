@@ -3,9 +3,11 @@
     "license": "proprietary",
     "require": {
         "php": "^7.1.3",
-        "ext-iconv": "*",
         "ext-curl": "*",
+        "ext-dom": "*",
+        "ext-iconv": "*",
         "ext-json": "*",
+        "ext-libxml": "*",
         "doctrine/doctrine-bundle": "^1.9",
         "enqueue/amqp-ext": "^0.8.24",
         "enqueue/enqueue-bundle": "^0.8.33",
@@ -22,6 +24,7 @@
         "symfony/flex": "^1.0",
         "symfony/form": "^4.0",
         "symfony/framework-bundle": "^4.0",
+        "symfony/lock": "^4.0",
         "symfony/monolog-bundle": "^3.3",
         "symfony/security-bundle": "^4.0",
         "symfony/swiftmailer-bundle": "^3.2",
@@ -31,9 +34,7 @@
         "symfony/validator": "^4.0",
         "symfony/yaml": "^4.0",
         "wolfcast/browser-detection": "^2.5",
-        "zircote/swagger-php": "^2.0",
-        "ext-dom": "*",
-        "ext-libxml": "*"
+        "zircote/swagger-php": "^2.0"
     },
     "require-dev": {
         "roave/security-advisories": "dev-master",
