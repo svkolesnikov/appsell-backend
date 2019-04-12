@@ -17,7 +17,7 @@
     firebase_api_key: "AAAAwxBBPL4:APA91bFVrKfPUiCGFpO942f0DlaIEevXADVujey_O7yTmaRE80G-GBl7c1Zj_UJzISRm8LOJ2asJBtD0e4AIoG2MlGsFX47luVtRW2fJv0Az0n7k16weHGLTW_ITt7vHr_QAmQAXQ3sBuTiDkrvOYQ74GCGUCMfGjw"
     solar_staff_api_url: "https://api.solar-staff.com"
     solar_staff_api_client_id: "457"
-    solar_staff_api_salt: "5d50fd5784563e8bbbc650"
+    solar_staff_api_salt: "3ff2b41a57cfc8006afa47"
     solar_staff_login_url: "https://www.solar-staff.com/#login"
 
   tasks:
