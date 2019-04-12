@@ -65,13 +65,35 @@ class Transport
         $response = json_decode($curlResponse, true);
         if (200 !== $response['code']) {
 
-            // Залогируем ответ солара
-            $this->logger->error('Ошибка обращения к API SolarStaff: ' . $curlResponse);
+            // При вызове метода вывода средств, может быть ситуация, когда
+            // задача на стороне solar создалась, но нам вернуло ошибку
+            // в этом случае мы считаем вывод средств успешным (например,
+            // на балансе компании было меньше средств чем нужно для вывода,
+            // и вывод на стороне solar произойдет позже)
+            //
+            // Поэтому залогируем эту информацию, а вызывающему коду
+            // скажем, что все прошло хорошо
 
-            // Выбросим исключение
-            throw new SolarStaffException(
-                $response['response']['error_text'] ?? 'Неизвестная ошибка при обращении к API solar staff'
-            );
+            $isCompletePayout = $params['action'] === 'payout'
+                && isset($response['response']['task_id'])
+                && is_numeric($response['response']['task_id']);
+
+            if ($isCompletePayout) {
+
+                $this->logger->warning(
+                    'Вывод средств в SolarStaff прошел успешно. Но была получена ошибка' . $curlResponse
+                );
+
+            } else {
+
+                // Залогируем ответ солара
+                $this->logger->error('Ошибка обращения к API SolarStaff: ' . $curlResponse);
+
+                // Выбросим исключение
+                throw new SolarStaffException(
+                    $response['response']['error_text'] ?? 'Неизвестная ошибка при обращении к API solar staff'
+                );
+            }
         }
 
         $this->logger->debug('Успешный ответ от API SolarStaff', (array) $response);
