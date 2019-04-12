@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Lib\Enum\ActionLogItemTypeEnum;
+use App\Lib\Enum\PushNotificationStatusEnum;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -46,11 +47,6 @@ class PushNotificationLog
     protected $multicast_id;
 
     /**
-     * @ORM\Column(type="boolean")
-     */
-    protected $success;
-
-    /**
      * @ORM\Column(type="string")
      */
     protected $info;
@@ -59,6 +55,11 @@ class PushNotificationLog
      * @ORM\Column(type="string")
      */
     protected $error;
+
+    /**
+     * @ORM\Column(type="string")
+     */
+    protected $status;
 
     public function getId()
     {
@@ -109,17 +110,6 @@ class PushNotificationLog
         return $this;
     }
 
-    public function getSuccess()
-    {
-        return $this->success;
-    }
-
-    public function setSuccess($success)
-    {
-        $this->success = $success;
-        return $this;
-    }
-
     public function getInfo()
     {
         return $this->info;
@@ -140,5 +130,21 @@ class PushNotificationLog
     {
         $this->error = $error;
         return $this;
+    }
+
+    public function getStatus(): PushNotificationStatusEnum
+    {
+        return new PushNotificationStatusEnum($this->status);
+    }
+
+    public function setStatus(PushNotificationStatusEnum $status)
+    {
+        $this->status = $status;
+        return $this;
+    }
+
+    public function getStatusTitle(): string
+    {
+        return PushNotificationStatusEnum::getTitleByValue($this->getStatus()->getValue());
     }
 }

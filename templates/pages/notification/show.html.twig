@@ -41,6 +41,14 @@
                             <th style="width:20%">Дата создания:</th>
                             <td>{{ item.ctime|date('Y-m-d H:i:s') }}</td>
                         </tr>
+                        <tr>
+                            <th style="width:20%">Статус:</th>
+                            <td>{{ item.statusTitle }}</td>
+                        </tr>
+                        <tr>
+                            <th style="width:20%">Дата обновления статуса:</th>
+                            <td>{{ item.mtime|date('Y-m-d H:i:s') }}</td>
+                        </tr>
                         </tbody>
                     </table>
                 </div>
@@ -75,17 +83,19 @@
                             <td>{{ log.user.email }}</td>
                             <td>{% if log.device is not null %}{{ log.device.type ~ ': ' ~ log.device.id }}{% endif %}</td>
                             <td>
-                                {% if 0 == log.success %}
-                                    <small class="label bg-red">Ошибка</small>
+                                {% if 'error' == log.status %}
+                                    <small class="label bg-red">{{ log.statusTitle }}</small>
+                                {% elseif 'success' == log.status %}
+                                    <small class="label bg-green">{{ log.statusTitle }}</small>
                                 {% else %}
-                                    <small class="label bg-green">Отправлено</small>
+                                    <small class="label bg-yellow">{{ log.statusTitle }}</small>
                                 {% endif %}
                             </td>
                             <td>
-                                {% if 1 == log.success %}
-                                    {{ log.info }}
-                                {% else %}
+                                {% if 'error' == log.status %}
                                     {{ log.error }}
+                                {% else %}
+                                    {{ log.info }}
                                 {% endif %}
                             </td>
                         </tr>

@@ -2,7 +2,8 @@
 
 namespace App\Controller\Admin;
 
-use App\DCI\PushCreating;
+use App\DataSource\EmployeeOfferDataSource;
+use App\DataSource\SellerOfferDataSource;
 use App\Entity\Offer;
 use App\Entity\PushNotification;
 use App\Entity\User;
@@ -10,8 +11,8 @@ use App\Exception\Admin\AdminException;
 use App\Form\PushNotificationType;
 use App\Lib\Enum\UserGroupEnum;
 use App\Security\UserGroupManager;
+use App\Service\PushNotificationService;
 use Doctrine\ORM\EntityManagerInterface;
-use RedjanYm\FCMBundle\FCMClient;
 use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\ParameterBag;
@@ -20,12 +21,28 @@ use Symfony\Component\HttpFoundation\Response;
 
 class NotificationController extends BaseController
 {
-    /** @var  EntityManagerInterface */
+    /** @var EntityManagerInterface */
     protected $em;
 
-    public function __construct(EntityManagerInterface $em)
-    {
+    /** @var  UserGroupManager */
+    protected $userGroupManager;
+
+    /** @var  SellerOfferDataSource */
+    protected $sellerOfferDataSource;
+
+    /** @var  EmployeeOfferDataSource */
+    protected $employeeOfferDataSource;
+
+    public function __construct(
+        EntityManagerInterface $em,
+        UserGroupManager $userGroupManager,
+        SellerOfferDataSource $sds,
+        EmployeeOfferDataSource $eds
+    ) {
         $this->em = $em;
+        $this->userGroupManager = $userGroupManager;
+        $this->sellerOfferDataSource = $sds;
+        $this->employeeOfferDataSource = $eds;
     }
 
     /**
@@ -59,7 +76,7 @@ class NotificationController extends BaseController
 
             $items = $this->em
                 ->getRepository(PushNotification::class)
-                ->findBy($criteria, ['ctime' => 'DESC'], $perPage, $offset);
+                ->findBy($criteria, ['ctime' => 'DESC']);
 
         } catch (\Exception $ex) {
             $this->addFlash('error', 'Не удалось получить список' . $ex->getMessage());
@@ -82,15 +99,15 @@ class NotificationController extends BaseController
      * @Security("has_role('ROLE_APP_NOTIFICATION_CREATE')")
      *
      * @param Request $request
-     * @param PushCreating $pushCreating
-     * @param UserGroupManager $userGroupManager
+     * @param PushNotificationService $pushService
      * @return Response
      */
-    public function createAction(Request $request, PushCreating $pushCreating, UserGroupManager $userGroupManager): Response
+    public function createAction(Request $request, PushNotificationService $pushService): Response
     {
         $form = $this->createForm(PushNotificationType::class, ['offer_id' => $request->get('offer_id')], [
-            'user' => $this->getUser(),
-            'is_seller' => $userGroupManager->hasGroup($this->getUser(), UserGroupEnum::SELLER())
+            'user'      => $this->getUser(),
+            'is_seller' => $this->userGroupManager->hasGroup($this->getUser(), UserGroupEnum::SELLER()),
+            'is_admin'  => $this->isGranted('ROLE_SUPER_ADMIN')
         ]);
 
         $form->handleRequest($request);
@@ -102,13 +119,13 @@ class NotificationController extends BaseController
 
                 // проверим наличие выбранных пользователей
                 if (array_key_exists('users', $data)) {
-                    $recipients = ($data['users'])->toArray();
+                    $users = ($data['users'])->toArray();
                 }
 
                 // а затем выбранных групп
                 elseif (array_key_exists('groups', $data)) {
                     $qb = $this->em->createQueryBuilder();
-                    $recipients = $qb
+                    $users = $qb
                         ->select('u')
                         ->from(User::class, 'u')
                         ->innerJoin('u.groups', 'g')
@@ -122,9 +139,21 @@ class NotificationController extends BaseController
                     throw new AdminException('Не указаны получатели!');
                 }
 
-                // уведомление не обязательно привязывать к конкретному офферу
-                $offer = null;
-                if (!empty($data['offer_id'])) {
+                // вместо объектов сформируем одномерный массив с идентификаторами пользователей
+
+                $recipients = array_map(function(User $item)  {
+                    return $item->getId();
+                }, $users);
+
+                // по дефолту, будем использовать оффер, который выбрали на форме создания уведомления
+
+                /** @var Offer $offer */
+                $offer = $data['offer'] ?? null;
+
+                // для обычных пользователей выбор оффера недоступен
+                // отправка осуществляется через раздел офферов
+
+                if (empty($offer) && !empty($data['offer_id'])) {
                     $offer = $this->em->getRepository(Offer::class)->find($data['offer_id']);
 
                     if (null === $offer) {
@@ -132,15 +161,14 @@ class NotificationController extends BaseController
                     }
                 }
 
-                // попробуем отправить
-                $pushCreating->send($data['message'], $this->getUser(), $recipients, $offer);
+                $pushService->create($data['message'], $this->getUser(), $recipients, $offer);
 
-                $this->addFlash('success', 'Запись создана');
+                $this->addFlash('success', 'Уведомление поставлено в очередь отправки');
 
                 return $this->redirectToRoute('app_notification_list');
 
             } catch (\Exception $ex) {
-                $this->addFlash('error', 'Ошибка при добавлении записи: ' . $ex->getMessage());
+                $this->addFlash('error', 'Ошибка создании уведомления: ' . $ex->getMessage());
             }
         }
 
@@ -164,10 +192,10 @@ class NotificationController extends BaseController
             $this->em->remove($notification);
             $this->em->flush();
 
-            $this->addFlash('success', 'Запись успешно удалена');
+            $this->addFlash('success', 'Уведомление успешно удалено');
 
         } catch (\Exception $ex) {
-            $this->addFlash('error', 'Ошибка при удалении записи: ' . $ex->getMessage());
+            $this->addFlash('error', 'Ошибка при удалении уведомления: ' . $ex->getMessage());
         }
 
         return $this->redirectToRoute('app_notification_list');

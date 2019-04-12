@@ -3,6 +3,8 @@
 namespace App\Queue\Producer;
 
 use Interop\Amqp\AmqpContext;
+use Interop\Amqp\AmqpMessage;
+use Interop\Amqp\AmqpQueue;
 use Psr\Container\ContainerInterface;
 
 class Producer
@@ -22,10 +24,12 @@ class Producer
 
         // Получим очередь
         $amqpQueue = $this->context->createQueue($queue);
+        $amqpQueue->addFlag(AmqpQueue::FLAG_DURABLE);
         $this->context->declareQueue($amqpQueue);
 
         // Опубликуем сообщение
         $amqpMessage = $this->context->createMessage(json_encode($message));
+        $amqpMessage->setDeliveryMode(AmqpMessage::DELIVERY_MODE_PERSISTENT);
         $this->context->createProducer()->send($amqpQueue, $amqpMessage);
     }
 }

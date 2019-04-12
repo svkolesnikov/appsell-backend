@@ -58,6 +58,7 @@
                         {{ form_row(form.message) }}
 
                         {% if is_granted(['ROLE_ADMIN', 'ROLE_SUPER_ADMIN']) %}
+                            {{ form_row(form.offer) }}
                             {{ form_row(form.groups) }}
                         {% else %}
 

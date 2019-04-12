@@ -2,6 +2,7 @@
 
 namespace App\Form;
 
+use App\Entity\Offer;
 use App\Entity\User;
 use App\Lib\Enum\UserGroupEnum;
 use Doctrine\ORM\EntityRepository;
@@ -9,8 +10,8 @@ use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Callback;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
@@ -21,19 +22,42 @@ class PushNotificationType extends AbstractType
     {
         $resolver->setDefaults(array(
             'user' => null,
-            'is_seller' => false
+            'is_seller' => false,
+            'is_admin' => false
         ));
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('offer_id',      HiddenType::class)
-//            ->add('offer_id',      TextType::class)
-            ->add('message',       TextType::class,     ['required' => true, 'label' => 'Текстовое сообщение']);
+            ->add('offer_id',       HiddenType::class)
+            ->add('message',        TextareaType::class, [
+                'required'          => true,
+                'label'             => 'Текстовое сообщение',
+                'attr'              => ['style' => 'height: 100px;']
+            ]);
+
+        if ($options['is_admin']) {
+            $builder->add('offer', EntityType::class, [
+                'required'          => false,
+                'class'             => Offer::class,
+                'choice_label' => function(Offer $offer, $key, $value) {
+                    return $offer->getTitle();
+                },
+                'label'             => 'Оффер (не обязательно)',
+                'empty_data'        => null,
+                'placeholder'       => 'Выберите оффер',
+                'query_builder'     => function (EntityRepository $er) use ($options) {
+                    return $er
+                        ->createQueryBuilder('o')
+                        ->where(':date between o.active_from AND o.active_to ')
+                        ->setParameter('date', date('Y-m-d H:i:s'));
+                }
+            ]);
+        }
 
         if ($options['is_seller']) {
-            $builder->add('users',        EntityType::class,    [
+            $builder->add('users',  EntityType::class, [
                 'error_bubbling'    => true,
                 'class'             => User::class,
                 'multiple'          => true,
@@ -43,7 +67,7 @@ class PushNotificationType extends AbstractType
                     return $er
                         ->createQueryBuilder('u')
                         ->innerJoin('u.profile', 'p')
-                        ->where('p.employer = :user')
+                        ->where('u.is_active = true AND p.employer = :user')
                         ->setParameter('user', $options['user']);
                 },
                 'constraints'       => [new Callback([$this, 'validateUserCount'])]

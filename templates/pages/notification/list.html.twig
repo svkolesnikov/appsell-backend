@@ -44,7 +44,9 @@
                         {% endif %}
                         <th class="column-title">Оффер</th>
                         <th class="column-title">Сообщение</th>
-                        <th class="column-title">Дата отправки</th>
+                        <th class="column-title">Статус</th>
+                        <th class="column-title">Дата создания</th>
+                        <th class="column-title">Дата обновления</th>
                         <th class="column-title">Действия</th>
                     </tr>
                     </thead>
@@ -57,7 +59,9 @@
                             {% endif %}
                             <td>{% if item.offer is not null %}{{ item.offer.title }}{% endif %}</td>
                             <td>{{ item.message }}</td>
+                            <td>{{ item.statusTitle }}</td>
                             <td>{{ item.ctime|date('d-m-Y H:i:s') }}</td>
+                            <td>{{ item.mtime|date('d-m-Y H:i:s') }}</td>
                             <td>
                                 <div class="btn-group">
                                     <a href="{{ path('app_notification_show', { id: item.id}) }}" class="btn btn-sm btn-default">

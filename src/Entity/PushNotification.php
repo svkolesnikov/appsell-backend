@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Lib\Enum\ActionLogItemTypeEnum;
+use App\Lib\Enum\PushNotificationStatusEnum;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -56,10 +57,21 @@ class PushNotification
     protected $ctime;
 
     /**
+     * @var \DateTime
+     * @ORM\Column(type="datetime")
+     */
+    protected $mtime;
+
+    /**
      * @var PushNotificationLog[]|ArrayCollection
      * @ORM\OneToMany(targetEntity="PushNotificationLog", mappedBy="notification", cascade={"persist", "remove"}, orphanRemoval=true)
      */
     protected $logs;
+
+    /**
+     * @ORM\Column(type="string")
+     */
+    protected $status;
 
     /**
      * @ORM\PrePersist
@@ -67,11 +79,18 @@ class PushNotification
     public function onPrePersist(): void
     {
         $this->ctime = new \DateTime();
+        $this->mtime = new \DateTime();
+    }
+
+    public function onPreUpdate(): void
+    {
+        $this->mtime = new \DateTime();
     }
 
     public function __construct()
     {
         $this->logs = new ArrayCollection();
+        $this->status = PushNotificationStatusEnum::NEW;
     }
 
     public function getId(): ?string
@@ -139,6 +158,11 @@ class PushNotification
         return $this->ctime;
     }
 
+    public function getMtime(): \DateTime
+    {
+        return $this->mtime;
+    }
+
     /**
      * @return PushNotificationLog[]|ArrayCollection
      */
@@ -171,4 +195,19 @@ class PushNotification
         return $this;
     }
 
+    public function getStatus(): PushNotificationStatusEnum
+    {
+        return new PushNotificationStatusEnum($this->status);
+    }
+
+    public function setStatus(PushNotificationStatusEnum $status)
+    {
+        $this->status = $status;
+        return $this;
+    }
+
+    public function getStatusTitle(): string
+    {
+        return PushNotificationStatusEnum::getTitleByValue($this->getStatus()->getValue());
+    }
 }

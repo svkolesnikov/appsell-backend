@@ -2,10 +2,11 @@
 
 namespace App\Queue\Processor;
 
-
 use App\Queue\MessageHandler\ExampleHandler;
 use App\Queue\MessageHandler\HandlerInterface;
 use App\Queue\MessageHandler\MainHandler;
+use App\Queue\MessageHandler\PushCommonHandler;
+use App\Queue\MessageHandler\PushDirectHandler;
 use App\Queue\MessageHandler\ReportHandler;
 use Enqueue\Consumption\QueueSubscriberInterface;
 use Interop\Queue\PsrContext;
@@ -15,6 +16,8 @@ use Psr\Log\LoggerInterface;
 
 class Processor implements PsrProcessor, QueueSubscriberInterface
 {
+    public const QUEUE_PUSH_COMMON = 'notification.push.common';
+    public const QUEUE_PUSH_DIRECT = 'notification.push.direct';
     public const QUEUE_REPORT = 'report';
     public const QUEUE_EXAMPLE = 'example';
     public const QUEUE_MAIN = 'main';
@@ -28,6 +31,8 @@ class Processor implements PsrProcessor, QueueSubscriberInterface
     public static function getSubscribedQueues(): array
     {
         return [
+            self::QUEUE_PUSH_COMMON,
+            self::QUEUE_PUSH_DIRECT,
             self::QUEUE_REPORT,
             self::QUEUE_EXAMPLE,
             self::QUEUE_MAIN
@@ -38,13 +43,17 @@ class Processor implements PsrProcessor, QueueSubscriberInterface
         LoggerInterface $logger,
         MainHandler $main,
         ReportHandler $report,
-        ExampleHandler $example
+        ExampleHandler $example,
+        PushCommonHandler $pushCommon,
+        PushDirectHandler $pushDirect
     ) {
         $this->logger = $logger;
         $this->handlers = [
-            self::QUEUE_REPORT  => $report,
-            self::QUEUE_MAIN    => $main,
-            self::QUEUE_EXAMPLE => $example
+            self::QUEUE_PUSH_COMMON  => $pushCommon,
+            self::QUEUE_PUSH_DIRECT  => $pushDirect,
+            self::QUEUE_REPORT       => $report,
+            self::QUEUE_MAIN         => $main,
+            self::QUEUE_EXAMPLE      => $example
         ];
     }
 
