@@ -55,56 +55,5 @@
             </div>
         </div>
     </div>
-
-    <div class="row">
-        <div class="col-md-12">
-            <div class="box box-primary">
-                <div class="box-header with-border">
-                    <h4 class="box-title">Лог отправки</h4>
-                </div>
-                <div class="box-body">
-                    <table class="table table-hover table-striped">
-                        <thead>
-                        <tr>
-                            <th>Получатель</th>
-                            <th>Устройство</th>
-                            <th>Статус</th>
-                            <th>Информация</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% if 0 == item.logs|length %}
-                        <tr>
-                            <td colspan="4">Данных не обнаружено</td>
-                        </tr>
-                        {% endif %}
-                        {% for log in item.logs %}
-                        <tr>
-                            <td>{{ log.user.email }}</td>
-                            <td>{% if log.device is not null %}{{ log.device.type ~ ': ' ~ log.device.id }}{% endif %}</td>
-                            <td>
-                                {% if 'error' == log.status %}
-                                    <small class="label bg-red">{{ log.statusTitle }}</small>
-                                {% elseif 'success' == log.status %}
-                                    <small class="label bg-green">{{ log.statusTitle }}</small>
-                                {% else %}
-                                    <small class="label bg-yellow">{{ log.statusTitle }}</small>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if 'error' == log.status %}
-                                    {{ log.error }}
-                                {% else %}
-                                    {{ log.info }}
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
 </section>
 {% endblock %}

@@ -3,7 +3,6 @@
 namespace App\Queue\MessageHandler;
 
 use App\DCI\PushCreating;
-use App\Entity\PushNotificationLog;
 use App\Lib\Enum\PushNotificationStatusEnum;
 use Doctrine\ORM\EntityManagerInterface;
 use Interop\Queue\PsrProcessor;
@@ -20,53 +19,40 @@ class PushDirectHandler implements HandlerInterface
     /** @var  PushCreating */
     protected $pushCreating;
 
-    public function __construct(EntityManagerInterface $em, LoggerInterface $l, PushCreating $p)
+    public function __construct(EntityManagerInterface $em, $pushNotificationLogger, PushCreating $p)
     {
         $this->em = $em;
-        $this->logger = $l;
+        $this->logger = $pushNotificationLogger;
         $this->pushCreating = $p;
     }
 
     public function handle(array $message): string
     {
-        $logId = $message['log'];
-
-        /** @var PushNotificationLog $log */
-        $log = $this->em->getRepository(PushNotificationLog::class)->find($logId);
-        if (null === $log) {
-
-            $this->logger->error('Не обнаружен лог уведомления ', [
-                'error' => 'Не обнаружен лог уведомление',
-                'log'   => $logId
-            ]);
-
-            return PsrProcessor::REJECT;
-        }
+        $logParams = $message;
+        unset($logParams['message']);
 
         try {
 
-            $data = $this->pushCreating->send($message['message'], json_decode($message['data'], true), $log->getDevice()->getToken());
-
-            $log->setMulticastId($data['multicast_id']);
+            $data = $this->pushCreating->send(
+                $message['message'], json_decode($message['data'], true), $message['device_token']
+            );
 
             if (1 === $data['success']) {
-                $log->setInfo($data['results'][0]['message_id']);
-                $log->setStatus(PushNotificationStatusEnum::SUCCESS());
-            } else {
+                $this->logger->info('Push уведомление успешно отправлено', [
+                    'source_message' => $logParams,
+                    'response_data'  => $data
+                ]);
 
-                $log->setError(substr($data['results'][0]['error'], 0, 255));
-                $log->setStatus(PushNotificationStatusEnum::ERROR());
+            } else {
+                $this->logger->error('Не удалось отправить push: ' . $data['results'][0]['error'], [
+                    'source_message' => $logParams,
+                    'response_data'  => $data
+                ]);
             }
 
         } catch (\Exception $ex) {
-            $this->logger->error('Не удалось отправить push для указанного устройства: ' . $ex->getMessage());
-
-            $log->setError(substr('Не удалось отправить push для указанного устройства: ' . $ex->getMessage(), 0, 255));
-            $log->setStatus(PushNotificationStatusEnum::ERROR());
+            $this->logger->error('Не удалось отправить push: ' . $ex->getMessage(), ['source_message' => $message]);
         }
-
-        $this->em->persist($log);
-        $this->em->flush();
 
         return PsrProcessor::ACK;
     }

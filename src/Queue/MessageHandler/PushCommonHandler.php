@@ -2,14 +2,12 @@
 
 namespace App\Queue\MessageHandler;
 
-use App\Entity\DevicePushToken;
 use App\Entity\PushNotification;
-use App\Entity\PushNotificationLog;
-use App\Entity\User;
 use App\Lib\Enum\PushNotificationStatusEnum;
 use App\Queue\Processor\Processor;
 use App\Queue\Producer\Producer;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Query\ResultSetMapping;
 use Interop\Queue\PsrProcessor;
 use Psr\Log\LoggerInterface;
 
@@ -24,10 +22,10 @@ class PushCommonHandler implements HandlerInterface
     /** @var  Producer */
     protected $producer;
 
-    public function __construct(EntityManagerInterface $em, LoggerInterface $l, Producer $p)
+    public function __construct(EntityManagerInterface $em, $pushNotificationLogger, Producer $p)
     {
         $this->em = $em;
-        $this->logger = $l;
+        $this->logger = $pushNotificationLogger;
         $this->producer = $p;
     }
 
@@ -54,99 +52,82 @@ class PushCommonHandler implements HandlerInterface
         $this->em->flush();
 
         try {
-            $recipientsIds = [];
 
-            $recipientsSource = json_decode($notification->getRecipients(), true);
+            $devices    = [];
+            $recipients = json_decode($notification->getRecipients(), true);
 
             // в получателях могут быть как отдельные пользователи
+            if (array_key_exists('users', $recipients)) {
+                $recipientsIds = $recipients['users'];
 
-            if (array_key_exists('users', $recipientsSource)) {
-                $recipientsIds = array_merge($recipientsIds, $recipientsSource['users']);
+                $sql = <<<SQL
+SELECT DISTINCT user_id, token
+FROM userdata.device_push_token
+WHERE user_id IN (:user_ids)
+SQL;
+
+                $rsm = new ResultSetMapping();
+                $rsm
+                    ->addScalarResult('user_id', 'user_id')
+                    ->addScalarResult('token', 'token');
+
+                $query = $this->em->createNativeQuery($sql, $rsm);
+                $query->setParameter('user_ids', $recipientsIds);
+
+                $devices = $query->execute();
             }
 
             // так и целые группы
+            if (array_key_exists('groups', $recipients)) {
+                $sql = <<<SQL
+SELECT DISTINCT t.user_id, t.token
+FROM userdata.device_push_token t
+INNER JOIN userdata.user u ON u.id = t.user_id
+INNER JOIN userdata.user2group u2g ON u.id = u2g.user_id
+INNER JOIN userdata.group g ON g.id = u2g.group_id
+WHERE g.code IN (:groups)
+SQL;
 
-            if (array_key_exists('groups', $recipientsSource)) {
-                $qb = $this->em->createQueryBuilder();
-                $users = $qb
-                    ->select('u.id')
-                    ->from(User::class, 'u')
-                    ->innerJoin('u.groups', 'g')
-                    ->where($qb->expr()->in('g.code', $recipientsSource['groups']))
-                    ->getQuery()
-                    ->getArrayResult();
+                $rsm = new ResultSetMapping();
+                $rsm
+                    ->addScalarResult('user_id', 'user_id')
+                    ->addScalarResult('token', 'token');
 
-                $recipientsIds = array_merge($recipientsIds, array_column($users, 'id'));
+                $query = $this->em->createNativeQuery($sql, $rsm);
+                $query->setParameter('groups', $recipients['groups']);
+
+                $devices = $query->execute();
             }
 
-            /** @var User $recipient */
-            foreach ($recipientsIds as $recipientId) {
+            // создадим таску на отправку пуша для конкретного устройства пользователя
 
-                $recipient = $this->em
-                    ->getRepository(User::class)
-                    ->findOneById($recipientId);
+            foreach ($devices as $device) {
 
-                if (null === $recipient) {
+                $logParams = [
+                    'token'        => $device['token'],
+                    'user_id'      => $device['user_id'],
+                    'notification' => $notification->getId()
+                ];
+
+                $this->logger->info('Постановка сообщения в очередь отправки', $logParams);
+
+                try {
+
+                    $this->producer->send(Processor::QUEUE_PUSH_DIRECT, [
+                        'device_token' => $device['token'],
+                        'user_id'      => $device['user_id'],
+                        'message'      => $notification->getMessage(),
+                        'data'         => $notification->getData()
+                    ]);
+
+                } catch (\Exception $ex) {
+
+                    $this->logger->error(
+                        'Ошибка при постановке в очередь уведомления: ' . $ex->getMessage(),
+                        array_merge($logParams, ['error' => $ex->getMessage()])
+                    );
+
                     continue;
-                }
-
-                $devices = $recipient->getDevices();
-
-                // если устройств нет, то запишем в лог ошибку
-
-                if (empty($devices->toArray())) {
-
-                    $log = new PushNotificationLog();
-                    $log->setNotification($notification);
-                    $log->setStatus(PushNotificationStatusEnum::ERROR());
-                    $log->setUser($recipient);
-                    $log->setError('Отсутствуют зарегистрированные устройства');
-
-                    $this->em->persist($log);
-                    $this->em->flush();
-
-                    continue;
-                }
-
-                // а иначе, создадим таску на отправку пуша для конкретного устройства пользователя
-
-                /** @var DevicePushToken $device */
-                foreach ($devices as $device) {
-
-                    $log = new PushNotificationLog();
-
-                    $log->setStatus(PushNotificationStatusEnum::NEW());
-                    $log->setUser($recipient);
-                    $log->setDevice($device);
-                    $log->setNotification($notification);
-
-                    try {
-
-                        $this->em->persist($log);
-                        $this->em->flush();
-
-                        $this->producer->send(Processor::QUEUE_PUSH_DIRECT, [
-                            'message' => $notification->getMessage(),
-                            'log'     => $log->getId(),
-                            'data'    => $notification->getData()
-                        ]);
-
-                    } catch (\Exception $ex) {
-
-                        $log->setStatus(PushNotificationStatusEnum::ERROR());
-                        $log->setError('Ошибка при постановке уведомления в очередь на отправку');
-
-                        $this->em->persist($log);
-                        $this->em->flush();
-
-                        $this->logger->error('Ошибка при постановке в очередь уведомления для пользователя: ' . $recipient->getId(), [
-                            'error' => $ex->getMessage(),
-                            'user' => $recipient->getId(),
-                            'notification' => $notificationId
-                        ]);
-
-                        continue;
-                    }
                 }
             }
 
@@ -154,7 +135,7 @@ class PushCommonHandler implements HandlerInterface
 
         } catch (\Exception $ex) {
 
-            $this->logger->error('Ошибка при отправке уведомления', [
+            $this->logger->error('Ошибка при отправке уведомления: ' . $ex->getMessage(), [
                 'error' => $ex->getMessage(),
                 'notification' => $notificationId
             ]);
