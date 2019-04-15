@@ -9,6 +9,9 @@ use Psr\Container\ContainerInterface;
 
 class Producer
 {
+    /** @var AmqpQueue[] */
+    protected $queueCache;
+
     /** @var AmqpContext */
     protected $context;
 
@@ -23,13 +26,22 @@ class Producer
         $message['queue'] = $queue;
 
         // Получим очередь
-        $amqpQueue = $this->context->createQueue($queue);
-        $amqpQueue->addFlag(AmqpQueue::FLAG_DURABLE);
-        $this->context->declareQueue($amqpQueue);
+
+        if (!isset($this->queueCache[$queue])) {
+            $amqpQueue = $this->context->createQueue($queue);
+            $amqpQueue->addFlag(AmqpQueue::FLAG_DURABLE);
+            $this->context->declareQueue($amqpQueue);
+
+            $this->queueCache[$queue] = $amqpQueue;
+
+        } else {
+            $amqpQueue = $this->queueCache[$queue];
+        }
 
         // Опубликуем сообщение
         $amqpMessage = $this->context->createMessage(json_encode($message));
         $amqpMessage->setDeliveryMode(AmqpMessage::DELIVERY_MODE_PERSISTENT);
+
         $this->context->createProducer()->send($amqpQueue, $amqpMessage);
     }
 }
