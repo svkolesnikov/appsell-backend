@@ -54,11 +54,41 @@ class PushCommonHandler implements HandlerInterface
         $this->em->flush();
 
         try {
+            $recipientsIds = [];
 
-            $recipients = $this->em->getRepository(User::class)->findBy(['id' => $notification->getRecipients()]);
+            $recipientsSource = json_decode($notification->getRecipients(), true);
+
+            // в получателях могут быть как отдельные пользователи
+
+            if (array_key_exists('users', $recipientsSource)) {
+                $recipientsIds = array_merge($recipientsIds, $recipientsSource['users']);
+            }
+
+            // так и целые группы
+
+            if (array_key_exists('groups', $recipientsSource)) {
+                $qb = $this->em->createQueryBuilder();
+                $users = $qb
+                    ->select('u.id')
+                    ->from(User::class, 'u')
+                    ->innerJoin('u.groups', 'g')
+                    ->where($qb->expr()->in('g.code', $recipientsSource['groups']))
+                    ->getQuery()
+                    ->getArrayResult();
+
+                $recipientsIds = array_merge($recipientsIds, array_column($users, 'id'));
+            }
 
             /** @var User $recipient */
-            foreach ($recipients as $recipient) {
+            foreach ($recipientsIds as $recipientId) {
+
+                $recipient = $this->em
+                    ->getRepository(User::class)
+                    ->findOneById($recipientId);
+
+                if (null === $recipient) {
+                    continue;
+                }
 
                 $devices = $recipient->getDevices();
 

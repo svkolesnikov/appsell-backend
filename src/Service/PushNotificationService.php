@@ -39,7 +39,7 @@ class PushNotificationService
         $notification->setMessage($message);
         $notification->setData(json_encode($data));
         $notification->setStatus(PushNotificationStatusEnum::NEW());
-        $notification->setRecipients($recipients);
+        $notification->setRecipients(json_encode($recipients));
 
         $this->entityManager->persist($notification);
         $this->entityManager->flush();

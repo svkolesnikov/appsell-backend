@@ -5,6 +5,7 @@ namespace App\Form;
 use App\Entity\Offer;
 use App\Entity\User;
 use App\Lib\Enum\UserGroupEnum;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -18,6 +19,13 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class PushNotificationType extends AbstractType
 {
+    private $entityManager;
+
+    public function __construct(EntityManagerInterface $entityManager)
+    {
+        $this->entityManager = $entityManager;
+    }
+
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults(array(
@@ -57,19 +65,12 @@ class PushNotificationType extends AbstractType
         }
 
         if ($options['is_seller']) {
-            $builder->add('users',  EntityType::class, [
+            $builder->add('users',  ChoiceType::class, [
                 'error_bubbling'    => true,
-                'class'             => User::class,
                 'multiple'          => true,
                 'expanded'          => true,
                 'label'             => 'Получатели',
-                'query_builder'     => function (EntityRepository $er) use ($options) {
-                    return $er
-                        ->createQueryBuilder('u')
-                        ->innerJoin('u.profile', 'p')
-                        ->where('u.is_active = true AND p.employer = :user')
-                        ->setParameter('user', $options['user']);
-                },
+                'choices'           => $this->fillSellerEmployees($options['user']),
                 'constraints'       => [new Callback([$this, 'validateUserCount'])]
             ]);
 
@@ -87,6 +88,23 @@ class PushNotificationType extends AbstractType
                 'constraints'       => [new Callback([$this, 'validateGroupCount'])]
             ]);
         }
+    }
+
+    private function fillSellerEmployees($user)
+    {
+        $users = $this->entityManager
+            ->createQueryBuilder()
+            ->select('u.id, u.email as name')
+            ->from(User::class, 'u')
+            ->innerJoin('u.profile', 'p')
+            ->where('u.is_active = true AND p.employer = :user')
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getArrayResult();
+
+        return array_map(function($user) {
+            return [$user['name'] => $user['id']];
+        }, $users);
     }
 
     public function validateGroupCount($payload, ExecutionContextInterface $context)

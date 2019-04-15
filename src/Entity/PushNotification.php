@@ -36,7 +36,7 @@ class PushNotification
     protected $offer;
 
     /**
-     * @ORM\Column(name="recipient_ids", type="text[]")
+     * @ORM\Column(name="recipient_ids", type="text")
      */
     protected $recipients;
 

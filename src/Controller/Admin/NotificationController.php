@@ -76,7 +76,7 @@ class NotificationController extends BaseController
 
             $items = $this->em
                 ->getRepository(PushNotification::class)
-                ->findBy($criteria, ['ctime' => 'DESC']);
+                ->findBy($criteria, ['ctime' => 'DESC'], $perPage, $offset);
 
         } catch (\Exception $ex) {
             $this->addFlash('error', 'Не удалось получить список' . $ex->getMessage());
@@ -119,31 +119,18 @@ class NotificationController extends BaseController
 
                 // проверим наличие выбранных пользователей
                 if (array_key_exists('users', $data)) {
-                    $users = ($data['users'])->toArray();
+                    $recipients = ['users' => array_filter($data['users'])];
                 }
 
                 // а затем выбранных групп
                 elseif (array_key_exists('groups', $data)) {
-                    $qb = $this->em->createQueryBuilder();
-                    $users = $qb
-                        ->select('u')
-                        ->from(User::class, 'u')
-                        ->innerJoin('u.groups', 'g')
-                        ->where($qb->expr()->in('g.code', $data['groups']))
-                        ->getQuery()
-                        ->getResult();
+                    $recipients = ['groups' => $data['groups']];
                 }
 
                 // немного погруститм, т.к. почему-то ничего не выбрано
                 else {
                     throw new AdminException('Не указаны получатели!');
                 }
-
-                // вместо объектов сформируем одномерный массив с идентификаторами пользователей
-
-                $recipients = array_map(function(User $item)  {
-                    return $item->getId();
-                }, $users);
 
                 // по дефолту, будем использовать оффер, который выбрали на форме создания уведомления
 
