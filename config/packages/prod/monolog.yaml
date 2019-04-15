@@ -1,5 +1,6 @@
 monolog:
   use_microseconds: false
+  channels: ['push_notification']
   handlers:
 
     main:
@@ -7,4 +8,11 @@ monolog:
       path: '%kernel.logs_dir%/%kernel.environment%.log'
       level: debug
       max_files: 30
-      channels: ["!event"]
+      channels: ["!event", "!push_notification"]
+
+    push_notification:
+      type: rotating_file
+      path: '%kernel.logs_dir%/push_%kernel.environment%.log'
+      level: debug
+      max_files: 30
+      channels: ["push_notification"]
