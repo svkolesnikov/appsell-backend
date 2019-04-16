@@ -105,7 +105,8 @@ class SdkController
      *          @SWG\Property(property = "event_name", type = "string"),
      *          @SWG\Property(property = "app_id", type = "string", description = "Зашивается в приложении"),
      *          @SWG\Property(property = "device_id", type = "string", description = "Уникальный идентификатор устройства"),
-     *          @SWG\Property(property = "referrer_id", type = "string", description = "ID пользователя, передавшего реферальную ссылку на установку")
+     *          @SWG\Property(property = "referrer_id", type = "string", description = "ID пользователя, передавшего реферальную ссылку на установку"),
+     *          @SWG\Property(property = "data", type = "object", description = "Произвольные контекстные данные события в формате (key: value)")
      *      }
      *     )
      *  ),
@@ -140,7 +141,9 @@ class SdkController
 
         $form->handleRequest($request);
         $this->validateForm($form);
+
         $data = $form->getData();
+        $data['data'] = (array) $request->request->get('data', []);
 
         try {
 
@@ -149,6 +152,7 @@ class SdkController
                 $data['app_id'],
                 $data['device_id'],
                 $data['referrer_id'],
+                $data['data'],
                 $request->server->all()
             );
 

@@ -43,11 +43,20 @@ class SdkEventCreating
      * @param string $appId
      * @param string $deviceId
      * @param null|string $referrerId
+     * @param array $eventData
      * @param array $requestInfo
      * @return SdkEvent
-     * @throws \Exception
+     * @throws EntityNotFoundException
+     * @throws EventWithoutReferrerException
      */
-    public function create(string $eventName, string $appId, string $deviceId, ?string $referrerId, array $requestInfo = []): SdkEvent
+    public function create(
+        string $eventName,
+        string $appId,
+        string $deviceId,
+        ?string $referrerId,
+        array $eventData = [],
+        array $requestInfo = []
+    ): SdkEvent
     {
         // Проверим наличие оффера, ссылки и ивента в нем
 
@@ -235,6 +244,17 @@ class SdkEventCreating
 
             // А вот теперь начинаем формировать событие для сохранения
 
+            $sourceInfo = [
+                'event_data' => $eventData,
+                'request'    => array_intersect_key(
+                    $requestInfo,
+                    array_flip([
+                        'HTTP_USER_AGENT',
+                        'REMOTE_ADDR'
+                    ])
+                )
+            ];
+
             $newEvent = new SdkEvent();
             $newEvent->setEventType($eventType);
             $newEvent->setDeviceId($deviceId);
@@ -246,13 +266,7 @@ class SdkEventCreating
             $newEvent->setOfferLink($link);
             $newEvent->setSource(SdkEventSourceEnum::APP());
             $newEvent->setEmployee($employee);
-            $newEvent->setSourceInfo(array_intersect_key(
-                $requestInfo,
-                array_flip([
-                    'HTTP_USER_AGENT',
-                    'REMOTE_ADDR'
-                ])
-            ));
+            $newEvent->setSourceInfo($sourceInfo);
 
             $offerExecution->addEvent($newEvent);
 

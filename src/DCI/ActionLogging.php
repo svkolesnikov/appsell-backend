@@ -53,6 +53,12 @@ class ActionLogging
             $this->entityManager->persist($logItem);
             $this->entityManager->flush();
 
+            // Продублируем в текстовый лог
+            $this->logger->warning($message . ' (записано в actiodata.action_log)', array_merge(
+                ['type' => $type->getValue()],
+                $data
+            ));
+
         } catch (ORMException $ex) {
             $this->logger->error('Не удалось создать запись в лога в БД');
         }
