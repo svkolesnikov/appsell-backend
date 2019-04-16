@@ -11,6 +11,7 @@ use App\Lib\Enum\UserGroupEnum;
 use App\Notification\Producer\ClientProducer;
 use App\Notification\Producer\SystemProducer;
 use App\Security\UserGroupManager;
+use App\SolarStaff\Client;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Routing\Annotation\Route;
@@ -212,12 +213,18 @@ class RegistrationController
      * @param Request $request
      * @param UserPasswordEncoderInterface $encoder
      * @param UserGroupManager $groupManager
+     * @param Client $ssClient
      * @return JsonResponse
+     * @throws ApiException
      * @throws AuthException
      * @throws \App\Exception\Api\FormValidationException
-     * @throws ApiException
      */
-    public function registerEmployeeAction(Request $request, UserPasswordEncoderInterface $encoder, UserGroupManager $groupManager): JsonResponse
+    public function registerEmployeeAction(
+        Request $request,
+        UserPasswordEncoderInterface $encoder,
+        UserGroupManager $groupManager,
+        Client $ssClient
+    ): JsonResponse
     {
         $form = $this->createFormBuilder()
             ->setMethod($request->getMethod())
@@ -232,7 +239,7 @@ class RegistrationController
 
         /** @var Entity\UserProfile $employer */
         $employer = $this->entityManager->getRepository('App:UserProfile')->findOneBy(['company_id' => $data['company_id']]);
-        if (null === $employer) {
+        if (null === $employer || !$groupManager->hasGroup($employer->getUser(), UserGroupEnum::SELLER())) {
             throw new AuthException('Неверный идентификатор компании');
         }
 
@@ -256,6 +263,18 @@ class RegistrationController
         $profile->setEmployer($employer->getUser());
 
         $this->save($profile);
+
+        // Если компания оплачивает работы сотрудников через solar staff
+        // тогда нужно так же создать пользователя и в этом сервисе
+
+        if ($employer->isCompanyPayoutOverSolarStaff()) {
+
+            // После успешного сохранения зарегистрируем в Solar-Staff
+            // и запишем ID сотрудника из SS в профиль
+
+            $profile->setSolarStaffId($ssClient->createWorker($data['email']));
+            $this->save($profile);
+        }
 
         // Отправим уведомление с кодом
 

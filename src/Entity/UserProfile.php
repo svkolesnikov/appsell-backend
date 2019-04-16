@@ -63,6 +63,11 @@ class UserProfile
     protected $solar_staff_id;
 
     /**
+     * @ORM\Column(type="boolean")
+     */
+    protected $company_payout_over_solar_staff;
+
+    /**
      * @var User
      *
      * @ORM\ManyToOne(targetEntity = "User")
@@ -179,6 +184,17 @@ class UserProfile
     public function setSolarStaffId(?int $id)
     {
         $this->solar_staff_id = $id;
+        return $this;
+    }
+
+    public function isCompanyPayoutOverSolarStaff(): bool
+    {
+        return $this->company_payout_over_solar_staff;
+    }
+
+    public function setCompanyPayoutOverSolarStaff(bool $value)
+    {
+        $this->company_payout_over_solar_staff = $value;
         return $this;
     }
 }
