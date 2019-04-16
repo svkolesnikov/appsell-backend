@@ -7,6 +7,21 @@ services:
     environment:
       API_URL: http://localhost/api/swagger
 
+  appsell_rabbitmq:
+    container_name: appsell_rabbitmq
+    image: rabbitmq:3.7-management-alpine
+    ports:
+      - 5672:5672
+      - 15672:15672
+
+  appsell_postgres:
+    container_name: appsell_postgres
+    image: postgres:10.3-alpine
+    volumes:
+      - ../postgres:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+
   appsell_fpm:
     container_name: appsell_fpm
     image: appsell_fpm
@@ -18,21 +33,21 @@ services:
       - ./var:/var/www/app/var
     ports:
       - 9000
+    links:
+      - appsell_postgres:postgres
+      - appsell_rabbitmq:rabbitmq
     environment:
       APP_ENV: dev
       APP_LOCALE: ru
       APP_SECRET: 86e7b44293d50666286e7b44293d5066620c4381b619a9cfea7bf5ec20c4381b619a9cfea7bf5ec2
-      DATABASE_URL: pgsql://backend:Wq2v9LV4UP@11.1.1.5:5432/appsell
+      DATABASE_URL: pgsql://backend:Wq2v9LV4UP@postgres:5432/appsell
       MAILER_URL: gmail://noreply@appsell.me:HT6i0cyyeF18mKQs@smtp.gmail.com:465?encryption=ssl
-      RABBITMQ_DSN: amqp://admin:c58znNLBxWqzuT5@11.1.1.5:5672/appsell
+      RABBITMQ_DSN: amqp://guest:guest@rabbitmq:5672/%2F
       FIREBASE_API_KEY: AAAAwxBBPL4:APA91bFVrKfPUiCGFpO942f0DlaIEevXADVujey_O7yTmaRE80G-GBl7c1Zj_UJzISRm8LOJ2asJBtD0e4AIoG2MlGsFX47luVtRW2fJv0Az0n7k16weHGLTW_ITt7vHr_QAmQAXQ3sBuTiDkrvOYQ74GCGUCMfGjw
       SOLAR_STAFF_LOGIN_URL: https://www.solar-staff.com/#login
-#      SOLAR_STAFF_API_URL: https://test.solar-api.com
-#      SOLAR_STAFF_API_CLIENT_ID: 435
-#      SOLAR_STAFF_API_SALT: 8e2a9b046a23d563a93aaf
-      SOLAR_STAFF_API_URL: https://api.solar-staff.com
-      SOLAR_STAFF_API_CLIENT_ID: 457
-      SOLAR_STAFF_API_SALT: 5d50fd5784563e8bbbc650
+      SOLAR_STAFF_API_URL: https://test.solar-api.com
+      SOLAR_STAFF_API_CLIENT_ID: 435
+      SOLAR_STAFF_API_SALT: 8e2a9b046a23d563a93aaf
 
   appsell_nginx:
     container_name: appsell_nginx
