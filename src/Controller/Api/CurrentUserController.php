@@ -117,7 +117,7 @@ class CurrentUserController
      *  @SWG\Parameter(name = "request", description = "Запрос", required = true, in = "body",
      *     @SWG\Schema(
      *      type = "object",
-     *      required = { "company_id" },
+     *      required = { },
      *      properties = {
      *          @SWG\Property(property = "company_id", type = "string")
      *      }
