@@ -40,7 +40,7 @@ trait FormTrait
     public function validateForm(FormInterface $form): void
     {
         if (!$form->isSubmitted()) {
-            throw new FormValidationException('Form submit is required');
+            throw new FormValidationException('Необходимо заполнить поля');
         }
 
         if (!$form->isValid()) {
@@ -59,7 +59,7 @@ trait FormTrait
                 }
             }
 
-            throw new FormValidationException('Submitted fields are invalid', $formErrors);
+            throw new FormValidationException('Неверные данные', $formErrors);
         }
     }
 }

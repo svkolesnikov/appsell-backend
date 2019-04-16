@@ -82,6 +82,7 @@ class KernelExceptionSubscriber implements EventSubscriberInterface
         } elseif ($exception instanceof Api\FormValidationException) {
 
             $statusCode            = JsonResponse::HTTP_BAD_REQUEST;
+            $response['message']   = $exception->getMessage();
             $response['details']   = $exception->getErrors();
             $logContext['details'] = $exception->getErrors();
 

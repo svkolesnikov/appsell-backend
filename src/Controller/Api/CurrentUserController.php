@@ -3,10 +3,14 @@
 namespace App\Controller\Api;
 
 use App\Exception\Api\ApiException;
+use App\Exception\Api\FormValidationException;
 use App\Lib\Controller\FormTrait;
 use App\Lib\Enum\UserGroupEnum;
 use App\Security\AccessToken;
+use App\Security\UserGroupManager;
+use App\SolarStaff\Client;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Swagger\Annotations as SWG;
@@ -37,10 +41,14 @@ class CurrentUserController
     /** @var TokenStorageInterface */
     protected $tokenStorage;
 
-    public function __construct(EntityManagerInterface $em, TokenStorageInterface $tokenStorage)
+    /** @var LoggerInterface */
+    protected $logger;
+
+    public function __construct(EntityManagerInterface $em, TokenStorageInterface $tokenStorage, LoggerInterface $logger)
     {
         $this->entityManager = $em;
         $this->tokenStorage = $tokenStorage;
+        $this->logger = $logger;
     }
 
     /**
@@ -100,6 +108,110 @@ class CurrentUserController
     /**
      * @SWG\Put(
      *
+     *  path = "/users/current",
+     *  summary = "Обновление данных профиля текущего пользователя",
+     *  description = "",
+     *  tags = { "Users" },
+     *
+     *  @TokenParameter(),
+     *  @SWG\Parameter(name = "request", description = "Запрос", required = true, in = "body",
+     *     @SWG\Schema(
+     *      type = "object",
+     *      required = { "company_id" },
+     *      properties = {
+     *          @SWG\Property(property = "company_id", type = "string")
+     *      }
+     *     )
+     *  ),
+     *
+     *  @SWG\Response(
+     *      response = 204,
+     *      description = "Данные профиля обновлены"
+     *  ),
+     *
+     *  @UnauthorizedResponse(),
+     *  @AccessDeniedResponse(),
+     *  @BadRequestResponse(),
+     * )
+     *
+     * @Route("", methods = { "PUT" })
+     * @param Request $request
+     * @param UserGroupManager $groupManager
+     * @param Client $ssClient
+     * @return JsonResponse
+     * @throws FormValidationException
+     */
+    public function updateProfileAction(Request $request, UserGroupManager $groupManager, Client $ssClient): JsonResponse
+    {
+        $form = $this->createFormBuilder()
+            ->setMethod($request->getMethod())
+            ->add('company_id', Type\TextType::class)
+            ->getForm();
+
+        $form->handleRequest($request);
+        $this->validateForm($form);
+        $data = $form->getData();
+
+        /** @var Entity\User $user */
+        $user             = $this->tokenStorage->getToken()->getUser();
+        $currentEmployeer = $user->getProfile()->getEmployer();
+
+        // Если был прислан новый код компании
+        // Если пользователь при этом является сотрудником компании SolarStaff
+        // То если новая компания указана как "выводящая деньги чере SS",
+        // привяжем пользователя к новой компании
+
+        if (null !== $data['company_id']) {
+
+            $isSolarStaffEmployee =
+                $groupManager->hasGroup($user, UserGroupEnum::EMPLOYEE())       // Это сотрудник
+                && null !== $currentEmployeer                                   // Есть компания к которой он привязан
+                && $ssClient->getEmployerId() === $currentEmployeer->getId()    // Эта компания – SolarStaff
+                && null !== $user->getProfile()->getSolarStaffId();             // Профиль уже привязан к SolarStaff
+
+            if ($isSolarStaffEmployee) {
+
+                /** @var Entity\UserProfile $employer */
+                $employer = $this->entityManager->getRepository('App:UserProfile')->findOneBy(['company_id' => $data['company_id']]);
+                if (null === $employer || !$groupManager->hasGroup($employer->getUser(), UserGroupEnum::SELLER())) {
+                    throw new FormValidationException(
+                        'Неверные данные',
+                        ['company_id' => 'Неверный ID компании']
+                    );
+                }
+
+                if ($employer->isCompanyPayoutOverSolarStaff()) {
+                    $user->getProfile()->setEmployer($employer->getUser());
+
+                    $this->entityManager->persist($user->getProfile());
+                    $this->entityManager->flush();
+                } else {
+                    throw new FormValidationException('Невозможно привязать к профилю данную компанию');
+                }
+
+            } else {
+
+                $this->logger->warning('Неудачная попытка пользователя привязать себя к компании продавцу', [
+                    'user_id'         => $user->getId(),
+                    'is_employee'     => $groupManager->hasGroup($user, UserGroupEnum::EMPLOYEE()),
+                    'has_employeer'   => null !== $currentEmployeer,
+                    'is_employeer_ss' => $ssClient->getEmployerId() === $currentEmployeer->getId(),
+                    'is_ss_connected' => (bool) $user->getProfile()->getSolarStaffId(),
+                    'new_company_id'  => $data['company_id']
+                ]);
+
+                throw new FormValidationException(
+                    'Только сотрудник, зарегистрированный через SolarStaff может изменить ID компании в профиле'
+                );
+            }
+        }
+
+        return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
+    }
+
+    /**
+     * @SWG\Put(
+     *
      *  path = "/users/current/password",
      *  summary = "Изменение пароля текущего пользователя",
      *  description = "",
@@ -134,7 +246,7 @@ class CurrentUserController
      * @param AccessToken $accessToken
      * @return JsonResponse
      * @throws ApiException
-     * @throws \App\Exception\Api\FormValidationException
+     * @throws FormValidationException
      */
     public function changeCurrentUserPasswordAction(Request $request, UserPasswordEncoderInterface $encoder, AccessToken $accessToken): JsonResponse
     {
