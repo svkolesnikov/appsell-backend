@@ -30,7 +30,7 @@
                         {{ form_row(form.is_active) }}
 
                         <div {% if not is_granted(['ROLE_ADMIN', 'ROLE_SUPER_ADMIN']) %}style="display: none"{% endif %}>
-                            {{ form_row(form.groups) }}
+                        {{ form_row(form.groups) }}
                         </div>
                     </div>
                 </div>
@@ -46,6 +46,7 @@
                         {{ form_row(form.profile.company_id) }}
                         {{ form_row(form.profile.company_title) }}
                         {{ form_row(form.profile.employer) }}
+                        {{ form_row(form.profile.company_payout_over_solar_staff) }}
                     </div>
                 </div>
             </div>

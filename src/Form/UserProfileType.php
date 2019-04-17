@@ -24,8 +24,8 @@ class UserProfileType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('lastname',       TextType::class,    ['required' => true, 'label' => 'Фамилия'])
-            ->add('firstname',      TextType::class,    ['required' => true, 'label' => 'Имя'])
+            ->add('lastname',       TextType::class,    ['required' => false, 'label' => 'Фамилия'])
+            ->add('firstname',      TextType::class,    ['required' => false, 'label' => 'Имя'])
             ->add('phone',          IntegerType::class, ['required' => false, 'label' => 'Телефон'])
             ->add('company_id',     TextType::class,    ['required' => false, 'label' => 'Идентификатор компании'])
             ->add('company_title',  TextType::class,    ['required' => false, 'label' => 'Наименование компания'])
@@ -41,6 +41,8 @@ class UserProfileType extends AbstractType
                         ->setParameter(':code', UserGroupEnum::SELLER);
                 },
             ])
+
+            ->add('company_payout_over_solar_staff', null, ['required' => false, 'label' => 'Оплачивает через solar staf'])
         ;
     }
 
