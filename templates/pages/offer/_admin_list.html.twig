@@ -25,8 +25,8 @@
             <td>{{ offer.title }}</td>
             <td>{{ offer.activeFrom|date('d-m-Y') }}</td>
             <td>{{ offer.activeTo|date('d-m-Y') }}</td>
-            <td>{{ offer.budget }}</td>
-            <td>{{ offer.payedAmount }}</td>
+            <td>{% if offer.budget == 0 %} Не задан {% else %} {{ offer.budget }} {% endif %}</td>
+            <td>{% if offer.payedAmount == 0 %} Отсутствуют {% else %} {{ offer.payedAmount }} {% endif %}</td>
             {% if is_granted(['ROLE_APP_OFFER_CHANGE_COMMISSION']) %}
             <td>
                 <a href="#" class="commission-percent"

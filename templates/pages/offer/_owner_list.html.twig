@@ -17,7 +17,7 @@
             <td>{{ offer.title }}</td>
             <td>{{ offer.activeFrom|date('d-m-Y') }}</td>
             <td>{{ offer.activeTo|date('d-m-Y') }}</td>
-            <td>{{ offer.budget }}</td>
+            <td>{%  if offer.budget == 0 %} Не задан {% else %} {{ offer.budget }} {% endif %}</td>
             {#<td>{{ offer.payedAmount }}</td>#}
             <td>
                 {% if true == offer.isActive %}

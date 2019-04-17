@@ -315,23 +315,23 @@ class Offer
         return $this;
     }
 
-    public function getBudget()
+    public function getBudget(): float
     {
         return $this->budget;
     }
 
-    public function setBudget($budget)
+    public function setBudget(float $budget)
     {
         $this->budget = $budget;
         return $this;
     }
 
-    public function getPayedAmount()
+    public function getPayedAmount(): float
     {
         return $this->payed_amount;
     }
 
-    public function setPayedAmount($payed_amount)
+    public function setPayedAmount(float $payed_amount)
     {
         $this->payed_amount = $payed_amount;
         return $this;
