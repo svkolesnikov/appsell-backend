@@ -96,6 +96,16 @@ class Offer
      */
     protected $type;
 
+    /**
+     * @ORM\Column(type="decimal")
+     */
+    protected $budget;
+
+    /**
+     * @ORM\Column(type="decimal")
+     */
+    protected $payed_amount;
+
     public function __construct()
     {
         $this->compensations = new ArrayCollection();
@@ -105,6 +115,8 @@ class Offer
         $this->active_to     = new \DateTime();
         $this->is_active     = false;
         $this->is_deleted    = false;
+        $this->budget        = 0;
+        $this->payed_amount  = 0;
         $this->type          = OfferTypeEnum::SERVICE;
     }
 
@@ -300,6 +312,28 @@ class Offer
     public function setType(OfferTypeEnum $type)
     {
         $this->type = $type;
+        return $this;
+    }
+
+    public function getBudget()
+    {
+        return $this->budget;
+    }
+
+    public function setBudget($budget)
+    {
+        $this->budget = $budget;
+        return $this;
+    }
+
+    public function getPayedAmount()
+    {
+        return $this->payed_amount;
+    }
+
+    public function setPayedAmount($payed_amount)
+    {
+        $this->payed_amount = $payed_amount;
         return $this;
     }
 }

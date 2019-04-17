@@ -23,6 +23,7 @@ use App\Security\UserGroupManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\Query\Expr\Join;
+use Psr\Log\LoggerInterface;
 
 class SdkEventCreating
 {
@@ -292,7 +293,48 @@ class SdkEventCreating
                 && $offerExecution->getStatus()->equals(OfferExecutionStatusEnum::PROCESSING());
 
             if ($isExecutionComplete) {
-                $offerExecution->setStatus(OfferExecutionStatusEnum::COMPLETE());
+
+                $offer = $link->getOffer();
+                $this->entityManager->refresh($offer);
+
+                // При наличии бюджета на оффер нужно определить превысили мы в него или нет
+                // Если превысили, то нужно деактивировать оффер
+
+                if ($offer->isActive() && !empty($offer->getBudget())) {
+
+                    if ($offer->getBudget() > $offer->getPayedAmount()) {
+
+                        $sql = <<<SQL
+UPDATE offerdata.offer
+SET payed_amount = (coalesce(payed_amount, 0) + :price), 
+    is_active    = budget > (coalesce(payed_amount, 0) + :price) 
+WHERE id = :offer_id
+SQL;
+
+                        $this->entityManager->getConnection()->executeQuery($sql, [
+                            'price' => $compensation->getPrice(),
+                            'offer_id' => $offer->getId()
+                        ]);
+
+                    } else {
+
+                        // Бюджет превысили уже, но оффер до сих пор активный
+                        // Деактивируем его в срочном порядке!
+
+                        $this->entityManager->getConnection()->executeQuery(
+                            'UPDATE offerdata.offer SET is_active = false WHERE id = :offer_id',
+                            ['offer_id' => $offer->getId()]
+                        );
+                    }
+                }
+
+                $this->entityManager->refresh($offer);
+
+                $offerExecution->setStatus($offer->isActive()
+                    ? OfferExecutionStatusEnum::COMPLETE()
+                    : OfferExecutionStatusEnum::REJECTED()
+                );
+
                 $this->entityManager->persist($offerExecution);
             }
 

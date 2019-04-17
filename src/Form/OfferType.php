@@ -12,6 +12,8 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+use Symfony\Component\Form\Extension\Core\Type\MoneyType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -33,6 +35,12 @@ class OfferType extends AbstractType
             ])
             ->add('title',          TextType::class,        ['required' => true, 'label' => 'Наименование'])
             ->add('description',    TextareaType::class,    ['required' => false, 'label' => 'Описание'])
+            ->add('budget',         MoneyType::class,       [
+                'required'      => false,
+                'label'         => 'Бюджет',
+                'currency'      => false,
+                'attr'          => ['style' => 'width:135px']
+            ])
             ->add('active_from',    DateType::class,        [
                 'required'      => true,
                 'label'         => 'Дата начала',

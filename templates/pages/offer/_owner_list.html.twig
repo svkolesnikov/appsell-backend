@@ -4,6 +4,8 @@
         <th class="column-title">Наименование</th>
         <th class="column-title">Дата начала</th>
         <th class="column-title">Дата завершения</th>
+        <th class="column-title">Бюджет</th>
+        {#<th class="column-title">Оплачено</th>#}
         <th class="column-title">Активность</th>
         <th class="column-title">Действия</th>
     </tr>
@@ -15,6 +17,8 @@
             <td>{{ offer.title }}</td>
             <td>{{ offer.activeFrom|date('d-m-Y') }}</td>
             <td>{{ offer.activeTo|date('d-m-Y') }}</td>
+            <td>{{ offer.budget }}</td>
+            {#<td>{{ offer.payedAmount }}</td>#}
             <td>
                 {% if true == offer.isActive %}
                     <small class="label bg-green">Активирован</small>
