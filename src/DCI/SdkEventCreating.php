@@ -175,6 +175,7 @@ class SdkEventCreating
             $amountForService = 0;
             $amountForSeller = 0;
             $amountForEmployee = 0;
+            $amountForPayout = 0;
 
             if (null !== $employee && $this->userGroupManager->hasGroup($employee, UserGroupEnum::EMPLOYEE())) {
 
@@ -239,9 +240,26 @@ class SdkEventCreating
 
                     $amountForSeller = round(($compensation->getPrice() - $amountForService) * $sellerPercent / 100, 2);
 
+                    // Рассчет комиссии, которую забирает SolarStaff при выводе
+                    // Рассчитываем только в случае если пользователь зарегистрирован в SS
+                    // и его компания-продавец выводит средства через SS
+
+                    if ($employee->getProfile()->isSolarStaffConnected() && $employer->getProfile()->isCompanyPayoutOverSolarStaff()) {
+
+                        /** @var BaseCommission $payoutBaseCommission */
+                        $payoutBaseCommission = $this->entityManager
+                            ->getRepository('App:BaseCommission')
+                            ->findOneBy(['type' => CommissionEnum::SOLAR_STAFF_PAYOUT]);
+
+                        if (null !== $payoutBaseCommission) {
+                            $payoutPercent   = $payoutBaseCommission->getPercent();
+                            $amountForPayout =  round(($compensation->getPrice() - $amountForService - $amountForSeller) * $payoutPercent / 100, 2);
+                        }
+                    }
+
                     // Сумма для сотрудника
 
-                    $amountForEmployee = $compensation->getPrice() - $amountForService - $amountForSeller;
+                    $amountForEmployee = $compensation->getPrice() - $amountForService - $amountForSeller - $amountForPayout;
                 }
             }
 
@@ -265,6 +283,7 @@ class SdkEventCreating
             $newEvent->setAmountForService($amountForService);
             $newEvent->setAmountForSeller($amountForSeller);
             $newEvent->setAmountForEmployee($amountForEmployee);
+            $newEvent->setAmountForPayout($amountForPayout);
             $newEvent->setOffer($link->getOffer());
             $newEvent->setOfferLink($link);
             $newEvent->setSource(SdkEventSourceEnum::APP());

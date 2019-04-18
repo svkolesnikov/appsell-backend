@@ -181,6 +181,11 @@ class UserProfile
         return $this->solar_staff_id;
     }
 
+    public function isSolarStaffConnected(): bool
+    {
+        return (bool) $this->getSolarStaffId();
+    }
+
     public function setSolarStaffId(?int $id)
     {
         $this->solar_staff_id = $id;

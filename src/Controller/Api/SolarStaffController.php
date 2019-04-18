@@ -269,7 +269,7 @@ class SolarStaffController
         /** @var Entity\User $employee */
         $employee = $this->tokenStorage->getToken()->getUser();
 
-        if (null === $employee->getProfile()->getSolarStaffId()) {
+        if (!$employee->getProfile()->isSolarStaffConnected()) {
             throw new AccessDeniedHttpException('Вывод средств доступен только после регистрации через SolarStaff');
         }
 

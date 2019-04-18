@@ -101,7 +101,7 @@ class CurrentUserController
             'firstname'                 => $profile->getFirstname(),
             'company_id'                => $companyInfo->getCompanyId(),
             'company_title'             => $companyInfo->getCompanyTitle(),
-            'is_solar_staff_connected'  => (bool) $profile->getSolarStaffId()
+            'is_solar_staff_connected'  => $profile->isSolarStaffConnected()
         ]);
     }
 
@@ -167,7 +167,7 @@ class CurrentUserController
                 $groupManager->hasGroup($user, UserGroupEnum::EMPLOYEE())       // Это сотрудник
                 && null !== $currentEmployeer                                   // Есть компания к которой он привязан
                 && $ssClient->getEmployerId() === $currentEmployeer->getId()    // Эта компания – SolarStaff
-                && null !== $user->getProfile()->getSolarStaffId();             // Профиль уже привязан к SolarStaff
+                && $user->getProfile()->isSolarStaffConnected();                // Профиль уже привязан к SolarStaff
 
             if ($isSolarStaffEmployee) {
 
@@ -196,7 +196,7 @@ class CurrentUserController
                     'is_employee'     => $groupManager->hasGroup($user, UserGroupEnum::EMPLOYEE()),
                     'has_employeer'   => null !== $currentEmployeer,
                     'is_employeer_ss' => $ssClient->getEmployerId() === $currentEmployeer->getId(),
-                    'is_ss_connected' => (bool) $user->getProfile()->getSolarStaffId(),
+                    'is_ss_connected' => $user->getProfile()->isSolarStaffConnected(),
                     'new_company_id'  => $data['company_id']
                 ]);
 
