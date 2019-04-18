@@ -7,6 +7,7 @@ use MyCLabs\Enum\Enum;
 /**
  * @method static CommissionEnum SERVICE()
  * @method static CommissionEnum SELLER()
+ * @method static CommissionEnum SOLAR_STAFF_PAYOUT()
  */
 final class CommissionEnum extends Enum implements TitlesAwareInterface
 {
@@ -20,8 +21,13 @@ final class CommissionEnum extends Enum implements TitlesAwareInterface
     // 100 - комиссия сервиса - комиссия продавца
     public const SELLER  = 'seller';
 
+    // Комиссия, взимаемая сервисом SolarStaff при
+    // выводе денег через него
+    public const SOLAR_STAFF_PAYOUT = 'solar_staff_payout';
+
     protected static $titles = [
-        self::SERVICE   => 'Сервис',
-        self::SELLER    => 'Продавец'
+        self::SERVICE            => 'Сервис',
+        self::SELLER             => 'Продавец',
+        self::SOLAR_STAFF_PAYOUT => 'SolarStaff'
     ];
 }
