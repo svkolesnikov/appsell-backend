@@ -331,9 +331,28 @@ class Offer
         return $this->payed_amount;
     }
 
-    public function setPayedAmount(float $payed_amount)
+    public function setPayedAmount(float $amount)
     {
-        $this->payed_amount = $payed_amount;
+        $this->payed_amount = $amount;
         return $this;
+    }
+
+    /**
+     * Если бюджет указан как 0
+     * то считаем, что бюджет не задан
+     * @return bool
+     */
+    public function hasBudget(): bool
+    {
+        return (bool) $this->getBudget();
+    }
+
+    /**
+     * Показывает превышен ли бюджет оффера
+     * @return bool
+     */
+    public function isBudgetExceeded(): bool
+    {
+        return $this->getBudget() <= $this->getPayedAmount();
     }
 }

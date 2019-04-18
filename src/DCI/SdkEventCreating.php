@@ -7,6 +7,7 @@ use App\Entity\Compensation;
 use App\Entity\EventType;
 use App\Entity\ForOfferCommission;
 use App\Entity\ForUserCommission;
+use App\Entity\Offer;
 use App\Entity\OfferExecution;
 use App\Entity\OfferLink;
 use App\Entity\SdkEvent;
@@ -20,6 +21,7 @@ use App\Lib\Enum\OfferExecutionStatusEnum;
 use App\Lib\Enum\SdkEventSourceEnum;
 use App\Lib\Enum\UserGroupEnum;
 use App\Security\UserGroupManager;
+use Doctrine\DBAL\DBALException;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\Query\Expr\Join;
@@ -300,41 +302,22 @@ class SdkEventCreating
                 // При наличии бюджета на оффер нужно определить превысили мы в него или нет
                 // Если превысили, то нужно деактивировать оффер
 
-                if ($offer->isActive() && !empty($offer->getBudget())) {
+                if ($offer->isActive() && $offer->hasBudget()) {
+                    if (!$offer->isBudgetExceeded()) {
 
-                    if ($offer->getBudget() > $offer->getPayedAmount()) {
-
-                        $sql = <<<SQL
-UPDATE offerdata.offer
-SET payed_amount = (coalesce(payed_amount, 0) + :price), 
-    is_active    = budget > (coalesce(payed_amount, 0) + :price) 
-WHERE id = :offer_id
-SQL;
-
-                        $this->entityManager->getConnection()->executeQuery($sql, [
-                            'price' => $compensation->getPrice(),
-                            'offer_id' => $offer->getId()
-                        ]);
+                        $this->increaseOfferBudget($offer, $compensation);
 
                     } else {
 
                         // Бюджет превысили уже, но оффер до сих пор активный
                         // Деактивируем его в срочном порядке!
 
-                        $this->entityManager->getConnection()->executeQuery(
-                            'UPDATE offerdata.offer SET is_active = false WHERE id = :offer_id',
-                            ['offer_id' => $offer->getId()]
-                        );
+                        $offer->setActive(false);
+                        $this->entityManager->persist($offer);
                     }
                 }
 
-                $this->entityManager->refresh($offer);
-
-                $offerExecution->setStatus($offer->isActive()
-                    ? OfferExecutionStatusEnum::COMPLETE()
-                    : OfferExecutionStatusEnum::REJECTED()
-                );
-
+                $offerExecution->setStatus($offer->isActive() ? OfferExecutionStatusEnum::COMPLETE() : OfferExecutionStatusEnum::REJECTED());
                 $this->entityManager->persist($offerExecution);
             }
 
@@ -352,5 +335,31 @@ SQL;
             $this->entityManager->rollback();
             throw $ex;
         }
+    }
+
+    /**
+     * Увеличивает сумму выплаченных компенсаций на размер
+     * текущей компенсации. Если после этого бюджет оказывается
+     * превышенным - деактивируем оффер
+     *
+     * @param Offer $offer
+     * @param Compensation $compensation
+     * @throws DBALException
+     */
+    protected function increaseOfferBudget(Offer $offer, Compensation $compensation): void
+    {
+        $sql = <<<SQL
+UPDATE offerdata.offer
+SET payed_amount = (coalesce(payed_amount, 0) + :price), 
+    is_active    = budget >= (coalesce(payed_amount, 0) + :price) 
+WHERE id = :offer_id
+SQL;
+
+        $this->entityManager->getConnection()->executeQuery($sql, [
+            'price' => $compensation->getPrice(),
+            'offer_id' => $offer->getId()
+        ]);
+
+        $this->entityManager->refresh($offer);
     }
 }
