@@ -98,6 +98,11 @@ class SdkEvent
      */
     protected $ctime;
 
+    /**
+     * @ORM\Column(type="decimal")
+     */
+    protected $amount_for_payout;
+
     public function __construct()
     {
         $this->source_info = json_encode([]);
@@ -267,6 +272,17 @@ class SdkEvent
     public function setEmployee(?User $employee)
     {
         $this->employee = $employee;
+        return $this;
+    }
+
+    public function getAmountForPayout(): ?float
+    {
+        return $this->amount_for_payout;
+    }
+
+    public function setAmountForPayout(float $amount)
+    {
+        $this->amount_for_payout = $amount;
         return $this;
     }
 }
