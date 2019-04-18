@@ -4,8 +4,10 @@ namespace App\DataSource;
 
 use App\DataSource\Dto\EmployeeOffer;
 use App\DataSource\Dto\StatisticItem;
+use App\Entity\BaseCommission;
 use App\Entity\User;
 use App\Exception\Api\DataSourceException;
+use App\Lib\Enum\CommissionEnum;
 use App\Lib\Enum\OfferExecutionStatusEnum;
 use App\Lib\Enum\OfferTypeEnum;
 use App\Service\ImageService;
@@ -199,7 +201,7 @@ SQL;
             $statement->bindValue('offset', $offset, ParameterType::INTEGER);
             $statement->execute();
 
-            return array_map(function (array $item) {
+            $availableOffers = array_map(function (array $item) {
 
                 $item['image'] = null;
                 $item['compensations'] = (array) json_decode($item['compensations'], true);
@@ -219,6 +221,34 @@ SQL;
                 return new EmployeeOffer($item);
 
             }, $statement->fetchAll(FetchMode::ASSOCIATIVE));
+
+            // Если нужно удерживать комиссию за вывод средств
+            // то ее нужно учесть при показе доступных компенсацию пользователю
+
+            $employeer = $employee->getProfile()->getEmployer();
+            $hasPayoutCommission = null !== $employeer
+                && $employeer->getProfile()->isCompanyPayoutOverSolarStaff()
+                && $employee->getProfile()->isSolarStaffConnected();
+
+            if ($hasPayoutCommission) {
+
+                /** @var BaseCommission $payoutBaseCommission */
+                $payoutBaseCommission = $this->entityManager
+                    ->getRepository('App:BaseCommission')
+                    ->findOneBy(['type' => CommissionEnum::SOLAR_STAFF_PAYOUT]);
+
+                if (null !== $payoutBaseCommission && $payoutPercent = $payoutBaseCommission->getPercent()) {
+
+                    /** @var EmployeeOffer $offer */
+                    foreach ($availableOffers as $offer) {
+                        foreach ($offer->compensations as $compensation) {
+                            $compensation->price = (int) $compensation->price - round((int) $compensation->price * $payoutPercent / 100, 2);
+                        }
+                    }
+                }
+            }
+
+            return $availableOffers;
 
         } catch (DBALException $ex) {
             throw new DataSourceException($ex->getMessage(), $ex);
