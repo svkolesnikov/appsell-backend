@@ -15,8 +15,12 @@ use App\Security\UserGroupManager;
 use App\SolarStaff\Client;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\Lock\Factory;
+use Symfony\Component\Lock\Store\FlockStore;
+use Symfony\Component\Lock\Store\SemaphoreStore;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Swagger\Annotations as SWG;
@@ -258,10 +262,11 @@ class SolarStaffController
      * @Route("/solar-staff/payout", methods = { "POST" })
      *
      * @param Request $request
+     * @param LoggerInterface $logger
      * @return JsonResponse
      * @throws \Exception
      */
-    public function doPayoutAction(Request $request): JsonResponse
+    public function doPayoutAction(Request $request, LoggerInterface $logger): JsonResponse
     {
         /** @var OfferExecutionRepository $repository */
         $repository = $this->entityManager->getRepository('App:OfferExecution');
@@ -272,6 +277,20 @@ class SolarStaffController
         if (!$employee->getProfile()->isSolarStaffConnected()) {
             throw new AccessDeniedHttpException('Вывод средств доступен только после регистрации через SolarStaff');
         }
+
+        // Будем разрешать пользователю отправлять запрос на вывод средств
+        // в один момент времени (предотвращение параллельных запросов на вывод)
+
+        $lockStore   = new FlockStore();
+        $lockFactory = new Factory($lockStore);
+        $lockFactory->setLogger($logger);
+
+        $lock = $lockFactory->createLock('payout_by_user_' . $employee->getId());
+        if (!$lock->acquire()) {
+            throw new BadRequestHttpException('Вывод средств уже был запрошен и выполняется');
+        }
+
+        // Если прошли блокировку, начинаем вывод средств
 
         $executions = $repository->getPayoutAvailable($employee);
         $amount     = $repository->getAmountFor($executions);
@@ -348,6 +367,7 @@ class SolarStaffController
 
             $this->entityManager->flush();
             $this->entityManager->commit();
+            $lock->release();
 
             return new JsonResponse([
                 'amount' => $amount,
@@ -360,6 +380,7 @@ class SolarStaffController
             // пользователь у нас не создастся
 
             $this->entityManager->rollback();
+            $lock->release();
 
             // Залогируем попытку регистрации
 
