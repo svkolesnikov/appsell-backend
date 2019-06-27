@@ -73,7 +73,7 @@ class AccessTokenUserProvider implements UserProviderInterface
             return $user;
 
         } catch (NoResultException $ex) {
-            $ex = new UsernameNotFoundException();
+            $ex = new UsernameNotFoundException('Авторизация истекла. Попробуйте войти повторно');
             $ex->setUsername($email);
             throw $ex;
         }

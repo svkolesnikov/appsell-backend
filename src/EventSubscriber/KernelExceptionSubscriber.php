@@ -77,6 +77,7 @@ class KernelExceptionSubscriber implements EventSubscriberInterface
         } elseif ($exception instanceof Api\AccessTokenException) {
 
             $statusCode            = JsonResponse::HTTP_FORBIDDEN;
+            $response['message']   = $exception->getMessage();
             $logContext['details'] = $exception->getErrors();
 
         } elseif ($exception instanceof Api\FormValidationException) {

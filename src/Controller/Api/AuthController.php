@@ -6,6 +6,7 @@ use App\Entity\User;
 use App\Exception\Api\AuthException;
 use App\Lib\Controller\FormTrait;
 use App\Security\AccessToken;
+use App\SolarStaff\Client;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\Extension\Core\Type;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -70,12 +71,17 @@ class AuthController
      * @param Request $request
      * @param UserPasswordEncoderInterface $encoder
      * @param EntityManagerInterface $em
+     * @param Client $solarStaffClient
      * @return JsonResponse
-     * @throws \Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException
      * @throws AuthException
      * @throws \App\Exception\Api\FormValidationException
      */
-    public function loginAction(Request $request, UserPasswordEncoderInterface $encoder, EntityManagerInterface $em): JsonResponse
+    public function loginAction(
+        Request $request,
+        UserPasswordEncoderInterface $encoder,
+        EntityManagerInterface $em,
+        Client $solarStaffClient
+    ): JsonResponse
     {
         $form = $this->createFormBuilder()
             ->setMethod($request->getMethod())
@@ -93,8 +99,25 @@ class AuthController
             throw new AuthException('Неверный email или пароль');
         }
 
+        $userNotActiveMessage = 'Аккаунт заблокирован.';
+        if ($user->getProfile()->isSolarStaffConnected()) {
+
+            // Если пользователь прошел регистрацию в SS
+            // активируем его и впускаем
+
+            if ($solarStaffClient->isWorkerRegSuccess($user->getEmail())) {
+                $user->setActive(true);
+            } else {
+                $user->setActive(false);
+                $userNotActiveMessage .= ' Для входа необходимо подтвердить регистрацию в SolarStaff';
+            }
+
+            $em->persist($user);
+            $em->flush();
+        }
+
         if (!$user->isActive()) {
-            throw new AccessDeniedHttpException('Аккаунт заблокирован');
+            throw new AccessDeniedHttpException($userNotActiveMessage);
         }
 
         return new JsonResponse(

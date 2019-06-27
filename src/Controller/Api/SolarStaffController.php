@@ -148,7 +148,10 @@ class SolarStaffController
             $user = new Entity\User();
             $user->setEmail($data['email']);
             $user->setPassword($encoder->encodePassword($user, $data['password']));
-            $user->setActive(true);
+
+            // Пользователь будет не активирован, пока не подтвердит
+            // регистрацию на стороне SolarStaff
+            $user->setActive(false);
 
             // Сделаем пользователя "сотрудником"
 
