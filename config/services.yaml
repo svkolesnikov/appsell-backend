@@ -2,7 +2,7 @@
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
 
-  access_token.secret:            'e2374ce25abcd4342ed59f24fd3d317bb01a9e01'
+  access_token.secret:            'e23742ed59f24fd3d317ce25abcd434bb01a9e01'
   access_token.expires_in:        2592000 # 30 дней
   system.notification_receivers:  ['we@appsell.me'] # Получатель уведомлений от системы
 

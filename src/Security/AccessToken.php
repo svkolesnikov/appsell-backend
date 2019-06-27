@@ -47,11 +47,11 @@ class AccessToken
         try {
             $decoded = JWT::decode($token, $this->secret, [$this->algorithm]);
         } catch (\Exception $ex) {
-            throw new AccessTokenException('Invalid access token', $ex);
+            throw new AccessTokenException('Авторизация истекла. Попробуйте войти повторно', $ex);
         }
 
         if (!$decoded->exp || time() > (int) $decoded->exp) {
-            throw new AccessTokenException('Access token is expired');
+            throw new AccessTokenException('Авторизация истекла. Попробуйте войти повторно');
         }
 
         return sprintf(
