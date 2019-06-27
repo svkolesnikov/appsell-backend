@@ -4,6 +4,7 @@ namespace App\Controller\Api;
 
 use App\Entity\User;
 use App\Exception\Api\AuthException;
+use App\Exception\Api\SolarStaffException;
 use App\Lib\Controller\FormTrait;
 use App\Security\AccessToken;
 use App\SolarStaff\Client;
@@ -105,7 +106,13 @@ class AuthController
             // Если пользователь прошел регистрацию в SS
             // активируем его и впускаем
 
-            if ($solarStaffClient->isWorkerRegSuccess($user->getEmail())) {
+            try {
+                $isWorkerRegSuccess = $solarStaffClient->isWorkerRegSuccess($user->getEmail());
+            } catch (SolarStaffException $ex) {
+                $isWorkerRegSuccess = false;
+            }
+
+            if ($isWorkerRegSuccess) {
                 $user->setActive(true);
             } else {
                 $user->setActive(false);
