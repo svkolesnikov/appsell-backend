@@ -91,7 +91,7 @@ class Client
      */
     public function isWorkerRegSuccess(string $email): bool
     {
-        $response = $this->transport->sendRequest('/v1/payment', [
+        $response = $this->transport->sendRequest('/v1/status', [
             'action' => 'worker_status',
             'email'  => $email
         ]);
