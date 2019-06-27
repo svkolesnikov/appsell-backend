@@ -2,6 +2,9 @@
 
 namespace App\SolarStaff;
 
+use App\Exception\Api\SolarStaffException;
+use App\Lib\Enum\SolarStaffWorkerRegStatusEnum;
+
 class Client
 {
     /** @var Transport */
@@ -42,7 +45,7 @@ class Client
     /**
      * @param string $email
      * @return int Идентификатор сотрудника на стороне solar staff
-     * @throws \App\Exception\Api\SolarStaffException
+     * @throws SolarStaffException
      */
     public function createWorker(string $email): int
     {
@@ -62,7 +65,7 @@ class Client
      * @param int $amount Сумма
      * @param array $attributes todo_attributes
      * @return array Информация о транзакции
-     * @throws \App\Exception\Api\SolarStaffException
+     * @throws SolarStaffException
      */
     public function payout(int $workerId, int $amount, array $attributes): array
     {
@@ -76,5 +79,23 @@ class Client
         ]);
 
         return $response['response'];
+    }
+
+    /**
+     * Проверяет, прошел ли пользователь процесс регистрации на
+     * стороне SolarStaff до конца
+     *
+     * @param string $email
+     * @return bool
+     * @throws SolarStaffException
+     */
+    public function isWorkerRegSuccess(string $email): bool
+    {
+        $response = $this->transport->sendRequest('/v1/payment', [
+            'action' => 'worker_status',
+            'email'  => $email
+        ]);
+
+        return $response['response']['status'] === SolarStaffWorkerRegStatusEnum::SUCCESS;
     }
 }

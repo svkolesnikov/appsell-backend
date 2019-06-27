@@ -44,10 +44,18 @@ services:
       MAILER_URL: gmail://noreply@appsell.me:HT6i0cyyeF18mKQs@smtp.gmail.com:465?encryption=ssl
       RABBITMQ_DSN: amqp://guest:guest@rabbitmq:5672/%2F
       FIREBASE_API_KEY: AAAAwxBBPL4:APA91bFVrKfPUiCGFpO942f0DlaIEevXADVujey_O7yTmaRE80G-GBl7c1Zj_UJzISRm8LOJ2asJBtD0e4AIoG2MlGsFX47luVtRW2fJv0Az0n7k16weHGLTW_ITt7vHr_QAmQAXQ3sBuTiDkrvOYQ74GCGUCMfGjw
+
+      # test
+#      SOLAR_STAFF_API_URL: https://test.solar-api.com
+#      SOLAR_STAFF_API_CLIENT_ID: 435
+#      SOLAR_STAFF_API_SALT: 8e2a9b046a23d563a93aaf
+#      SOLAR_STAFF_LOGIN_URL: https://www.solar-staff.com/#login
+
+      # prod
+      SOLAR_STAFF_API_URL: https://api.solar-staff.com
+      SOLAR_STAFF_API_CLIENT_ID: 457
+      SOLAR_STAFF_API_SALT: 3ff2b41a57cfc8006afa47
       SOLAR_STAFF_LOGIN_URL: https://www.solar-staff.com/#login
-      SOLAR_STAFF_API_URL: https://test.solar-api.com
-      SOLAR_STAFF_API_CLIENT_ID: 435
-      SOLAR_STAFF_API_SALT: 8e2a9b046a23d563a93aaf
 
   appsell_nginx:
     container_name: appsell_nginx
