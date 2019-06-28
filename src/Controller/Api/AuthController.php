@@ -116,7 +116,7 @@ class AuthController
                 $user->setActive(true);
             } else {
                 $user->setActive(false);
-                $userNotActiveMessage = 'Для входа необходимо подтвердить регистрацию в SolarStaff';
+                $userNotActiveMessage = 'Активируйте выплаты по ссылке из письма на E-mail, который использовали при регистрации';
             }
 
             $em->persist($user);
