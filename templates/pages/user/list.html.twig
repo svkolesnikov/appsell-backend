@@ -124,12 +124,20 @@
 
                         <td>
                             <div class="btn-group">
+                                {% if is_granted('ROLE_APP_STAT_LIST') %}
+                                    <a href="{{ path('app_stat_list', { filter: {email: user.email } }) }}" class="btn btn-sm btn-default">
+                                        <i class="fa fa-bar-chart"></i>
+                                        Статистика
+                                    </a>
+                                {% endif %}
+
                                 {% if is_granted('ROLE_APP_USER_EDIT') %}
                                 <a href="{{ path('app_settings_users_edit', { id: user.id}) }}" class="btn btn-sm btn-default">
                                     <i class="fa fa-pencil"></i>
                                     Редактировать
                                 </a>
                                 {% endif %}
+
                                 {% if is_granted('ROLE_APP_USER_DELETE') %}
                                 <button
                                         type="button"

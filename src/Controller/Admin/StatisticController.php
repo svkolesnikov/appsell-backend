@@ -6,10 +6,12 @@ use App\DataSource\EmployeeOfferDataSource;
 use App\DataSource\OwnerOfferDataSource;
 use App\DataSource\SellerOfferDataSource;
 use App\Entity\User;
+use App\Exception\Api\DataSourceException;
 use App\Lib\Enum\OfferExecutionStatusEnum;
 use App\Lib\Enum\UserGroupEnum;
 use App\Security\UserGroupManager;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\Request;
@@ -48,19 +50,18 @@ class StatisticController extends BaseController
      *
      * @param Request $request
      *
+     * @param UserGroupManager $userGroupManager
      * @return Response
-     * @throws \LogicException
-     * @throws \UnexpectedValueException
-     * @throws \App\Exception\Api\DataSourceException
+     * @throws DataSourceException
      */
     public function listAction(Request $request, UserGroupManager $userGroupManager): Response
     {
-        $users = [];
+        $filter = new ParameterBag($request->get('filter', ['status' => OfferExecutionStatusEnum::COMPLETE]));
 
-        if ($userId = $request->get('user')) {
+        if ($userEmail = $filter->get('email')) {
 
             /** @var User $user */
-            $user = $this->em->getRepository(User::class)->findOneById($userId);
+            $user = $this->em->getRepository(User::class)->findOneByEmail($userEmail);
             if (null === $user) {
                 $this->addFlash('error', 'Пользователь не обнаружен');
                 $user = $this->getUser();
@@ -76,21 +77,8 @@ class StatisticController extends BaseController
             $user  = $this->getUser();
         }
 
-        if ($this->isGranted('ROLE_SUPER_ADMIN')) {
-
-            $users = $this->em
-                ->createQueryBuilder()
-                ->select('u.id, u.email, g.name')
-                ->from(User::class, 'u')
-                ->innerJoin('u.groups', 'g')
-                ->where('g.code IN (:code)')
-                ->setParameter(':code', [UserGroupEnum::SELLER, UserGroupEnum::OWNER(), UserGroupEnum::EMPLOYEE])
-                ->getQuery()
-                ->getResult();
-        }
-
         try {
-            $status = new OfferExecutionStatusEnum($request->get('status'));
+            $status = new OfferExecutionStatusEnum($filter->get('status'));
         } catch (\Exception $ex) {
             $status = new OfferExecutionStatusEnum(OfferExecutionStatusEnum::COMPLETE);
         }
@@ -117,7 +105,7 @@ class StatisticController extends BaseController
                 OfferExecutionStatusEnum::REJECTED   => 'Отклонено',
             ],
             'status'       => $status,
-            'users'        => $users,
+            'filter'       => $filter->all(),
             'user'         => $user
         ]);
     }
