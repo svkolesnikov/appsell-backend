@@ -6,6 +6,7 @@ use App\DCI\ActionLogging;
 use App\DCI\SdkEventCreating;
 use App\Entity\OfferExecution;
 use App\Entity\OfferLink;
+use App\Exception\Api\EventWithBadDataException;
 use App\Exception\Api\EventWithoutReferrerException;
 use App\Kernel;
 use App\Lib\Controller\FormTrait;
@@ -176,6 +177,17 @@ class SdkController
             $logging->log(
                 ActionLogItemTypeEnum::SDK_EVENT(),
                 'Получено событие от SDK, но были переданы ID несуществующих сущностей',
+                ['form' => $data],
+                $request
+            );
+
+            throw new NotFoundHttpException($ex->getMessage(), $ex);
+
+        } catch (EventWithBadDataException $ex) {
+
+            $logging->log(
+                ActionLogItemTypeEnum::SDK_EVENT(),
+                "Получено событие от SDK, но были переданы некорректные данные: {$ex->getMessage()}",
                 ['form' => $data],
                 $request
             );

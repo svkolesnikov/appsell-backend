@@ -14,6 +14,7 @@ use App\Entity\SdkEvent;
 use App\Entity\SellerBaseCommission;
 use App\Entity\User;
 use App\Entity\UserOfferLink;
+use App\Exception\Api\EventWithBadDataException;
 use App\Exception\Api\EventWithoutReferrerException;
 use App\Lib\Enum\CommissionEnum;
 use App\Lib\Enum\CurrencyEnum;
@@ -21,11 +22,11 @@ use App\Lib\Enum\OfferExecutionStatusEnum;
 use App\Lib\Enum\SdkEventSourceEnum;
 use App\Lib\Enum\UserGroupEnum;
 use App\Security\UserGroupManager;
+use App\SolarStaff\Client;
 use Doctrine\DBAL\DBALException;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\Query\Expr\Join;
-use Psr\Log\LoggerInterface;
 
 class SdkEventCreating
 {
@@ -35,10 +36,14 @@ class SdkEventCreating
     /** @var UserGroupManager */
     protected $userGroupManager;
 
-    public function __construct(EntityManagerInterface $em, UserGroupManager $gm)
+    /** @var Client */
+    protected $solarStaffClient;
+
+    public function __construct(EntityManagerInterface $em, UserGroupManager $gm, Client $solarStaffClient)
     {
         $this->entityManager = $em;
         $this->userGroupManager = $gm;
+        $this->solarStaffClient = $solarStaffClient;
     }
 
     /**
@@ -50,6 +55,7 @@ class SdkEventCreating
      * @param array $requestInfo
      * @return SdkEvent
      * @throws EntityNotFoundException
+     * @throws EventWithBadDataException
      * @throws EventWithoutReferrerException
      */
     public function create(
@@ -88,6 +94,39 @@ class SdkEventCreating
         $employee = $referrerId ? $this->entityManager->find('App:User', $referrerId) : null;
         if (null === $employee) {
             throw new EventWithoutReferrerException('ReferrerId отсутствует в присланом событии');
+        }
+
+        if (isset($eventData['email'])) {
+
+            // При получении событий с email, чекать что email не принадлежит автору ссылки,
+            // по которой был переход. чтобы отсеить тех, что сам себе накручивает
+
+            /** @var User $eventAuthor */
+            $eventAuthor = $this->entityManager
+                ->getRepository('App:User')
+                ->findBy(['email' => $eventData['email']]);
+
+            // Если по email ничего не нашли
+            // то и проверять нечего, т. к. пользователи могут быть вполне себе
+            // не из нашей системы
+
+            if (null !== $eventAuthor) {
+                if ($eventAuthor->getId() === $employee->getId()) {
+                    throw new EventWithBadDataException("Попытка фрода – пользователь {$eventAuthor->getEmail()} установил приложение по своей ссылке");
+                }
+
+                // При получении события login, если в нем есть email, который принадлежит челику,
+                // зареганному через солар, проверять что челик в соларе активировался,
+                // иначе событие логина не принимать
+
+                if ('login' === $eventName) {
+                    if ($eventAuthor->getProfile()->isSolarStaffConnected()) {
+                        if (!$this->solarStaffClient->isWorkerRegSuccess($eventAuthor->getEmail())) {
+                            throw new EventWithBadDataException("Попытка фрода – пользователь {$eventAuthor->getEmail()} не завершил регистрацию в SolarStaff");
+                        }
+                    }
+                }
+            }
         }
 
         // Вытащим еще и событие
