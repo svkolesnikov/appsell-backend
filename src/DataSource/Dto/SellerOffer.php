@@ -37,7 +37,7 @@ class SellerOffer
                 'type'        => $props['compensations'][0]['type'],
                 'description' => $props['compensations'][0]['description'],
                 'currency'    => $props['compensations'][0]['currency'],
-                'price'       => $props['compensations'][0]['price'],
+                'price'       => 0,
             ];
 
             foreach ($props['compensations'] as $c) {
