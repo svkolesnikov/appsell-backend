@@ -2,6 +2,8 @@
 
 namespace App\DataSource\Dto;
 
+use App\Lib\Enum\CompensationTypeEnum;
+
 class EmployeeOffer
 {
     public $id;
@@ -11,10 +13,10 @@ class EmployeeOffer
     public $image;
 
     /** @var OfferCompensation[] */
-    public $compensations;
+    public $compensations = [];
 
     /** @var OfferLink[] */
-    public $links;
+    public $links = [];
 
     public function __construct(array $props)
     {
@@ -24,12 +26,29 @@ class EmployeeOffer
         $this->type         = $props['type'];
         $this->image        = $props['image'];
 
-        $this->compensations = array_map(function (array $comp) {
-            return new OfferCompensation($comp);
-        }, $props['compensations']);
-
         $this->links = array_map(function (array $comp) {
             return new OfferLink($comp);
         }, $props['links']);
+
+        if (\count($props['compensations']) > 0) {
+            $resultCompensation = [
+                'type'        => $props['compensations'][0]['type'],
+                'description' => $props['compensations'][0]['description'],
+                'currency'    => $props['compensations'][0]['currency'],
+                'price'       => $props['compensations'][0]['price'],
+            ];
+
+            foreach ($props['compensations'] as $c) {
+                if ($c['type'] === CompensationTypeEnum::BASE) {
+                    $resultCompensation['type']         = $c['type'];
+                    $resultCompensation['description']  = $c['description'];
+                    $resultCompensation['currency']     = $c['currency'];
+                }
+
+                $resultCompensation['price'] += $c['price'];
+            }
+
+            $this->compensations = [new OfferCompensation($resultCompensation)];
+        }
     }
 }
