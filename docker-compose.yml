@@ -31,6 +31,7 @@ services:
     volumes:
       - ./:/var/www/app
       - ./var:/var/www/app/var
+      - ./public/images:/var/www/app/public/images
     ports:
       - 9000
     links:

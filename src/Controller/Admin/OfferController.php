@@ -9,6 +9,7 @@ use App\Entity\Offer;
 use App\Entity\PushNotification;
 use App\Entity\SellerApprovedOffer;
 use App\Entity\User;
+use App\Exception\Admin\LoadExternalImageException;
 use App\Form\OfferType;
 use App\Lib\Enum\UserGroupEnum;
 use App\Security\UserGroupManager;
@@ -193,7 +194,7 @@ class OfferController extends BaseController
                         $imageService->remove($link->getImage());
                         $link->setImage($path);
 
-                    } catch (\Exception $ex) {
+                    } catch (LoadExternalImageException $ex) {
                         // операция не блокирующая, просто запишем в лог
                         $this->logger->error(
                             'Не удалось получить изображение для ссылки ' . $link->getUrl(),
