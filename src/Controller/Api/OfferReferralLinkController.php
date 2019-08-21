@@ -231,7 +231,7 @@ SQL;
                         ($linkParts['path'] ?? '') . '?' .
                         ($linkParts['query'] ?? '') . '&' .
                         http_build_query([
-                            'referrer'    => 'utm_content%3D' . $userOfferLink->getUser()->getId(),
+                            'referrer'    => 'utm_content=' . $userOfferLink->getUser()->getId(),
                             'referrer_id' => $userOfferLink->getUser()->getId(),
                         ])
                     ;
