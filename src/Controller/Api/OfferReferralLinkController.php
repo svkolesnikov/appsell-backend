@@ -229,8 +229,12 @@ SQL;
                         ($linkParts['scheme'] ?? 'https') . '://' .
                         ($linkParts['host'] ?? '') .
                         ($linkParts['path'] ?? '') . '?' .
-                        ($linkParts['query'] ?? '') .
-                        '&referrer=utm_content%3D' . $userOfferLink->getUser()->getId();
+                        ($linkParts['query'] ?? '') . '&' .
+                        http_build_query([
+                            'referrer'    => 'utm_content%3D' . $userOfferLink->getUser()->getId(),
+                            'referrer_id' => $userOfferLink->getUser()->getId(),
+                        ])
+                    ;
 
                     return new RedirectResponse($resultLink);
                 }
