@@ -104,7 +104,7 @@ class SdkEventCreating
             /** @var User $eventAuthor */
             $eventAuthor = $this->entityManager
                 ->getRepository('App:User')
-                ->findBy(['email' => $eventData['email']]);
+                ->findOneBy(['email' => $eventData['email']]);
 
             // Если по email ничего не нашли
             // то и проверять нечего, т. к. пользователи могут быть вполне себе
