@@ -67,6 +67,7 @@ security:
         - { path: ^/api/users/password,           role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api/solar-staff$,             role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api/solar-staff/registration, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/appsflyer,                role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api$,                         role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api.+,                        role: ROLE_USER }
 
