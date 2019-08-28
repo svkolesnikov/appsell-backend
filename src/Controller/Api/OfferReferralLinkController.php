@@ -233,6 +233,7 @@ SQL;
                         http_build_query([
                             'referrer'    => 'utm_content=' . $userOfferLink->getUser()->getId(),
                             'referrer_id' => $userOfferLink->getUser()->getId(),
+                            'clickid'     => $execution->getId()
                         ])
                     ;
 
