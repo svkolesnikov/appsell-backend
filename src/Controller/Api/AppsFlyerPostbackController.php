@@ -111,7 +111,7 @@ class AppsFlyerPostbackController
         $form = $this->createFormBuilder()
             ->setMethod($request->getMethod())
             ->add('clickid', Type\TextType::class, ['constraints' => [new Constraints\NotBlank()]])
-            ->add('event_name', Type\TextType::class, ['constraints' => [new Constraints\NotBlank()]])
+            ->add('partner_event_name', Type\TextType::class, ['constraints' => [new Constraints\NotBlank()]])
             ->getForm();
 
         $form->handleRequest($request);
@@ -122,7 +122,7 @@ class AppsFlyerPostbackController
 
         try {
 
-            $creating->createFromClickId($data['clickid'], $data['event_name'], $request->server->all());
+            $creating->createFromClickId($data['clickid'], $data['partner_event_name'], $request->server->all());
             return new JsonResponse(null, JsonResponse::HTTP_CREATED);
 
         } catch (UniqueConstraintViolationException $ex) {
