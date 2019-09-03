@@ -4,6 +4,7 @@ namespace App\Form;
 
 use App\Entity\OfferLink;
 use App\Lib\Enum\OfferLinkTypeEnum;
+use App\Form\DataTransformer\StringToOfferLinkTypeDataTransformer;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -16,14 +17,15 @@ class OfferLinkType extends AbstractType
     {
         $builder
             ->add('url',        TextType::class,    ['required' => true, 'label' => false])
-//            ->add('type',       ChoiceType::class,  [
-//                'required'      => true,
-//                'label'         => false,
-//                'label_attr'    => ['style' => 'font-size:14px;font-weight:700'],
-//                'choices'       => OfferLinkTypeEnum::toArray(),
-//                'disabled'      => true
-//            ])
+            ->add('type',       ChoiceType::class,  [
+                'required'      => true,
+                'label'         => false,
+                'label_attr'    => ['style' => 'font-size:14px;font-weight:700'],
+                'choices'       => OfferLinkTypeEnum::toArray()
+            ])
         ;
+
+        $builder->get('type')->addModelTransformer(new StringToOfferLinkTypeDataTransformer());
     }
 
     public function configureOptions(OptionsResolver $resolver)
