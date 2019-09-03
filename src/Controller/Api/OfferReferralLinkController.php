@@ -223,19 +223,36 @@ SQL;
 
                     // Обнаружили ссылку, переходим
                     // Добавим к ссылке referrer (информацию об employee)
+                    // и заменим макросы на данные
 
-                    $linkParts = parse_url($link->getUrl());
+                    $linkUrl = str_replace(
+                        [
+                            '(clickid)',
+                            '(referrerid)'
+                        ],
+                        [
+                            sprintf('click-%s', $execution->getId()),
+                            $userOfferLink->getUser()->getId()
+                        ],
+                        $link->getUrl()
+                    );
+
+                    $linkParts = parse_url($linkUrl);
                     $resultLink =
                         ($linkParts['scheme'] ?? 'https') . '://' .
                         ($linkParts['host'] ?? '') .
                         ($linkParts['path'] ?? '') . '?' .
-                        ($linkParts['query'] ?? '') . '&' .
-                        http_build_query([
-                            'referrer'    => 'utm_content=' . $userOfferLink->getUser()->getId(),
-                            'referrer_id' => $userOfferLink->getUser()->getId(),
-                            'clickid'     => $execution->getId()
-                        ])
+                        ($linkParts['query'] ?? '')
                     ;
+
+                    // Если для ссылки в google play не указали макрос referrer
+                    // его необходимо добавить, тк иначе не будут трекаться события
+
+                    if ($link->getType()->equals(OfferLinkTypeEnum::GOOGLE_PLAY())) {
+                        if (false === strpos($resultLink, 'referrer=utm_content%3D')) {
+                            $resultLink .= '&referrer=utm_content%3D' . $userOfferLink->getUser()->getId();
+                        }
+                    }
 
                     return new RedirectResponse($resultLink);
                 }

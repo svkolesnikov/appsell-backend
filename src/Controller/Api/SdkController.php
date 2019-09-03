@@ -8,12 +8,14 @@ use App\Entity\OfferExecution;
 use App\Entity\OfferLink;
 use App\Exception\Api\EventWithBadDataException;
 use App\Exception\Api\EventWithoutReferrerException;
+use App\Exception\Api\FormValidationException;
 use App\Kernel;
 use App\Lib\Controller\FormTrait;
 use App\Lib\Enum\ActionLogItemTypeEnum;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityNotFoundException;
+use Exception;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
@@ -126,9 +128,9 @@ class SdkController
      * @param SdkEventCreating $creating
      * @param ActionLogging $logging
      * @return JsonResponse
-     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
-     * @throws \App\Exception\Api\FormValidationException
-     * @throws \Exception
+     * @throws NotFoundHttpException
+     * @throws FormValidationException
+     * @throws Exception
      */
     public function createEventAction(Request $request, SdkEventCreating $creating, ActionLogging $logging): JsonResponse
     {
