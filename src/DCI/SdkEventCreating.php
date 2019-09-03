@@ -16,6 +16,7 @@ use App\Entity\User;
 use App\Entity\UserOfferLink;
 use App\Exception\Api\EventWithBadDataException;
 use App\Exception\Api\EventWithoutReferrerException;
+use App\Exception\Api\SolarStaffException;
 use App\Lib\Enum\CommissionEnum;
 use App\Lib\Enum\CurrencyEnum;
 use App\Lib\Enum\OfferExecutionStatusEnum;
@@ -46,6 +47,87 @@ class SdkEventCreating
         $this->solarStaffClient = $solarStaffClient;
     }
 
+    public function isClickId(string $reffererId): bool
+    {
+        return 0 === strpos($reffererId, 'click-');
+    }
+
+    public function extractClickId(string $clickId): string
+    {
+        return str_replace('click-', '', $clickId);
+    }
+
+    /**
+     * @param string $clickId OfferExecuteion->Id
+     * @param string $eventName
+     * @param array $requestInfo
+     * @return SdkEvent
+     * @throws EntityNotFoundException
+     * @throws EventWithoutReferrerException
+     */
+    public function createFromClickId(string $clickId, string $eventName, array $requestInfo = []): SdkEvent
+    {
+        $clickId = $this->extractClickId($clickId);
+
+        /** @var OfferExecution $offerExecution */
+        $offerExecution = $this->entityManager->getRepository(OfferExecution::class)->find($clickId);
+        if (null === $offerExecution) {
+            throw new EventWithoutReferrerException('Передан некорректный clickid (offer_execution.id)');
+        }
+
+        /** @var Compensation $compensation */
+        $compensation = $this->entityManager->getRepository('App:Compensation')->findOneBy([
+            'offer'      => $offerExecution->getOffer(),
+            'event_type' => $eventName
+        ]);
+
+        if (null === $compensation) {
+            throw new EntityNotFoundException('Событие отсутствует в оффере');
+        }
+
+        /** @var EventType $eventType */
+        $eventType = $this->entityManager->find(EventType::class, $eventName);
+        $employee  = $offerExecution->getSourceLink()->getUser();
+        $deviceId  = "appsflyer-${clickId}";
+
+        // Начнем сохранение
+
+        $this->entityManager->beginTransaction();
+
+        try {
+
+            // Далее рассчитываем суммы (если необходимо), для конкретного события
+            // и всех участником схемы
+            // А необходимо только если передан referrer_id и он является сотрудником продавца
+
+            $newEvent = $this->create(
+                $offerExecution,
+                $offerExecution->getOfferLink(),
+                $eventType,
+                $employee,
+                $compensation,
+                $deviceId,
+                SdkEventSourceEnum::APPSFLYER(),
+                [],
+                $requestInfo
+            );
+
+            // Все збс, можно закрывать транзакцию
+
+            $this->entityManager->flush();
+            $this->entityManager->commit();
+
+            return $newEvent;
+
+        } catch (\Exception $ex) {
+
+            // Какая бы ошибка ни произошла, необходимо откатить транзакцию
+            // и следом прокинуть исключение дальше
+            $this->entityManager->rollback();
+            throw $ex;
+        }
+    }
+
     /**
      * @param string $eventName
      * @param string $appId
@@ -57,8 +139,9 @@ class SdkEventCreating
      * @throws EntityNotFoundException
      * @throws EventWithBadDataException
      * @throws EventWithoutReferrerException
+     * @throws SolarStaffException
      */
-    public function create(
+    public function createFromSdk(
         string $eventName,
         string $appId,
         string $deviceId,
@@ -211,173 +294,17 @@ class SdkEventCreating
             // и всех участником схемы
             // А необходимо только если передан referrer_id и он является сотрудником продавца
 
-            $amountForService = 0;
-            $amountForSeller = 0;
-            $amountForEmployee = 0;
-            $amountForPayout = 0;
-
-            if (null !== $employee && $this->userGroupManager->hasGroup($employee, UserGroupEnum::EMPLOYEE())) {
-
-                $employer = $employee->getProfile()->getEmployer();
-                if (null !== $employer) {
-
-                    // Рассчет комиссии сервиса
-
-                    /** @var ForOfferCommission $serviceForOfferCommission */
-                    $serviceForOfferCommission = $this->entityManager
-                        ->getRepository('App:ForOfferCommission')
-                        ->findOneBy(['offer' => $link->getOffer(), 'by_user' => null]);
-
-                    /** @var ForUserCommission $serviceForUserCommission */
-                    $serviceForUserCommission = $this->entityManager
-                        ->getRepository('App:ForUserCommission')
-                        ->findOneBy(['user' => $employer, 'by_user' => null]);
-
-                    /** @var BaseCommission $serviceBaseCommission */
-                    $serviceBaseCommission = $this->entityManager
-                        ->getRepository('App:BaseCommission')
-                        ->findOneBy(['type' => CommissionEnum::SERVICE]);
-
-                    if (null !== $serviceForOfferCommission) {
-                        $servicePercent = $serviceForOfferCommission->getPercent();
-                    } elseif (null !== $serviceForUserCommission) {
-                        $servicePercent = $serviceForUserCommission->getPercent();
-                    } elseif (null !== $serviceBaseCommission) {
-                        $servicePercent = $serviceBaseCommission->getPercent();
-                    } else {
-                        $servicePercent = 0;
-                    }
-
-                    $amountForService = round($compensation->getPrice() * $servicePercent / 100, 2);
-
-                    // Рассчет комиссии компании
-
-                    /** @var ForOfferCommission $serviceForOfferCommission */
-                    $sellerForOfferCommission = $this->entityManager
-                        ->getRepository('App:ForOfferCommission')
-                        ->findOneBy(['offer' => $link->getOffer(), 'by_user' => $employer]);
-
-                    /** @var SellerBaseCommission $sellersBaseCommission */
-                    $sellersBaseCommission = $this->entityManager
-                        ->getRepository('App:SellerBaseCommission')
-                        ->findOneBy(['seller' => $employer]);
-
-                    /** @var BaseCommission $sellerBaseCommission */
-                    $sellerBaseCommission = $this->entityManager
-                        ->getRepository('App:BaseCommission')
-                        ->findOneBy(['type' => CommissionEnum::SELLER]);
-
-                    if (null !== $sellerForOfferCommission) {
-                        $sellerPercent = $sellerForOfferCommission->getPercent();
-                    } elseif (null !== $sellersBaseCommission) {
-                        $sellerPercent = $sellersBaseCommission->getPercent();
-                    } elseif (null !== $sellerBaseCommission) {
-                        $sellerPercent = $sellerBaseCommission->getPercent();
-                    } else {
-                        $sellerPercent = 0;
-                    }
-
-                    $amountForSeller = round(($compensation->getPrice() - $amountForService) * $sellerPercent / 100, 2);
-
-                    // Рассчет комиссии, которую забирает SolarStaff при выводе
-                    // Рассчитываем только в случае если пользователь зарегистрирован в SS
-                    // и его компания-продавец выводит средства через SS
-
-                    if ($employee->getProfile()->isSolarStaffConnected() && $employer->getProfile()->isCompanyPayoutOverSolarStaff()) {
-
-                        /** @var BaseCommission $payoutBaseCommission */
-                        $payoutBaseCommission = $this->entityManager
-                            ->getRepository('App:BaseCommission')
-                            ->findOneBy(['type' => CommissionEnum::SOLAR_STAFF_PAYOUT]);
-
-                        if (null !== $payoutBaseCommission) {
-                            $payoutPercent   = $payoutBaseCommission->getPercent();
-                            $amountForPayout =  round(($compensation->getPrice() - $amountForService - $amountForSeller) * $payoutPercent / 100, 2);
-                        }
-                    }
-
-                    // Сумма для сотрудника
-
-                    $amountForEmployee = $compensation->getPrice() - $amountForService - $amountForSeller - $amountForPayout;
-                }
-            }
-
-            // А вот теперь начинаем формировать событие для сохранения
-
-            $sourceInfo = [
-                'event_data' => $eventData,
-                'request'    => array_intersect_key(
-                    $requestInfo,
-                    array_flip([
-                        'HTTP_USER_AGENT',
-                        'REMOTE_ADDR'
-                    ])
-                )
-            ];
-
-            $newEvent = new SdkEvent();
-            $newEvent->setEventType($eventType);
-            $newEvent->setDeviceId($deviceId);
-            $newEvent->setCurrency(CurrencyEnum::RUB());
-            $newEvent->setAmountForService($amountForService);
-            $newEvent->setAmountForSeller($amountForSeller);
-            $newEvent->setAmountForEmployee($amountForEmployee);
-            $newEvent->setAmountForPayout($amountForPayout);
-            $newEvent->setOffer($link->getOffer());
-            $newEvent->setOfferLink($link);
-            $newEvent->setSource(SdkEventSourceEnum::APP());
-            $newEvent->setEmployee($employee);
-            $newEvent->setSourceInfo($sourceInfo);
-
-            $offerExecution->addEvent($newEvent);
-
-            $this->entityManager->persist($newEvent);
-
-            // А теперь бы еще понять, изменился ли статус OfferExecution
-            // по нему могли прийти все допустимые события и он завершился
-
-            $compensationEvents = $link->getOffer()->getCompensations()->map(function (Compensation $c) {
-                return $c->getEventType()->getCode();
-            })->toArray();
-
-            $sdkEvents = $offerExecution->getEvents()
-
-                ->map(function (SdkEvent $e) {
-                    return $e->getEventType()->getCode();
-                })->toArray();
-
-            sort($compensationEvents);
-            sort($sdkEvents);
-
-            $isExecutionComplete = $compensationEvents === $sdkEvents
-                && $offerExecution->getStatus()->equals(OfferExecutionStatusEnum::PROCESSING());
-
-            if ($isExecutionComplete) {
-
-                $offer = $link->getOffer();
-                $this->entityManager->refresh($offer);
-
-                // При наличии бюджета на оффер нужно определить превысили мы в него или нет
-                // Если превысили, то нужно деактивировать оффер
-
-                if ($offer->isActive() && $offer->hasBudget()) {
-                    if (!$offer->isBudgetExceeded()) {
-
-                        $this->increaseOfferBudget($offer, $compensation);
-
-                    } else {
-
-                        // Бюджет превысили уже, но оффер до сих пор активный
-                        // Деактивируем его в срочном порядке!
-
-                        $offer->setActive(false);
-                        $this->entityManager->persist($offer);
-                    }
-                }
-
-                $offerExecution->setStatus($offer->isActive() ? OfferExecutionStatusEnum::COMPLETE() : OfferExecutionStatusEnum::REJECTED());
-                $this->entityManager->persist($offerExecution);
-            }
+            $newEvent = $this->create(
+                $offerExecution,
+                $link,
+                $eventType,
+                $employee,
+                $compensation,
+                $deviceId,
+                SdkEventSourceEnum::APP(),
+                $eventData,
+                $requestInfo
+            );
 
             // Все збс, можно закрывать транзакцию
 
@@ -419,5 +346,200 @@ SQL;
         ]);
 
         $this->entityManager->refresh($offer);
+    }
+
+    /**
+     * @param OfferExecution $offerExecution
+     * @param OfferLink $link
+     * @param EventType $eventType
+     * @param User $employee
+     * @param Compensation $compensation
+     * @param string $deviceId
+     * @param SdkEventSourceEnum $eventSource
+     * @param array $eventData
+     * @param array $requestInfo
+     * @return SdkEvent
+     * @throws DBALException
+     */
+    protected function create(
+        OfferExecution $offerExecution,
+        OfferLink $link,
+        EventType $eventType,
+        User $employee,
+        Compensation $compensation,
+        string $deviceId,
+        SdkEventSourceEnum $eventSource,
+        array $eventData = [],
+        array $requestInfo = []
+    ): SdkEvent
+    {
+        $amountForService = 0;
+        $amountForSeller = 0;
+        $amountForEmployee = 0;
+        $amountForPayout = 0;
+
+        if (null !== $employee && $this->userGroupManager->hasGroup($employee, UserGroupEnum::EMPLOYEE())) {
+
+            $employer = $employee->getProfile()->getEmployer();
+            if (null !== $employer) {
+
+                // Рассчет комиссии сервиса
+
+                /** @var ForOfferCommission $serviceForOfferCommission */
+                $serviceForOfferCommission = $this->entityManager
+                    ->getRepository('App:ForOfferCommission')
+                    ->findOneBy(['offer' => $link->getOffer(), 'by_user' => null]);
+
+                /** @var ForUserCommission $serviceForUserCommission */
+                $serviceForUserCommission = $this->entityManager
+                    ->getRepository('App:ForUserCommission')
+                    ->findOneBy(['user' => $employer, 'by_user' => null]);
+
+                /** @var BaseCommission $serviceBaseCommission */
+                $serviceBaseCommission = $this->entityManager
+                    ->getRepository('App:BaseCommission')
+                    ->findOneBy(['type' => CommissionEnum::SERVICE]);
+
+                if (null !== $serviceForOfferCommission) {
+                    $servicePercent = $serviceForOfferCommission->getPercent();
+                } elseif (null !== $serviceForUserCommission) {
+                    $servicePercent = $serviceForUserCommission->getPercent();
+                } elseif (null !== $serviceBaseCommission) {
+                    $servicePercent = $serviceBaseCommission->getPercent();
+                } else {
+                    $servicePercent = 0;
+                }
+
+                $amountForService = round($compensation->getPrice() * $servicePercent / 100, 2);
+
+                // Рассчет комиссии компании
+
+                /** @var ForOfferCommission $serviceForOfferCommission */
+                $sellerForOfferCommission = $this->entityManager
+                    ->getRepository('App:ForOfferCommission')
+                    ->findOneBy(['offer' => $link->getOffer(), 'by_user' => $employer]);
+
+                /** @var SellerBaseCommission $sellersBaseCommission */
+                $sellersBaseCommission = $this->entityManager
+                    ->getRepository('App:SellerBaseCommission')
+                    ->findOneBy(['seller' => $employer]);
+
+                /** @var BaseCommission $sellerBaseCommission */
+                $sellerBaseCommission = $this->entityManager
+                    ->getRepository('App:BaseCommission')
+                    ->findOneBy(['type' => CommissionEnum::SELLER]);
+
+                if (null !== $sellerForOfferCommission) {
+                    $sellerPercent = $sellerForOfferCommission->getPercent();
+                } elseif (null !== $sellersBaseCommission) {
+                    $sellerPercent = $sellersBaseCommission->getPercent();
+                } elseif (null !== $sellerBaseCommission) {
+                    $sellerPercent = $sellerBaseCommission->getPercent();
+                } else {
+                    $sellerPercent = 0;
+                }
+
+                $amountForSeller = round(($compensation->getPrice() - $amountForService) * $sellerPercent / 100, 2);
+
+                // Рассчет комиссии, которую забирает SolarStaff при выводе
+                // Рассчитываем только в случае если пользователь зарегистрирован в SS
+                // и его компания-продавец выводит средства через SS
+
+                if ($employee->getProfile()->isSolarStaffConnected() && $employer->getProfile()->isCompanyPayoutOverSolarStaff()) {
+
+                    /** @var BaseCommission $payoutBaseCommission */
+                    $payoutBaseCommission = $this->entityManager
+                        ->getRepository('App:BaseCommission')
+                        ->findOneBy(['type' => CommissionEnum::SOLAR_STAFF_PAYOUT]);
+
+                    if (null !== $payoutBaseCommission) {
+                        $payoutPercent = $payoutBaseCommission->getPercent();
+                        $amountForPayout = round(($compensation->getPrice() - $amountForService - $amountForSeller) * $payoutPercent / 100, 2);
+                    }
+                }
+
+                // Сумма для сотрудника
+
+                $amountForEmployee = $compensation->getPrice() - $amountForService - $amountForSeller - $amountForPayout;
+            }
+        }
+
+        // А вот теперь начинаем формировать событие для сохранения
+
+        $sourceInfo = [
+            'event_data' => $eventData,
+            'request' => array_intersect_key(
+                $requestInfo,
+                array_flip([
+                    'HTTP_USER_AGENT',
+                    'REMOTE_ADDR'
+                ])
+            )
+        ];
+
+        $newEvent = new SdkEvent();
+        $newEvent->setEventType($eventType);
+        $newEvent->setDeviceId($deviceId);
+        $newEvent->setCurrency(CurrencyEnum::RUB());
+        $newEvent->setAmountForService($amountForService);
+        $newEvent->setAmountForSeller($amountForSeller);
+        $newEvent->setAmountForEmployee($amountForEmployee);
+        $newEvent->setAmountForPayout($amountForPayout);
+        $newEvent->setOffer($link->getOffer());
+        $newEvent->setOfferLink($link);
+        $newEvent->setSource($eventSource);
+        $newEvent->setEmployee($employee);
+        $newEvent->setSourceInfo($sourceInfo);
+
+        $offerExecution->addEvent($newEvent);
+
+        $this->entityManager->persist($newEvent);
+
+        // А теперь бы еще понять, изменился ли статус OfferExecution
+        // по нему могли прийти все допустимые события и он завершился
+
+        $compensationEvents = $link->getOffer()->getCompensations()->map(function (Compensation $c) {
+            return $c->getEventType()->getCode();
+        })->toArray();
+
+        $sdkEvents = $offerExecution->getEvents()
+            ->map(function (SdkEvent $e) {
+                return $e->getEventType()->getCode();
+            })->toArray();
+
+        sort($compensationEvents);
+        sort($sdkEvents);
+
+        $isExecutionComplete = $compensationEvents === $sdkEvents
+            && $offerExecution->getStatus()->equals(OfferExecutionStatusEnum::PROCESSING());
+
+        if ($isExecutionComplete) {
+
+            $offer = $link->getOffer();
+            $this->entityManager->refresh($offer);
+
+            // При наличии бюджета на оффер нужно определить превысили мы в него или нет
+            // Если превысили, то нужно деактивировать оффер
+
+            if ($offer->isActive() && $offer->hasBudget()) {
+                if (!$offer->isBudgetExceeded()) {
+
+                    $this->increaseOfferBudget($offer, $compensation);
+
+                } else {
+
+                    // Бюджет превысили уже, но оффер до сих пор активный
+                    // Деактивируем его в срочном порядке!
+
+                    $offer->setActive(false);
+                    $this->entityManager->persist($offer);
+                }
+            }
+
+            $offerExecution->setStatus($offer->isActive() ? OfferExecutionStatusEnum::COMPLETE() : OfferExecutionStatusEnum::REJECTED());
+            $this->entityManager->persist($offerExecution);
+        }
+
+        return $newEvent;
     }
 }
