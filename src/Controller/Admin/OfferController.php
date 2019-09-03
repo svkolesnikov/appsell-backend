@@ -86,7 +86,7 @@ class OfferController extends BaseController
 
             // получение данных для админа
             if ($this->isGranted('ROLE_ADMIN')) {
-                $items = $this->em->getRepository(Offer::class)->findBy($criteria, [], $perPage, $offset);
+                $items = $this->em->getRepository(Offer::class)->findBy($criteria, ['active_from' => 'DESC'], $perPage, $offset);
 
                 foreach ($items as $item) {
                     $commissions[$item->getId()] = $this->em
