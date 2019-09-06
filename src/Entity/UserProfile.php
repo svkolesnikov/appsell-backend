@@ -194,7 +194,7 @@ class UserProfile
 
     public function isCompanyPayoutOverSolarStaff(): bool
     {
-        return $this->company_payout_over_solar_staff;
+        return (bool) $this->company_payout_over_solar_staff;
     }
 
     public function setCompanyPayoutOverSolarStaff(bool $value)
