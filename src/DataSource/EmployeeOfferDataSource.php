@@ -114,6 +114,7 @@ with employer as (
         when C.offer_commission is not null and C.offer_commission > 0 then C.price - C.price * C.offer_commission * 0.01
         when C.user_commission is not null and C.user_commission > 0 then C.price - C.price * C.user_commission * 0.01
         when C.base_commission is not null and C.base_commission > 0 then C.price - C.price * C.base_commission * 0.01
+        else C.price
       end as price
     from seller_compensations C
   ),
