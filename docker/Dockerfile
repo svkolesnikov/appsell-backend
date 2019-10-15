@@ -1,5 +1,12 @@
 FROM php:7.3-fpm-alpine
 
+# Добавим в контейнер supervisor и nginx
+
+RUN apk add --no-cache nginx
+RUN apk add --no-cache supervisor
+
+# Это относится к PHP
+
 RUN apk add --no-cache \
     libpq \
     git \
@@ -7,7 +14,6 @@ RUN apk add --no-cache \
     nodejs-npm \
     libevent \
     rabbitmq-c \
-    'su-exec>=0.2' \
     libzip
 
 RUN apk add --no-cache --virtual .build-deps \
@@ -36,7 +42,7 @@ RUN apk add --no-cache --virtual .build-deps \
 WORKDIR /var/www/app
 ENV COMPOSER_ALLOW_SUPERUSER 1
 
-COPY ./composer.*   /var/www/app/
+COPY ./composer.* /var/www/app/
 COPY ./symfony.lock /var/www/app/symfony.lock
 
 # Установка вендоров на основании composer.lock
@@ -53,6 +59,10 @@ COPY ./config        /var/www/app/config
 COPY ./src           /var/www/app/src
 COPY ./templates     /var/www/app/templates
 COPY ./translations  /var/www/app/translations
+RUN cd /var/www/app \
+ && mkdir var \
+ && chmod 0755 var \
+ && chown www-data:www-data var
 
 # Итоговое построение карты autoload
 RUN php composer.phar dump-autoload --optimize --classmap-authoritative
@@ -60,18 +70,17 @@ RUN php composer.phar dump-autoload --optimize --classmap-authoritative
 RUN npm install -g bower
 RUN bower install --allow-root
 
-VOLUME /var/www/app
-VOLUME /var/www/app/var
-VOLUME /var/www/app/public/images
+COPY ./docker/php-fpm.conf      /usr/local/etc/php-fpm.conf
+COPY ./docker/www.conf          /usr/local/etc/php-fpm.d/www.conf
+COPY ./docker/supervisord.conf  /etc/supervisord.conf
+COPY ./docker/nginx.conf        /etc/nginx/nginx.conf
+COPY ./docker/nginx.vhost.conf  /etc/nginx/conf.d/default.conf
 
-EXPOSE 9000
-
-COPY ./build/fpm/php-fpm.conf           /usr/local/etc/php-fpm.conf
-COPY ./build/fpm/www.conf               /usr/local/etc/php-fpm.d/www.conf
+# Скрипт старта
 COPY ./build/fpm/docker-entry-point.sh  /usr/local/bin/docker-entry-point
-
 RUN chmod +x /usr/local/bin/docker-entry-point
+#ENTRYPOINT ["docker-entry-point"]
 
-ENTRYPOINT ["docker-entry-point"]
+EXPOSE 80
 
-CMD ["php-fpm"]
+CMD ["supervisord", "-n", "-c", "/etc/supervisord.conf"]
