@@ -9,6 +9,5 @@
         name: "{{ item }}"
         state: absent
       with_items:
-        - appsell_backend_nginx
-        - appsell_backend_fpm
-        - appsell_backend_swagger_ui
+        - appsell_backend_app
+        - appsell_swagger_ui

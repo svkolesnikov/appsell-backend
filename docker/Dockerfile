@@ -77,8 +77,8 @@ COPY ./docker/nginx.conf        /etc/nginx/nginx.conf
 COPY ./docker/nginx.vhost.conf  /etc/nginx/conf.d/default.conf
 
 # Скрипт старта
-COPY ./build/fpm/docker-entry-point.sh  /usr/local/bin/docker-entry-point
-RUN chmod +x /usr/local/bin/docker-entry-point
+#COPY ./docker/docker-entry-point.sh  /usr/local/bin/docker-entry-point
+#RUN chmod +x /usr/local/bin/docker-entry-point
 #ENTRYPOINT ["docker-entry-point"]
 
 EXPOSE 80

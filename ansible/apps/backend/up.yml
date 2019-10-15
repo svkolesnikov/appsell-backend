@@ -1,0 +1,72 @@
+---
+
+- hosts: all
+  become_user: root
+
+  vars:
+    registry_host: 11.1.1.5
+    registry_port: 5000
+    var_dir: /datadrive/app/backend/var
+    images_dir: /datadrive/app/backend/images
+    app_env: prod
+    app_locale: "ru"
+    app_secret: "86e7b44293d50666286e7b44293d5066620c4381b619a9cfea7bf5ec20c4381b619a9cfea7bf5ec2"
+    database_url: "pgsql://backend:Wq2v9LV4UP@11.1.1.5:5432/appsell"
+    mailer_url: "gmail://noreply@appsell.me:HT6i0cyyeF18mKQs@smtp.gmail.com:465?encryption=ssl"
+    rabbitmq_dsn: "amqp://admin:c58znNLBxWqzuT5@11.1.1.5:5672/appsell"
+    firebase_api_key: "AAAAwxBBPL4:APA91bFVrKfPUiCGFpO942f0DlaIEevXADVujey_O7yTmaRE80G-GBl7c1Zj_UJzISRm8LOJ2asJBtD0e4AIoG2MlGsFX47luVtRW2fJv0Az0n7k16weHGLTW_ITt7vHr_QAmQAXQ3sBuTiDkrvOYQ74GCGUCMfGjw"
+    solar_staff_api_url: "https://api.solar-staff.com"
+    solar_staff_api_client_id: "457"
+    solar_staff_api_salt: "3ff2b41a57cfc8006afa47"
+    solar_staff_login_url: "https://www.solar-staff.com/#login"
+
+  tasks:
+
+    - name: Создание каталога var
+      file:
+        state: directory
+        name: "{{ item }}"
+      with_items:
+        - "{{ var_dir }}"
+        - "{{ images_dir }}"
+
+    - name: swagger ui
+      docker_container:
+        pull: yes
+        name: appsell_swagger_ui
+        image: "swaggerapi/swagger-ui"
+        state: started
+        recreate: yes
+        restart_policy: unless-stopped
+        env:
+          API_URL: "https://appsell.me/api/swagger"
+
+    - name: app
+      docker_container:
+        pull: yes
+        name: appsell_backend_app
+        image: "{{ registry_host }}:{{ registry_port }}/backend/app"
+        state: started
+        recreate: yes
+        restart_policy: unless-stopped
+        hostname: "{{ ansible_hostname }}.backend.app"
+        dns_servers: ["8.8.8.8", "8.8.4.4"]
+        ports:
+          - 8001:80
+        volumes:
+          - "{{ var_dir }}:/var/www/app/var"
+          - "{{ images_dir }}:/var/www/app/public/images"
+        links:
+          - appsell_swagger_ui:swagger-ui
+        env:
+          APP_ENV: "{{ app_env }}"
+          APP_LOCALE: "{{ app_locale }}"
+          APP_SECRET: "{{ app_secret }}"
+          DATABASE_URL: "{{ database_url }}"
+          MAILER_URL: "{{ mailer_url }}"
+          RABBITMQ_DSN: "{{ rabbitmq_dsn }}"
+          FIREBASE_API_KEY: "{{ firebase_api_key }}"
+          SOLAR_STAFF_API_URL: "{{ solar_staff_api_url }}"
+          SOLAR_STAFF_API_CLIENT_ID: "{{ solar_staff_api_client_id }}"
+          SOLAR_STAFF_API_SALT: "{{ solar_staff_api_salt }}"
+          SOLAR_STAFF_LOGIN_URL: "{{ solar_staff_login_url }}"

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DOCKER_DIR="${TMPDIR:-/tmp}/appsell"
+DOCKER_DIR="${TMPDIR:-/tmp}/backend"
 
 FPM_DOCKERFILE="${DOCKER_DIR}/docker/Dockerfile"
 
@@ -23,7 +23,7 @@ cp -R ./ "${DOCKER_DIR}"
 
 echo "Скомпилируем контейнер приложения"
 
-TAG_PREFIX="11.1.1.5:5000/appsell"
+TAG_PREFIX="11.1.1.5:5000/backend"
 
 FPM_TAG="${TAG_PREFIX}/app:latest"
 
