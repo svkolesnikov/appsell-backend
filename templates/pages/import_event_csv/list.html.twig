@@ -1,0 +1,40 @@
+{% extends 'base.html.twig' %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script type="text/javascript">
+        // $(function() {
+        //     $('.commission-percent').editable({
+        //         error: function(response, newValue) {
+        //             return response.responseJSON.error;
+        //         }
+        //     });
+        // });
+    </script>
+
+{% endblock %}
+
+{% block top_nav_menu_buttons %}
+    {% if is_granted('ROLE_IMPORT_CSV_IMPORT') %}
+
+        {{ form_start(form, {'method': 'POST', 'action': path('app_import_csv_import')}) }}
+            {{ form_errors(form) }}
+
+            {{ form_row(form.delimeter) }}
+            {{ form_row(form.click_id_column_number) }}
+            {{ form_row(form.file) }}
+
+            <div class="well well-small form-actions">
+                <button type="submit" class="btn btn-success">Импортировать</button>
+            </div>
+        {{ form_end(form) }}
+
+    {% endif %}
+{% endblock %}
+
+{% block page_content %}
+
+    лист
+
+{% endblock %}
