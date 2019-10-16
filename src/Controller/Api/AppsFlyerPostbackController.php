@@ -4,17 +4,16 @@ namespace App\Controller\Api;
 
 use App\DCI\ActionLogging;
 use App\DCI\SdkEventCreating;
+use App\Exception\Api\EventExistsException;
 use App\Exception\Api\EventWithoutReferrerException;
 use App\Exception\Api\FormValidationException;
 use App\Lib\Controller\FormTrait;
 use App\Lib\Enum\ActionLogItemTypeEnum;
 use App\Lib\Enum\SdkEventSourceEnum;
-use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityNotFoundException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints;
 use Symfony\Component\Form\Extension\Core\Type;
@@ -66,7 +65,7 @@ class AppsFlyerPostbackController
 
             return new JsonResponse(null, JsonResponse::HTTP_CREATED);
 
-        } catch (UniqueConstraintViolationException $ex) {
+        } catch (EventExistsException $ex) {
 
             $logging->log(
                 ActionLogItemTypeEnum::APPSFLYER_EVENT(),
@@ -138,7 +137,7 @@ class AppsFlyerPostbackController
 
             return new JsonResponse(null, JsonResponse::HTTP_CREATED);
 
-        } catch (UniqueConstraintViolationException $ex) {
+        } catch (EventExistsException $ex) {
 
             $logging->log(
                 ActionLogItemTypeEnum::APPSFLYER_EVENT(),

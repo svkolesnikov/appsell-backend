@@ -5,10 +5,10 @@ namespace App\Lib\Enum;
 use MyCLabs\Enum\Enum;
 
 /**
- * @method static static APPSFLYER_EVENT()
- * @method static static SDK_EVENT()
- * @method static static SOLAR_STAFF_REGISTRATION()
- * @method static static SOLAR_STAFF_PAYOUT()
+ * @method static ActionLogItemTypeEnum APPSFLYER_EVENT()
+ * @method static ActionLogItemTypeEnum SDK_EVENT()
+ * @method static ActionLogItemTypeEnum SOLAR_STAFF_REGISTRATION()
+ * @method static ActionLogItemTypeEnum SOLAR_STAFF_PAYOUT()
  */
 final class ActionLogItemTypeEnum extends Enum
 {

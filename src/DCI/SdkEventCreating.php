@@ -14,6 +14,7 @@ use App\Entity\SdkEvent;
 use App\Entity\SellerBaseCommission;
 use App\Entity\User;
 use App\Entity\UserOfferLink;
+use App\Exception\Api\EventExistsException;
 use App\Exception\Api\EventWithBadDataException;
 use App\Exception\Api\EventWithoutReferrerException;
 use App\Exception\Api\SolarStaffException;
@@ -65,6 +66,7 @@ class SdkEventCreating
      * @return SdkEvent
      * @throws EntityNotFoundException
      * @throws EventWithoutReferrerException
+     * @throws EventExistsException
      */
     public function createFromClickId(string $clickId, string $eventName, SdkEventSourceEnum $source, array $requestInfo = []): SdkEvent
     {
@@ -141,6 +143,7 @@ class SdkEventCreating
      * @throws EventWithBadDataException
      * @throws EventWithoutReferrerException
      * @throws SolarStaffException
+     * @throws EventExistsException
      */
     public function createFromSdk(
         string $eventName,
@@ -361,6 +364,7 @@ SQL;
      * @param array $requestInfo
      * @return SdkEvent
      * @throws DBALException
+     * @throws EventExistsException
      */
     protected function create(
         OfferExecution $offerExecution,
@@ -493,6 +497,24 @@ SQL;
         $newEvent->setSourceInfo($sourceInfo);
 
         $offerExecution->addEvent($newEvent);
+
+        // Перед тем как попробовать записать в БД, проверим, нет ли
+        // там уже этого события
+
+        $existsEvent = $this->entityManager->getRepository(SdkEvent::class)->findOneBy([
+            'offer'      => $link->getOffer(),
+            'offer_link' => $link,
+            'device_id'  => $deviceId,
+            'event_type' => $eventType
+        ]);
+
+        if (null !== $existsEvent) {
+
+            $offerId = $link->getOffer()->getId();
+            $eventCode = $eventType->getCode();
+
+            throw new EventExistsException("Событие $eventCode от $deviceId для $offerId уже было записано");
+        }
 
         $this->entityManager->persist($newEvent);
 

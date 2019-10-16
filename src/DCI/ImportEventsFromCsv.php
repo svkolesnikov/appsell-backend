@@ -31,13 +31,7 @@ class ImportEventsFromCsv
         $this->eventCreator = $ec;
     }
 
-    public function import(
-        string $delimeter,
-        int $clickIdColumn,
-        int $eventColumn,
-        UploadedFile $file,
-        string $userId
-    ): void
+    public function import(string $delimeter, int $clickIdColumn, int $eventColumn, UploadedFile $file, string $userId): void
     {
         $importedEventsCount = 0;
 
@@ -96,7 +90,7 @@ class ImportEventsFromCsv
                 );
 
                 $this->em->persist($logItem);
-                $this->em->flush();
+                $this->em->flush($logItem);
 
                 $importedEventsCount++;
             }

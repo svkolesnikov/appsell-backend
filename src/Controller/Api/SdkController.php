@@ -6,12 +6,12 @@ use App\DCI\ActionLogging;
 use App\DCI\SdkEventCreating;
 use App\Entity\OfferExecution;
 use App\Entity\OfferLink;
+use App\Exception\Api\EventExistsException;
 use App\Exception\Api\EventWithBadDataException;
 use App\Exception\Api\EventWithoutReferrerException;
 use App\Exception\Api\FormValidationException;
 use App\Lib\Controller\FormTrait;
 use App\Lib\Enum\ActionLogItemTypeEnum;
-use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityNotFoundException;
 use Exception;
@@ -159,7 +159,7 @@ class SdkController
 
             return new JsonResponse(null, JsonResponse::HTTP_CREATED);
 
-        } catch (UniqueConstraintViolationException $ex) {
+        } catch (EventExistsException $ex) {
 
             $logging->log(
                 ActionLogItemTypeEnum::SDK_EVENT(),
