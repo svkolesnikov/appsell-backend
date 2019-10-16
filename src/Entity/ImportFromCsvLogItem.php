@@ -5,7 +5,7 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="App\Entity\Repository\ImportFromCsvLogRepository")
  * @ORM\Table(name="actiondata.import_from_csv_log")
  * @ORM\HasLifecycleCallbacks
  */
@@ -24,9 +24,11 @@ class ImportFromCsvLogItem
     protected $filename;
 
     /**
-     * @ORM\Column(type="string")
+     * @var User
+     * @ORM\ManyToOne(targetEntity = "User")
+     * @ORM\JoinColumn(name = "user_id", referencedColumnName = "id")
      */
-    protected $user_id;
+    protected $user;
 
     /**
      * @ORM\Column(type="string")
@@ -56,7 +58,7 @@ class ImportFromCsvLogItem
 
     public function __construct(
         string $filename,
-        string $userId,
+        User $user,
         ?string $clickId,
         ?string $eventName,
         ?string $error,
@@ -64,7 +66,7 @@ class ImportFromCsvLogItem
     )
     {
         $this->filename = $filename;
-        $this->user_id = $userId;
+        $this->user = $user;
         $this->click_id = $clickId;
         $this->event_name = $eventName;
         $this->error = $error;
@@ -89,9 +91,9 @@ class ImportFromCsvLogItem
         return $this->filename;
     }
 
-    public function getUserId(): string
+    public function getUser(): User
     {
-        return $this->user_id;
+        return $this->user;
     }
 
     public function getClickId(): ?string

@@ -3,7 +3,10 @@
 namespace App\Controller\Admin;
 
 use App\DCI\ImportEventsFromCsv;
+use App\Entity\ImportFromCsvLogItem;
+use App\Entity\Repository\ImportFromCsvLogRepository;
 use App\Form\EventsCsvImportType;
+use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\Form\FormError;
@@ -17,9 +20,17 @@ class ImportEventsCsvController extends BaseController
     /** @var LoggerInterface */
     private $logger;
 
-    public function __construct(LoggerInterface $logger)
+    /** @var EntityManagerInterface */
+    private $em;
+
+    /** @var ImportFromCsvLogRepository */
+    private $repository;
+
+    public function __construct(LoggerInterface $logger, EntityManagerInterface $em)
     {
         $this->logger = $logger;
+        $this->em = $em;
+        $this->repository = $em->getRepository(ImportFromCsvLogItem::class);
     }
 
     /**
@@ -32,9 +43,11 @@ class ImportEventsCsvController extends BaseController
     public function startAction(Request $request)
     {
         $form = $this->createForm(EventsCsvImportType::class);
+        $list = $this->repository->getLastItems();
 
         return $this->render('pages/import_event_csv/list.html.twig', [
-            'form' => $form->createView()
+            'form' => $form->createView(),
+            'list' => $list
         ]);
     }
 
@@ -60,7 +73,7 @@ class ImportEventsCsvController extends BaseController
                     $data['click_id_column'],
                     $data['event_column'],
                     $data['file'],
-                    $this->getUser()->getId()
+                    $this->getUser()
                 );
 
                 return new RedirectResponse('/admin/import/events-csv');
@@ -72,9 +85,11 @@ class ImportEventsCsvController extends BaseController
             }
         }
 
+        $list = $this->repository->getLastItems();
+
         return $this->render('pages/import_event_csv/list.html.twig', [
             'form' => $form->createView(),
-            'list' => []
+            'list' => $list
         ]);
     }
 }

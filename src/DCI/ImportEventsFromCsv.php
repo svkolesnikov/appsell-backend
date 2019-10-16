@@ -6,9 +6,6 @@ use App\Entity\ImportFromCsvLogItem;
 use App\Entity\User;
 use App\Exception\Admin\ImportFromCsvException;
 use App\Lib\Enum\SdkEventSourceEnum;
-use Doctrine\Bundle\DoctrineBundle\Registry;
-use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
-use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -31,10 +28,8 @@ class ImportEventsFromCsv
         $this->eventCreator = $ec;
     }
 
-    public function import(string $delimeter, int $clickIdColumn, int $eventColumn, UploadedFile $file, string $userId): void
+    public function import(string $delimeter, int $clickIdColumn, int $eventColumn, UploadedFile $file, User $user): void
     {
-        $importedEventsCount = 0;
-
         // Сначала пробуем разобрать файл
 
         $csvFile = new \SplFileObject($file->getPath() . '/' . $file->getFilename());
@@ -82,22 +77,24 @@ class ImportEventsFromCsv
 
                 $logItem = new ImportFromCsvLogItem(
                     $file->getClientOriginalName(),
-                    $userId,
+                    $user,
                     $clickId,
                     $eventName,
                     $error,
                     implode($delimeter, $cells)
                 );
 
-                $this->em->persist($logItem);
-                $this->em->flush($logItem);
+                try {
 
-                $importedEventsCount++;
+                    $this->em->persist($logItem);
+                    $this->em->flush($logItem);
+
+                } catch (\Exception $ex) {
+
+                    $this->logger->error('Не удалось импортировать событие из CSV: ' . $ex->getMessage(), $cells);
+                    throw new ImportFromCsvException('Ошибка импорта. Подробности смотрите в логе.');
+                }
             }
-        }
-
-        if (0 === $importedEventsCount) {
-            throw new ImportFromCsvException('Переданный файл не содержит событий');
         }
     }
 }
