@@ -19,10 +19,14 @@
     {% if is_granted('ROLE_IMPORT_CSV_IMPORT') %}
 
         {{ form_start(form, {'method': 'POST', 'action': path('app_import_csv_import')}) }}
-            {{ form_errors(form) }}
+
+            <div class="form-group">
+                {{ form_errors(form) }}
+            </div>
 
             {{ form_row(form.delimeter) }}
-            {{ form_row(form.click_id_column_number) }}
+            {{ form_row(form.click_id_column) }}
+            {{ form_row(form.event_column) }}
             {{ form_row(form.file) }}
 
             <div class="well well-small form-actions">

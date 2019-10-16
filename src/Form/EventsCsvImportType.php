@@ -36,9 +36,18 @@ class EventsCsvImportType extends AbstractType
                     'Точка с запятой (;)' => ';'
                 ],
             ])
-            ->add('click_id_column_number', ChoiceType::class, [
+            ->add('click_id_column', ChoiceType::class, [
                 'required' => true,
                 'label'    => '№ колонки с ClickID',
+                'placeholder' => 'Не выбрано',
+                'choices'     => array_combine(
+                    range(1, 20),
+                    range(1, 20)
+                ),
+            ])
+            ->add('event_column', ChoiceType::class, [
+                'required' => true,
+                'label'    => '№ колонки с EventName',
                 'placeholder' => 'Не выбрано',
                 'choices'     => array_combine(
                     range(1, 20),

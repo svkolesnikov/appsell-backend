@@ -5,10 +5,10 @@ namespace App\Lib\Enum;
 use MyCLabs\Enum\Enum;
 
 /**
- * @method static static APP()
- * @method static static TUNE()
- * @method static static APPSFLYER()
- * @method static static CSV()
+ * @method static SdkEventSourceEnum APP()
+ * @method static SdkEventSourceEnum TUNE()
+ * @method static SdkEventSourceEnum APPSFLYER()
+ * @method static SdkEventSourceEnum CSV()
  */
 final class SdkEventSourceEnum extends Enum
 {

@@ -26,18 +26,14 @@ class ImportFromCsvLogItem
     protected $filename;
 
     /**
-     * @var User
-     * @ORM\ManyToOne(targetEntity = "User")
-     * @ORM\JoinColumn(name = "user_id", referencedColumnName = "id")
+     * @ORM\Column(type="string")
      */
-    protected $user;
+    protected $user_id;
 
     /**
-     * @var OfferExecution
-     * @ORM\ManyToOne(targetEntity = "OfferExecution")
-     * @ORM\JoinColumn(name = "click_id", referencedColumnName = "id")
+     * @ORM\Column(type="string")
      */
-    protected $click;
+    protected $click_id;
 
     /**
      * @ORM\Column(type="string")
@@ -62,16 +58,16 @@ class ImportFromCsvLogItem
 
     public function __construct(
         string $filename,
-        User $user,
-        ?OfferExecution $click,
+        string $userId,
+        ?string $clickId,
         ?string $eventName,
         ?string $error,
         string $data
     )
     {
         $this->filename = $filename;
-        $this->user = $user;
-        $this->click = $click;
+        $this->user_id = $userId;
+        $this->click_id = $clickId;
         $this->event_name = $eventName;
         $this->error = $error;
         $this->data = $data;
@@ -95,14 +91,14 @@ class ImportFromCsvLogItem
         return $this->filename;
     }
 
-    public function getUser(): User
+    public function getUserId(): string
     {
-        return $this->user;
+        return $this->user_id;
     }
 
-    public function getClick(): ?OfferExecution
+    public function getClickId(): ?string
     {
-        return $this->click;
+        return $this->click_id;
     }
 
     public function getEventName(): ?string
