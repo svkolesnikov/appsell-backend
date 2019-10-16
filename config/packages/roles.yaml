@@ -36,6 +36,9 @@ security:
 
             - ROLE_APP_REPORT_LIST
 
+            - ROLE_IMPORT_CSV_LIST
+            - ROLE_IMPORT_CSV_IMPORT
+
         ROLE_SUPER_ADMIN:
             - ROLE_ADMIN
 

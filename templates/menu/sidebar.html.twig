@@ -48,4 +48,10 @@
         </li>
     {% endif %}
 
+    {% if is_granted(['ROLE_IMPORT_CSV_LIST']) %}
+        <li>
+            <a href="{{ path('app_import_csv_list') }}"><i class="fa fa-bell-o"></i>Импорт из CSV</a>
+        </li>
+    {% endif %}
+
 {% endblock %}
