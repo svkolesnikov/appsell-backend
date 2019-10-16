@@ -8,6 +8,7 @@ use App\Exception\Api\EventWithoutReferrerException;
 use App\Exception\Api\FormValidationException;
 use App\Lib\Controller\FormTrait;
 use App\Lib\Enum\ActionLogItemTypeEnum;
+use App\Lib\Enum\SdkEventSourceEnum;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityNotFoundException;
 use Psr\Log\LoggerInterface;
@@ -56,7 +57,13 @@ class AppsFlyerPostbackController
 
         try {
 
-            $creating->createFromClickId($data['clickid'], 'installation', $request->server->all());
+            $creating->createFromClickId(
+                $data['clickid'],
+                'installation',
+                SdkEventSourceEnum::APPSFLYER(),
+                $request->server->all()
+            );
+
             return new JsonResponse(null, JsonResponse::HTTP_CREATED);
 
         } catch (UniqueConstraintViolationException $ex) {
@@ -122,7 +129,13 @@ class AppsFlyerPostbackController
 
         try {
 
-            $creating->createFromClickId($data['clickid'], $data['partner_event_name'], $request->server->all());
+            $creating->createFromClickId(
+                $data['clickid'],
+                $data['partner_event_name'],
+                SdkEventSourceEnum::APPSFLYER(),
+                $request->server->all()
+            );
+
             return new JsonResponse(null, JsonResponse::HTTP_CREATED);
 
         } catch (UniqueConstraintViolationException $ex) {

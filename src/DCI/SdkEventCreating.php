@@ -60,12 +60,13 @@ class SdkEventCreating
     /**
      * @param string $clickId OfferExecuteion->Id
      * @param string $eventName
+     * @param SdkEventSourceEnum $source
      * @param array $requestInfo
      * @return SdkEvent
      * @throws EntityNotFoundException
      * @throws EventWithoutReferrerException
      */
-    public function createFromClickId(string $clickId, string $eventName, array $requestInfo = []): SdkEvent
+    public function createFromClickId(string $clickId, string $eventName, SdkEventSourceEnum $source, array $requestInfo = []): SdkEvent
     {
         $clickId = $this->extractClickId($clickId);
 
@@ -107,7 +108,7 @@ class SdkEventCreating
                 $employee,
                 $compensation,
                 $deviceId,
-                SdkEventSourceEnum::APPSFLYER(),
+                $source,
                 [],
                 $requestInfo
             );
