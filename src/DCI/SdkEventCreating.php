@@ -91,7 +91,7 @@ class SdkEventCreating
         /** @var EventType $eventType */
         $eventType = $this->entityManager->find(EventType::class, $eventName);
         $employee  = $offerExecution->getSourceLink()->getUser();
-        $deviceId  = "appsflyer-${clickId}";
+        $deviceId  = sprintf('%s-%s', $source->getValue(), $clickId);
 
         // Начнем сохранение
 
