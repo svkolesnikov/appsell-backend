@@ -69,8 +69,8 @@ class SdkController
     public function followDeepLinkAction(Request $request): RedirectResponse
     {
         $offerLinkId = $request->get('app_id');
-        $fingerprint = md5($request->headers->get('user-agent') . $request->server->get('REMOTE_ADDR'));
-        $employeeId  = null;
+        $fingerprint  = md5($request->headers->get('user-agent') . $request->server->get('REMOTE_ADDR'));
+        $executionId = null;
 
         /** @var OfferLink $link */
         $link = $this->entityManager->find('App:OfferLink', $offerLinkId);
@@ -83,11 +83,11 @@ class SdkController
             ]);
 
             if (null !== $execution) {
-                $employeeId = $execution->getSourceLink()->getUser()->getId();
+                $executionId = $execution->getId();
             }
         }
 
-        return new RedirectResponse(sprintf('app-%s://referrer/%s', $offerLinkId, $employeeId));
+        return new RedirectResponse(sprintf('app-%s://referrer/%s', $offerLinkId, $executionId));
     }
 
     /**
@@ -106,7 +106,7 @@ class SdkController
      *          @SWG\Property(property = "event_name", type = "string"),
      *          @SWG\Property(property = "app_id", type = "string", description = "Зашивается в приложении"),
      *          @SWG\Property(property = "device_id", type = "string", description = "Уникальный идентификатор устройства"),
-     *          @SWG\Property(property = "referrer_id", type = "string", description = "ID пользователя, передавшего реферальную ссылку на установку"),
+     *          @SWG\Property(property = "referrer_id", type = "string", description = "ID реферальной ссылки на установку"),
      *          @SWG\Property(property = "data", type = "object", description = "Произвольные контекстные данные события в формате (key: value)")
      *      }
      *     )

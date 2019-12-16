@@ -226,14 +226,8 @@ SQL;
                     // и заменим макросы на данные
 
                     $linkUrl = str_replace(
-                        [
-                            '(clickid)',
-                            '(referrerid)'
-                        ],
-                        [
-                            sprintf('click-%s', $execution->getId()),
-                            $userOfferLink->getUser()->getId()
-                        ],
+                        ['(clickid)',],
+                        [sprintf('click-%s', $execution->getId()),],
                         $link->getUrl()
                     );
 
@@ -250,7 +244,7 @@ SQL;
 
                     if ($link->getType()->equals(OfferLinkTypeEnum::GOOGLE_PLAY())) {
                         if (false === strpos($resultLink, 'referrer=utm_content%3D')) {
-                            $resultLink .= '&referrer=utm_content%3D' . $userOfferLink->getUser()->getId();
+                            $resultLink .= '&referrer=utm_content%3D' . sprintf('click-%s', $execution->getId());
                         }
                     }
 

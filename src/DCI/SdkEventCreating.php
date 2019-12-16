@@ -53,7 +53,7 @@ class SdkEventCreating
         return 0 === strpos($reffererId, 'click-');
     }
 
-    public function extractClickId(string $clickId): string
+    public function extractClickId(?string $clickId): string
     {
         return str_replace('click-', '', $clickId);
     }
@@ -135,7 +135,7 @@ class SdkEventCreating
      * @param string $eventName
      * @param string $appId
      * @param string $deviceId
-     * @param null|string $referrerId
+     * @param null|string $clickId
      * @param array $eventData
      * @param array $requestInfo
      * @return SdkEvent
@@ -149,11 +149,13 @@ class SdkEventCreating
         string $eventName,
         string $appId,
         string $deviceId,
-        ?string $referrerId,
+        ?string $clickId,
         array $eventData = [],
         array $requestInfo = []
     ): SdkEvent
     {
+        $clickId = $this->extractClickId($clickId);
+
         // Проверим наличие оффера, ссылки и ивента в нем
 
         /** @var OfferLink $link */
@@ -172,16 +174,14 @@ class SdkEventCreating
             throw new EntityNotFoundException('Событие отсутствует в оффере');
         }
 
-        // Проверим наличие сотрудника
-        // Если не нашли сотрудника по ID, то событие запишется в БД
-        // без ссылки на пользователя, с 0 суммами, и не будет влиять
-        // на выплаты и статистику
-
-        /** @var User $employee */
-        $employee = $referrerId ? $this->entityManager->find('App:User', $referrerId) : null;
-        if (null === $employee) {
+        /** @var OfferExecution $offerExecution */
+        $offerExecution = $this->entityManager->getRepository(OfferExecution::class)->find($clickId);
+        if (null === $offerExecution) {
             throw new EventWithoutReferrerException('ReferrerId отсутствует в присланом событии');
         }
+
+        /** @var User $employee */
+        $employee = $offerExecution->getSourceLink()->getUser();
 
         if (isset($eventData['email'])) {
 
@@ -229,70 +229,6 @@ class SdkEventCreating
         $this->entityManager->beginTransaction();
 
         try {
-
-            // Получим ссылку на OfferExecution
-            // если нет ни одного "свободного", то будем его создавать
-            // при этом, если не был передан referrer_id, то можно создать
-            // формальный OfferExecution, без привязки к реферальной ссылке
-            // а суммы в event записать нулевые
-
-            $qb = $this->entityManager->createQueryBuilder();
-            $qb = $qb
-                ->select('e')
-                ->from('App:OfferExecution', 'e')
-                ->join('e.source_link', 'ul', Join::WITH)
-                ->leftJoin('e.events', 'ee', Join::WITH, 'ee.event_type = :event_type')
-                ->setMaxResults(1)
-                ->where('e.offer = :offer')
-                ->andWhere('e.status = :status')
-                ->andWhere('e.offer_link = :app_link')
-                ->andWhere('ee.id is null')
-                ->andWhere('ul.user = :employee')
-                ->orderBy('e.ctime', 'asc')
-                ->setParameters([
-                    'offer'      => $link->getOffer(),
-                    'app_link'   => $link,
-                    'event_type' => $eventType,
-                    'employee'   => $employee,
-                    'status'     => OfferExecutionStatusEnum::PROCESSING
-                ]);
-
-            /** @var OfferExecution $offerExecution */
-            $offerExecution = $qb->getQuery()->getOneOrNullResult();
-
-            if (null === $offerExecution) {
-
-                // Вообще, если пришел ивент с referrer_id, значит ссылка была
-                // так что просто пытаемся ее достать, для привязки к ней очередного
-                // исполнения оффера
-
-                /** @var UserOfferLink $userOfferLink */
-                $userOfferLink = $this->entityManager->getRepository('App:UserOfferLink')->findOneBy([
-                    'user'  => $employee,
-                    'offer' => $link->getOffer()
-                ]);
-
-                $offerExecution = new OfferExecution();
-                $offerExecution->setOfferLink($link);
-                $offerExecution->setOffer($link->getOffer());
-                $offerExecution->setSourceLink($userOfferLink);
-                $offerExecution->setStatus(OfferExecutionStatusEnum::PROCESSING());
-
-                $offerExecution->setSourceReferrerInfo(array_intersect_key(
-                    $requestInfo,
-                    array_flip([
-                        'HTTP_USER_AGENT',
-                        'REMOTE_ADDR'
-                    ])
-                ));
-
-                $offerExecution->setSourceReferrerFingerprint(md5(
-                    $requestInfo['HTTP_USER_AGENT'] .
-                    $requestInfo['REMOTE_ADDR']
-                ));
-
-                $this->entityManager->persist($offerExecution);
-            }
 
             // Далее рассчитываем суммы (если необходимо), для конкретного события
             // и всех участником схемы
@@ -383,7 +319,7 @@ SQL;
         $amountForEmployee = 0;
         $amountForPayout = 0;
 
-        if (null !== $employee && $this->userGroupManager->hasGroup($employee, UserGroupEnum::EMPLOYEE())) {
+        if ($this->userGroupManager->hasGroup($employee, UserGroupEnum::EMPLOYEE())) {
 
             $employer = $employee->getProfile()->getEmployer();
             if (null !== $employer) {
