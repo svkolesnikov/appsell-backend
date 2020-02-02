@@ -23,7 +23,7 @@ class CommissionController extends BaseController
     /**
      * @Route("/admin/commissions", name="app_commission_list")
      *
-     * @Security("has_role('ROLE_APP_COMMISSION_LIST')")
+     * @Security("is_granted('ROLE_APP_COMMISSION_LIST')")
      *
      * @param Request $request
      *
@@ -55,7 +55,7 @@ class CommissionController extends BaseController
     /**
      * @Route("/admin/commissions/{id}/edit", name="app_commission_edit")
      *
-     * @Security("has_role('ROLE_APP_COMMISSION_EDIT')")
+     * @Security("is_granted('ROLE_APP_COMMISSION_EDIT')")
      *
      * @param Request $request
      *
@@ -93,7 +93,7 @@ class CommissionController extends BaseController
     /**
      * @Route("/admin/commissions/create", name="app_commission_create")
      *
-     * @Security("has_role('ROLE_APP_COMMISSION_CREATE')")
+     * @Security("is_granted('ROLE_APP_COMMISSION_CREATE')")
      *
      * @param Request $request
      * @return Response
@@ -131,7 +131,7 @@ class CommissionController extends BaseController
     /**
      * @Route("/admin/commissions/{id}/remove", name="app_commission_remove")
      *
-     * @Security("has_role('ROLE_APP_COMMISSION_DELETE')")
+     * @Security("is_granted('ROLE_APP_COMMISSION_DELETE')")
      *
      * @param BaseCommission $commission
      * @return Response

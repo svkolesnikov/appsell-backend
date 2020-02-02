@@ -34,7 +34,7 @@
             <div class="box-body">
                 <div class="row">
 
-                    {% if is_granted(['ROLE_ADMIN', 'ROLE_SUPER_ADMIN']) %}
+                    {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_SUPER_ADMIN') %}
                         <div class="col-xs-3 col-sm-2" style="padding-right: 0px">
                             <select id="seller" name="filter[seller]" style="width:100%">
                                 <option value="">Выберите работодателя</option>
@@ -72,12 +72,12 @@
                         <th class="column-title">Имя</th>
                         <th class="column-title">Фамилия</th>
                         <th class="column-title">Телефон</th>
-                        {% if is_granted(['ROLE_ADMIN', 'ROLE_SUPER_ADMIN']) %}
+                        {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_SUPER_ADMIN') %}
                         <th class="column-title">ID Компании</th>
                         <th class="column-title">Наименование компании</th>
                         <th class="column-title">Работодатель</th>
                         {% endif %}
-                        {% if is_granted(['ROLE_APP_USER_CHANGE_COMMISSION']) %}
+                        {% if is_granted('ROLE_APP_USER_CHANGE_COMMISSION') %}
                             <th class="column-title">Комиссия</th>
                         {% endif %}
                         <th class="column-title">Статус</th>
@@ -93,18 +93,18 @@
                         <td>{{ user.profile.lastname }}</td>
                         <td>{{ user.profile.phone }}</td>
 
-                        {% if is_granted(['ROLE_ADMIN', 'ROLE_SUPER_ADMIN']) %}
+                        {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_SUPER_ADMIN') %}
                         <td>{{ user.profile.companyId }}</td>
                         <td>{{ user.profile.companyTitle }}</td>
                         <td>{{ user.profile.employer }}</td>
                         {% endif %}
 
-                        {% if is_granted(['ROLE_APP_USER_CHANGE_COMMISSION']) %}
+                        {% if is_granted('ROLE_APP_USER_CHANGE_COMMISSION') %}
                         <td>
                             <a href="#" class="commission-percent"
                                data-type="number"
                                data-pk="1"
-                               {% if is_granted(['ROLE_ADMIN', 'ROLE_SUPER_ADMIN']) %}
+                               {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_SUPER_ADMIN') %}
                                data-url="{{ path('api_commissions_for_user', { id: user.id }) }}"
                                {% else %}
                                data-url="{{ path('api_commissions_for_user', { id: user.id, by_user: app.user.id }) }}"

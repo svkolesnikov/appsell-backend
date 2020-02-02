@@ -35,7 +35,7 @@ class ImportEventsCsvController extends BaseController
 
     /**
      * @Route("/admin/import/events-csv", methods={"GET"}, name="app_import_csv_list")
-     * @Security("has_role('ROLE_IMPORT_CSV_LIST')")
+     * @Security("is_granted('ROLE_IMPORT_CSV_LIST')")
      *
      * @param Request $request
      * @return Response
@@ -53,7 +53,7 @@ class ImportEventsCsvController extends BaseController
 
     /**
      * @Route("/admin/import/events-csv/import", methods={"POST"}, name="app_import_csv_import")
-     * @Security("has_role('ROLE_IMPORT_CSV_IMPORT')")
+     * @Security("is_granted('ROLE_IMPORT_CSV_IMPORT')")
      *
      * @param Request $request
      * @param ImportEventsFromCsv $importer

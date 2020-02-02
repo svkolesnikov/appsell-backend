@@ -39,7 +39,7 @@
                 <table class="table table-striped table-bordered">
                     <thead>
                     <tr class="headings">
-                        {% if is_granted(['ROLE_ADMIN', 'ROLE_SUPER_ADMIN']) %}
+                        {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_SUPER_ADMIN') %}
                         <th class="column-title">Отправитель</th>
                         {% endif %}
                         <th class="column-title">Оффер</th>
@@ -54,7 +54,7 @@
                     <tbody>
                     {% for item in items %}
                         <tr class="even pointer">
-                            {% if is_granted(['ROLE_ADMIN', 'ROLE_SUPER_ADMIN']) %}
+                            {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_SUPER_ADMIN') %}
                             <td>{{ item.sender.email }}</td>
                             {% endif %}
                             <td>{% if item.offer is not null %}{{ item.offer.title }}{% endif %}</td>

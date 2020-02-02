@@ -2,10 +2,9 @@
 
 namespace App\Controller\Admin;
 
-use App\Exceptions\AccessDeniedException;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
-abstract class BaseController extends Controller
+abstract class BaseController extends AbstractController
 {
 //    /**
 //     * @param $objectName

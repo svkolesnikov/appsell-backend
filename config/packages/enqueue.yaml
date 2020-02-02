@@ -1,5 +1,4 @@
 enqueue:
-  transport:
-    default: rabbitmq_amqp
-    rabbitmq_amqp:
-      dsn: '%env(RABBITMQ_DSN)%'
+  default:
+    transport: '%env(RABBITMQ_DSN)%'
+    client: ~

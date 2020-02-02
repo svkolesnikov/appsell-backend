@@ -34,13 +34,13 @@
         <div class="box box-primary">
             <div class="box-body table-responsive no-padding">
 
-                {% if is_granted(['ROLE_ADMIN', 'ROLE_SUPER_ADMIN']) %}
+                {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_SUPER_ADMIN') %}
                     {% include 'pages/offer/_admin_list.html.twig' %}
 
-                {% elseif is_granted(['ROLE_OWNER']) %}
+                {% elseif is_granted('ROLE_OWNER') %}
                     {% include 'pages/offer/_owner_list.html.twig' %}
 
-                {% elseif is_granted(['ROLE_SELLER', 'ROLE_EMPLOYEE']) %}
+                {% elseif is_granted('ROLE_SELLER') or is_granted('ROLE_EMPLOYEE') %}
                     {% include 'pages/offer/_seller_list.html.twig' %}
                 {% endif %}
 

@@ -3,7 +3,7 @@
     <thead>
     <tr class="headings">
         <th class="column-title">Информация</th>
-        {% if is_granted(['ROLE_APP_OFFER_CHANGE_COMMISSION']) %}
+        {% if is_granted('ROLE_APP_OFFER_CHANGE_COMMISSION') %}
         <th class="column-title">Комиссия</th>
         {% endif %}
         <th class="column-title">Действия</th>
@@ -37,7 +37,7 @@
                     </div>
                 </div>
             </td>
-            {% if is_granted(['ROLE_APP_OFFER_CHANGE_COMMISSION']) %}
+            {% if is_granted('ROLE_APP_OFFER_CHANGE_COMMISSION') %}
             <td>
                 <a href="#" class="commission-percent"
                    data-type="number"

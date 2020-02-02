@@ -46,7 +46,7 @@ class StatisticController extends BaseController
     /**
      * @Route("/admin/statistic", name="app_stat_list")
      *
-     * @Security("has_role('ROLE_APP_STAT_LIST')")
+     * @Security("is_granted('ROLE_APP_STAT_LIST')")
      *
      * @param Request $request
      *

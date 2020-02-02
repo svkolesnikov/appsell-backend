@@ -9,12 +9,12 @@ use App\Queue\MessageHandler\PushCommonHandler;
 use App\Queue\MessageHandler\PushDirectHandler;
 use App\Queue\MessageHandler\ReportHandler;
 use Enqueue\Consumption\QueueSubscriberInterface;
-use Interop\Queue\PsrContext;
-use Interop\Queue\PsrMessage;
-use Interop\Queue\PsrProcessor;
+use Interop\Queue\Context;
+use Interop\Queue\Message;
+use Interop\Queue\Processor as ProcessorInterface;
 use Psr\Log\LoggerInterface;
 
-class Processor implements PsrProcessor, QueueSubscriberInterface
+class Processor implements ProcessorInterface, QueueSubscriberInterface
 {
     public const QUEUE_PUSH_COMMON = 'notification.push.common';
     public const QUEUE_PUSH_DIRECT = 'notification.push.direct';
@@ -57,7 +57,7 @@ class Processor implements PsrProcessor, QueueSubscriberInterface
         ];
     }
 
-    public function process(PsrMessage $message, PsrContext $context)
+    public function process(Message $message, Context $context)
     {
         $data  = json_decode($message->getBody(), true) ?? [];
         $queue = $data['queue'] ?? null;

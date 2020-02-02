@@ -24,23 +24,24 @@ security:
             pattern: ^/api
             stateless: true
             provider: access_token_provider
-            simple_preauth:
-                authenticator: App\Security\AccessTokenAuthenticator
+            guard:
+                authenticators:
+                    - App\Security\AccessTokenAuthenticator
 
         admin:
             switch_user:      false
             context:          user
             pattern:          ^/admin.*
             user_checker:     App\Security\UserChecker
+            anonymous:        true
             form_login:
-                provider:     database_provider
-                login_path:     /admin/login
-                check_path:     /admin/login
+                provider:            database_provider
+                login_path:          /admin/login
+                check_path:          /admin/login
                 default_target_path: /admin/dashboard
             logout:
-                path:           /admin/logout
-                target:         /admin/login
-            anonymous:        true
+                path:   /admin/logout
+                target: /admin/login
 
         main:
             anonymous: true

@@ -2,75 +2,66 @@
 
 namespace App\Security;
 
-use App\Exception\Api\AccessTokenException;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Security\Core\Authentication\Token\AbstractToken;
-use Symfony\Component\Security\Core\Authentication\Token\PreAuthenticatedToken;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Exception\DisabledException;
-use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
+use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
-use Symfony\Component\Security\Http\Authentication\SimplePreAuthenticatorInterface;
+use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
 
-class AccessTokenAuthenticator implements SimplePreAuthenticatorInterface
+class AccessTokenAuthenticator extends AbstractGuardAuthenticator
 {
-    /**
-     * @param TokenInterface $token
-     * @param UserProviderInterface $userProvider
-     * @param $providerKey
-     * @return PreAuthenticatedToken
-     * @throws \InvalidArgumentException
-     * @throws AccessTokenException
-     */
-    public function authenticateToken(TokenInterface $token, UserProviderInterface $userProvider, $providerKey): AbstractToken
+    public function start(Request $request, AuthenticationException $authException = null)
     {
-        if (!$userProvider instanceof AccessTokenUserProvider) {
-            throw new \InvalidArgumentException(sprintf(
-                'The user provider must be an instance of AccessTokenUserProvider (%s was given).',
-                \get_class($userProvider)
-            ));
-        }
-
-        try {
-
-            $accessToken = $token->getCredentials();
-            $username    = $userProvider->getUsernameForToken($accessToken);
-            $user        = $userProvider->loadUserByUsername($username);
-            
-            return new PreAuthenticatedToken(
-                $user,
-                $accessToken,
-                $providerKey,
-                $user->getRoles()
-            );
-
-        } catch (AccessTokenException|UsernameNotFoundException|DisabledException $exception) {
-            throw new AccessTokenException($exception->getMessage(), $exception);
-        }
+        $data = ['message' => 'Authentication Required'];
+        return new JsonResponse($data, Response::HTTP_UNAUTHORIZED);
     }
 
-    public function supportsToken(TokenInterface $token, $providerKey): bool
+    public function supports(Request $request)
     {
-        return $token instanceof PreAuthenticatedToken && $token->getProviderKey() === $providerKey;
+        return $request->headers->has('authorization')
+            || $request->query->has('access_token');
     }
 
-    public function createToken(Request $request, $providerKey)
+    public function getCredentials(Request $request)
     {
-        // Токен будем получать либо из заголовов
-        // либо из URL параметра access_token
+        $header = $request->headers->get('authorization', $request->query->get('access_token'));
+        $token  = preg_replace('/^bearer /i', '', $header);
 
-        $authorizationHeader = $request->headers->get('authorization', '')
-                            ?: $request->query->get('access_token');
+        return ['token' => $token];
+    }
 
-        // Если из заголовков, то там надо префикс вырезать
-        // который к токену отношения не имеет
-
-        $accessToken = preg_replace('/^bearer /i', '', $authorizationHeader);
-
-        if (!$accessToken) {
-            return null;
+    public function getUser($credentials, UserProviderInterface $userProvider)
+    {
+        $accessToken = $credentials['token'];
+        if (null === $accessToken) {
+            return;
         }
 
-        return new PreAuthenticatedToken('anon.', $accessToken, $providerKey);
+        $username = $userProvider->getUsernameForToken($accessToken);
+        return $userProvider->loadUserByUsername($username);
+    }
+
+    public function checkCredentials($credentials, UserInterface $user)
+    {
+        return true;
+    }
+
+    public function onAuthenticationFailure(Request $request, AuthenticationException $exception)
+    {
+        $data = ['message' => strtr($exception->getMessageKey(), $exception->getMessageData())];
+        return new JsonResponse($data, Response::HTTP_FORBIDDEN);
+    }
+
+    public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $providerKey)
+    {
+        return null;
+    }
+
+    public function supportsRememberMe()
+    {
+        return false;
     }
 }

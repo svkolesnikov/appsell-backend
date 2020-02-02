@@ -23,7 +23,7 @@ class EventTypeController extends BaseController
     /**
      * @Route("/admin/event-types", name="app_event_type_list")
      *
-     * @Security("has_role('ROLE_APP_EVENT_TYPE_LIST')")
+     * @Security("is_granted('ROLE_APP_EVENT_TYPE_LIST')")
      *
      * @param Request $request
      *
@@ -55,7 +55,7 @@ class EventTypeController extends BaseController
     /**
      * @Route("/admin/event-types/{id}/edit", name="app_event_type_edit")
      *
-     * @Security("has_role('ROLE_APP_EVENT_TYPE_EDIT')")
+     * @Security("is_granted('ROLE_APP_EVENT_TYPE_EDIT')")
      *
      * @param Request $request
      *
@@ -93,7 +93,7 @@ class EventTypeController extends BaseController
     /**
      * @Route("/admin/event-types/create", name="app_event_type_create")
      *
-     * @Security("has_role('ROLE_APP_EVENT_TYPE_CREATE')")
+     * @Security("is_granted('ROLE_APP_EVENT_TYPE_CREATE')")
      *
      * @param Request $request
      * @return Response
@@ -131,7 +131,7 @@ class EventTypeController extends BaseController
     /**
      * @Route("/admin/event-types/{id}/remove", name="app_event_type_remove")
      *
-     * @Security("has_role('ROLE_APP_EVENT_TYPE_DELETE')")
+     * @Security("is_granted('ROLE_APP_EVENT_TYPE_DELETE')")
      *
      * @param EventType $eventType
      * @return Response

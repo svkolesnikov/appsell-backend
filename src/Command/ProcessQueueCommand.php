@@ -38,12 +38,12 @@ class ProcessQueueCommand extends Command
         $command     = $this->getApplication()->find($commandName);
 
         $arguments = [
-            'command'           => $commandName,
-            'processor-service' => 'queue.processor'
+            'command'   => $commandName,
+            'processor' => 'queue.processor'
         ];
 
         if (!empty($queue)) {
-            $arguments['--queue'] = [$queue];
+            $arguments['queues'] = [$queue];
         }
 
         $messageLimit = (int) $input->getOption('message-limit');

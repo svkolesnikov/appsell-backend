@@ -37,7 +37,7 @@
                             <b>Идентификатор компании</b> <span class="pull-right">{{ user.profile.companyId }}</span>
                         </li>
 
-                        {% if is_granted(['ROLE_EMPLOYEE']) %}
+                        {% if is_granted('ROLE_EMPLOYEE') %}
                             <li class="list-group-item">
                                 <b>Работодатель</b> <span class="pull-right">
                                     {% set employer = user.profile.employer %}
@@ -47,7 +47,7 @@
                             </span>
                             </li>
                         {% endif %}
-                        {% if is_granted(['ROLE_SELLER']) %}
+                        {% if is_granted('ROLE_SELLER') %}
                         <li class="list-group-item">
                             <b>Базовая комиссия, %</b>
                             <span class="pull-right">

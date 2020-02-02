@@ -48,7 +48,7 @@ class NotificationController extends BaseController
     /**
      * @Route("/admin/notifications", name="app_notification_list")
      *
-     * @Security("has_role('ROLE_APP_NOTIFICATION_LIST')")
+     * @Security("is_granted('ROLE_APP_NOTIFICATION_LIST')")
      *
      * @param Request $request
      *
@@ -96,7 +96,7 @@ class NotificationController extends BaseController
     /**
      * @Route("/admin/notifications/create", name="app_notification_create")
      *
-     * @Security("has_role('ROLE_APP_NOTIFICATION_CREATE')")
+     * @Security("is_granted('ROLE_APP_NOTIFICATION_CREATE')")
      *
      * @param Request $request
      * @param PushNotificationService $pushService
@@ -167,7 +167,7 @@ class NotificationController extends BaseController
     /**
      * @Route("/admin/notifications/{id}/remove", name="app_notification_remove")
      *
-     * @Security("has_role('ROLE_APP_NOTIFICATION_DELETE')")
+     * @Security("is_granted('ROLE_APP_NOTIFICATION_DELETE')")
      *
      * @param PushNotification $notification
      * @return Response
@@ -191,7 +191,7 @@ class NotificationController extends BaseController
     /**
      * @Route("/admin/notifications/{id}/show", name="app_notification_show")
      *
-     * @Security("has_role('ROLE_APP_NOTIFICATION_LIST')")
+     * @Security("is_granted('ROLE_APP_NOTIFICATION_LIST')")
      *
      * @param PushNotification $notification
      * @return Response

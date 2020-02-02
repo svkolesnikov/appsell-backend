@@ -24,7 +24,7 @@ class ReportController extends BaseController
     /**
      * @Route("/admin/reports", name="app_report_list")
      *
-     * @Security("has_role('ROLE_APP_REPORT_LIST')")
+     * @Security("is_granted('ROLE_APP_REPORT_LIST')")
      *
      * @param Request $request
      *
@@ -62,7 +62,7 @@ class ReportController extends BaseController
     /**
      * @Route("/admin/reports/{id}/download", name="app_report_download")
      *
-     * @Security("has_role('ROLE_APP_REPORT_LIST')")
+     * @Security("is_granted('ROLE_APP_REPORT_LIST')")
      *
      * @param Request $request
      *

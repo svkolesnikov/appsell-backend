@@ -33,7 +33,7 @@ class UserController extends BaseController
     /**
      * @Route("/admin/users", name="app_settings_users_list")
      *
-     * @Security("has_role('ROLE_APP_USER_LIST')")
+     * @Security("is_granted('ROLE_APP_USER_LIST')")
      *
      * @param Request $request
      *
@@ -130,7 +130,7 @@ class UserController extends BaseController
     /**
      * @Route("/admin/users/{id}/edit", name="app_settings_users_edit")
      *
-     * @Security("has_role('ROLE_APP_USER_EDIT')")
+     * @Security("is_granted('ROLE_APP_USER_EDIT')")
      *
      * @param Request $request
      *
@@ -170,7 +170,7 @@ class UserController extends BaseController
     /**
      * @Route("/admin/users/create", name="app_settings_users_create")
      *
-     * @Security("has_role('ROLE_APP_USER_CREATE')")
+     * @Security("is_granted('ROLE_APP_USER_CREATE')")
      *
      * @param Request $request
      * @return Response
@@ -217,7 +217,7 @@ class UserController extends BaseController
     /**
      * @Route("/admin/users/{id}/remove", name="app_settings_users_remove")
      *
-     * @Security("has_role('ROLE_APP_USER_DELETE')")
+     * @Security("is_granted('ROLE_APP_USER_DELETE')")
      *
      * @param User $user
      * @return Response
@@ -242,7 +242,7 @@ class UserController extends BaseController
     /**
      * @Route("/admin/users/profile", name="app_user_profile")
      *
-     * @Security("has_role('ROLE_APP_USER_PROFILE')")
+     * @Security("is_granted('ROLE_APP_USER_PROFILE')")
      *
      * @return Response
      */

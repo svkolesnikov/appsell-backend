@@ -9,7 +9,7 @@
                     <thead>
                     <tr class="headings">
                         <th class="column-title">Идентификатор</th>
-                        {% if is_granted(['ROLE_ADMIN', 'ROLE_SUPER_ADMIN']) %}
+                        {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_SUPER_ADMIN') %}
                         <th>Пользователь</th>
                         {% endif %}
                         <th class="column-title">Начала периода</th>
@@ -28,7 +28,7 @@
                         {% for item in items %}
                         <tr class="even pointer">
                             <td>{{ item.id }}</td>
-                            {% if is_granted(['ROLE_ADMIN', 'ROLE_SUPER_ADMIN']) %}
+                            {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_SUPER_ADMIN') %}
                             <td>{{ item.user.email }}</td>
                             {% endif %}
                             <td>{{ item.startDate|date('d-m-Y') }}</td>

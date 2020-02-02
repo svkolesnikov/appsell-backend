@@ -5,7 +5,6 @@ namespace App\Queue\Producer;
 use Interop\Amqp\AmqpContext;
 use Interop\Amqp\AmqpMessage;
 use Interop\Amqp\AmqpQueue;
-use Psr\Container\ContainerInterface;
 
 class Producer
 {
@@ -15,9 +14,9 @@ class Producer
     /** @var AmqpContext */
     protected $context;
 
-    public function __construct(ContainerInterface $container)
+    public function __construct(AmqpContext $context)
     {
-        $this->context = $container->get('enqueue.transport.rabbitmq_amqp.context');
+        $this->context = $context;
     }
 
     public function send(string $queue, array $message): void

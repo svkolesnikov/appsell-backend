@@ -4,20 +4,23 @@ namespace App\Notification\Notificator;
 
 use App\Exception\Api\NotificationException;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Templating\EngineInterface;
+use Twig\Environment;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
 
 class EmailNotificator implements Notificator
 {
     /** @var \Swift_Mailer */
     protected $mailer;
 
-    /** @var EngineInterface */
+    /** @var Environment */
     protected $templating;
 
     /** @var LoggerInterface */
     protected $logger;
 
-    public function __construct(\Swift_Mailer $mailer, EngineInterface $templating, LoggerInterface $logger)
+    public function __construct(\Swift_Mailer $mailer, Environment $templating, LoggerInterface $logger)
     {
         $this->mailer = $mailer;
         $this->templating = $templating;
@@ -28,6 +31,9 @@ class EmailNotificator implements Notificator
      * @param string $template
      * @param array $params
      * @throws NotificationException
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
      */
     public function send(string $template, array $params): void
     {

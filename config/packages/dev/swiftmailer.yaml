@@ -3,6 +3,3 @@ swiftmailer:
   # send all emails to a specific address
   delivery_addresses:
     - 'andrey@sixdays.ru'
-    - 'vmkcom@yandex.ru'
-    - 'eduard.fedorov@gmail.com'
-    - 'd.karbaev@gmail.com'

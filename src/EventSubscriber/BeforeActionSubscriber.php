@@ -3,7 +3,7 @@
 namespace App\EventSubscriber;
 
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
+use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 class BeforeActionSubscriber implements EventSubscriberInterface
@@ -16,10 +16,10 @@ class BeforeActionSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param FilterControllerEvent $event
+     * @param ControllerEvent $event
      * @throws \LogicException
      */
-    public function parseJsonBody(FilterControllerEvent $event): void
+    public function parseJsonBody(ControllerEvent $event): void
     {
         $request = $event->getRequest();
         if ($request->getContentType() === 'json') {

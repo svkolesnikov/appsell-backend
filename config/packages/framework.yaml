@@ -30,8 +30,8 @@ framework:
         # APCu (not recommended with heavy random-write workloads as memory fragmentation can cause perf issues)
         #app: cache.adapter.apcu
 
-    templating:
-        engines: ['twig']
+#    templating:
+#        engines: ['twig']
 
     translator: { fallbacks: ['%env(APP_LOCALE)%'] }
     default_locale: '%env(APP_LOCALE)%'

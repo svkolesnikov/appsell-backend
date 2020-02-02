@@ -25,7 +25,7 @@ class GroupController extends BaseController
     /**
      * @Route("/admin/groups", name="app_settings_groups_list")
      *
-     * @Security("has_role('ROLE_APP_GROUP_LIST')")
+     * @Security("is_granted('ROLE_APP_GROUP_LIST')")
      *
      * @param Request $request
      *
@@ -57,7 +57,7 @@ class GroupController extends BaseController
     /**
      * @Route("/admin/groups/{id}/edit", name="app_settings_groups_edit")
      *
-     * @Security("has_role('ROLE_APP_GROUP_EDIT')")
+     * @Security("is_granted('ROLE_APP_GROUP_EDIT')")
      *
      * @param Request $request
      *
@@ -95,7 +95,7 @@ class GroupController extends BaseController
     /**
      * @Route("/admin/groups/create", name="app_settings_groups_create")
      *
-     * @Security("has_role('ROLE_APP_GROUP_CREATE')")
+     * @Security("is_granted('ROLE_APP_GROUP_CREATE')")
      *
      * @param Request $request
      * @return Response
@@ -133,7 +133,7 @@ class GroupController extends BaseController
     /**
      * @Route("/admin/groups/{id}/remove", name="app_settings_groups_remove")
      *
-     * @Security("has_role('ROLE_APP_GROUP_DELETE')")
+     * @Security("is_granted('ROLE_APP_GROUP_DELETE')")
      *
      * @param Group $group
      * @return Response

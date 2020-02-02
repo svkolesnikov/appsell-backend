@@ -64,7 +64,7 @@ class OfferController extends BaseController
     /**
      * @Route("/admin/offers", name="app_offer_list")
      *
-     * @Security("has_role('ROLE_APP_OFFER_LIST')")
+     * @Security("is_granted('ROLE_APP_OFFER_LIST')")
      *
      * @param Request $request
      *
@@ -161,7 +161,7 @@ class OfferController extends BaseController
     /**
      * @Route("/admin/offers/{id}/edit", name="app_offer_edit")
      *
-     * @Security("has_role('ROLE_APP_OFFER_EDIT')")
+     * @Security("is_granted('ROLE_APP_OFFER_EDIT')")
      *
      * @param Request $request
      *
@@ -223,7 +223,7 @@ class OfferController extends BaseController
     /**
      * @Route("/admin/offers/create", name="app_offer_create")
      *
-     * @Security("has_role('ROLE_APP_OFFER_CREATE')")
+     * @Security("is_granted('ROLE_APP_OFFER_CREATE')")
      *
      * @param Request $request
      * @param ImageService $imageService
@@ -297,7 +297,7 @@ class OfferController extends BaseController
     /**
      * @Route("/admin/offers/{id}/remove", name="app_offer_remove")
      *
-     * @Security("has_role('ROLE_APP_OFFER_DELETE')")
+     * @Security("is_granted('ROLE_APP_OFFER_DELETE')")
      *
      * @param Offer $offer
      * @return Response
@@ -326,7 +326,7 @@ class OfferController extends BaseController
     /**
      * @Route("/admin/offers/{id}/activity", name="app_offer_change_activity")
      *
-     * @Security("has_role('ROLE_APP_OFFER_CHANGE_ACTIVITY')")
+     * @Security("is_granted('ROLE_APP_OFFER_CHANGE_ACTIVITY')")
      *
      * @param Offer $offer
      * @return Response
@@ -376,7 +376,7 @@ class OfferController extends BaseController
     /**
      * @Route("/admin/offers/{id}/accessibility/{action}", name="app_offer_change_accessibility")
      *
-     * @Security("has_role('ROLE_APP_OFFER_CHANGE_ACCESSIBILITY')")
+     * @Security("is_granted('ROLE_APP_OFFER_CHANGE_ACCESSIBILITY')")
      *
      * @param Request $request
      * @param Offer $offer
@@ -417,7 +417,7 @@ class OfferController extends BaseController
     /**
      * @Route("/admin/offers/{id}/hide", name="app_offer_hide")
      *
-     * @Security("has_role('ROLE_APP_OFFER_HIDE')")
+     * @Security("is_granted('ROLE_APP_OFFER_HIDE')")
      *
      * @param Offer $offer
      * @return Response
@@ -446,7 +446,7 @@ class OfferController extends BaseController
     /**
      * @Route("/admin/offers/{id}/notifications", name="app_offer_notifications")
      *
-     * @Security("has_role('ROLE_APP_OFFER_PUSH_NOTIFICATIONS')")
+     * @Security("is_granted('ROLE_APP_OFFER_PUSH_NOTIFICATIONS')")
      *
      * @param Request $request
      *

@@ -74,6 +74,10 @@ services:
 
   # rabbitmq processors
 
-  queue.processor:
-    class: App\Queue\Processor\Processor
-    public: true
+  App\Queue\Producer\Producer:
+    arguments:
+      - '@enqueue.transport.default.context'
+
+  App\Queue\Processor\Processor:
+    tags:
+      - { name: 'enqueue.transport.processor', processor: 'queue.processor' }

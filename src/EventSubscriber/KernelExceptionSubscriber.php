@@ -8,7 +8,7 @@ use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
+use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Security\Core\Exception\InsufficientAuthenticationException;
@@ -42,9 +42,9 @@ class KernelExceptionSubscriber implements EventSubscriberInterface
         return $result;
     }
 
-    public function handleHttpAception(GetResponseForExceptionEvent $event): void
+    public function handleHttpAception(ExceptionEvent $event): void
     {
-        $exception  = $event->getException();
+        $exception  = $event->getThrowable();
         $statusCode = JsonResponse::HTTP_INTERNAL_SERVER_ERROR;
 
         // Данный обработчик должен обрабатывать исключения

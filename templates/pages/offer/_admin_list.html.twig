@@ -8,7 +8,7 @@
         <th class="column-title">Дата завершения</th>
         <th class="column-title">Бюджет</th>
         <th class="column-title">Оплачено</th>
-        {% if is_granted(['ROLE_APP_OFFER_CHANGE_COMMISSION']) %}
+        {% if is_granted('ROLE_APP_OFFER_CHANGE_COMMISSION') %}
         <th class="column-title">Комиссия</th>
         {% endif %}
         <th class="column-title">Активность</th>
@@ -27,7 +27,7 @@
             <td>{{ offer.activeTo|date('d-m-Y') }}</td>
             <td>{% if offer.budget == 0 %} Не задан {% else %} {{ offer.budget }} {% endif %}</td>
             <td>{% if offer.payedAmount == 0 %} Отсутствуют {% else %} {{ offer.payedAmount }} {% endif %}</td>
-            {% if is_granted(['ROLE_APP_OFFER_CHANGE_COMMISSION']) %}
+            {% if is_granted('ROLE_APP_OFFER_CHANGE_COMMISSION') %}
             <td>
                 <a href="#" class="commission-percent"
                    data-type="number"
