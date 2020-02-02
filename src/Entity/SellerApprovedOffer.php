@@ -22,7 +22,7 @@ class SellerApprovedOffer
 
     /**
      * @var Offer
-     * @ORM\ManyToOne(targetEntity = "Offer")
+     * @ORM\ManyToOne(targetEntity = "Offer", inversedBy="seller_approvals")
      * @ORM\JoinColumn(name = "offer_id", referencedColumnName = "id")
      */
     protected $offer;
