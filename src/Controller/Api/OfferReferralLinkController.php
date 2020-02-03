@@ -24,8 +24,8 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Component\Templating\EngineInterface;
 use Doctrine\ORM\Query\Expr;
+use Twig\Environment;
 use Wolfcast\BrowserDetection;
 
 class OfferReferralLinkController
@@ -109,18 +109,17 @@ class OfferReferralLinkController
     /**
      * @Route(methods = {"GET"}, path = "/referral-links/{id}", name = "app_api_offer_referral_link_follow")
      * @param Request $request
-     * @param EngineInterface $templating
+     * @param Environment $templating
      * @return Response
      *
-     * @throws \UnexpectedValueException
-     * @throws \RuntimeException
-     * @throws \InvalidArgumentException
-     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
      * @throws DBALException
      * @throws \Doctrine\DBAL\ConnectionException
      * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
      */
-    public function followLinkAction(Request $request, EngineInterface $templating): Response
+    public function followLinkAction(Request $request, Environment $templating): Response
     {
         /** @var Entity\UserOfferLink $userOfferLink */
         $userOfferLink = $this->entityManager->createQueryBuilder()
