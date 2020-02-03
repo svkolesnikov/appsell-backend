@@ -54,4 +54,10 @@
         </li>
     {% endif %}
 
+    {% if is_granted('ROLE_FOLLOWED_USER_LIST') %}
+        <li>
+            <a href="{{ path('app_followed_users_list') }}"><i class="fa fa-pie-chart"></i>Приведенные пользователи</a>
+        </li>
+    {% endif %}
+
 {% endblock %}

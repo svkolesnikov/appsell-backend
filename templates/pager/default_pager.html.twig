@@ -5,6 +5,8 @@
     {% set routeParams = routeParams|merge({filter: filter}) %}
 {% endif %}
 
+{% set routeParams = routeParams|merge(app.request.query) %}
+
 <div class="form-inline clearfix">
     <div class="pull-left">
         {% if actions is defined %}

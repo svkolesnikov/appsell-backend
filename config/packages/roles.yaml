@@ -39,6 +39,8 @@ security:
             - ROLE_IMPORT_CSV_LIST
             - ROLE_IMPORT_CSV_IMPORT
 
+            - ROLE_FOLLOWED_USER_LIST              # Просмотр статистики о приведенных пользователем других пользователей
+
         ROLE_SUPER_ADMIN:
             - ROLE_ADMIN
 
