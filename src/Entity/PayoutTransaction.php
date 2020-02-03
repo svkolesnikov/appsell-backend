@@ -6,7 +6,7 @@ use App\Lib\Enum\PayoutDestinationEnum;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="App\Entity\Repository\PayoutTransactionRepository")
  * @ORM\Table(name="financedata.payout_transaction")
  * @ORM\HasLifecycleCallbacks
  */
@@ -21,7 +21,7 @@ class PayoutTransaction
 
     /**
      * @var User
-     * @ORM\ManyToOne(targetEntity = "User")
+     * @ORM\ManyToOne(targetEntity = "User", fetch="EAGER")
      * @ORM\JoinColumn(name = "receiver_user_id", referencedColumnName = "id")
      */
     protected $receiver;

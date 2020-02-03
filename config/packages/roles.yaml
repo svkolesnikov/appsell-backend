@@ -41,6 +41,9 @@ security:
 
             - ROLE_FOLLOWED_USER_LIST              # Просмотр статистики о приведенных пользователем других пользователей
 
+            - ROLE_PAYOUT_LIST                     # Просмотр списка транзакций выплат
+            - ROLE_PAYOUT_APPROVE                  # Отправка транзакции на вывод в SolarStaff
+
         ROLE_SUPER_ADMIN:
             - ROLE_ADMIN
 

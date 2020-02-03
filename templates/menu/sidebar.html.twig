@@ -60,4 +60,10 @@
         </li>
     {% endif %}
 
+    {% if is_granted('ROLE_PAYOUT_LIST') %}
+        <li>
+            <a href="{{ path('app_payout_transation_list') }}"><i class="fa fa-money"></i>Выплаты</a>
+        </li>
+    {% endif %}
+
 {% endblock %}
