@@ -62,20 +62,22 @@ class Client
      * Вывод денег на внутренний счет в Solar Staff
      *
      * @param int $workerId Идентификатор в solar staff
+     * @param int $transactionId
      * @param int $amount Сумма
      * @param array $attributes todo_attributes
      * @return array Информация о транзакции
      * @throws SolarStaffException
      */
-    public function payout(int $workerId, int $amount, array $attributes): array
+    public function payout(int $workerId, int $transactionId, int $amount, array $attributes): array
     {
         $response = $this->transport->sendRequest('/v1/payment', [
-            'action'          => 'payout',
-            'worker_id'       => $workerId,
-            'currency'        => 'RUB',
-            'amount'          => $amount,
-            'todo_type'       => 27,
-            'todo_attributes' => implode(';', $attributes),
+            'action'               => 'payout',
+            'worker_id'            => $workerId,
+            'currency'             => 'RUB',
+            'amount'               => $amount,
+            'todo_type'            => 27,
+            'todo_attributes'      => implode(';', $attributes),
+            'merchant_transaction' => $transactionId
         ]);
 
         return $response['response'];

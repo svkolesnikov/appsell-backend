@@ -104,7 +104,7 @@ class PayoutTransaction
 
     public function getInfo(): array
     {
-        return (array) json_decode($this->info);
+        return (array) json_decode($this->info, true);
     }
 
     public function setInfo(array $info)
@@ -116,5 +116,19 @@ class PayoutTransaction
     public function getCtime(): \DateTime
     {
         return $this->ctime;
+    }
+
+    // meta getters
+
+    public function isPayed(): bool
+    {
+        $info = $this->getInfo();
+        return isset($info['response']['status']) && $info['response']['status'] === 'Success';
+    }
+
+    public function hasPayoutError(): bool
+    {
+        $info = $this->getInfo();
+        return !empty($info['response']['error_text']);
     }
 }

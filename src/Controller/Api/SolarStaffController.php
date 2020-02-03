@@ -18,9 +18,8 @@ use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\Lock\Factory;
+use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Lock\Store\FlockStore;
-use Symfony\Component\Lock\Store\SemaphoreStore;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Swagger\Annotations as SWG;
@@ -285,7 +284,7 @@ class SolarStaffController
         // в один момент времени (предотвращение параллельных запросов на вывод)
 
         $lockStore   = new FlockStore();
-        $lockFactory = new Factory($lockStore);
+        $lockFactory = new LockFactory($lockStore);
         $lockFactory->setLogger($logger);
 
         $lock = $lockFactory->createLock('payout_by_user_' . $employee->getId());
@@ -302,43 +301,11 @@ class SolarStaffController
             throw new BadRequestHttpException('Недостаточно средств для вывода. Минимальная сумма вывода – 2000 рублей.');
         }
 
-        // Сформируем список выполненных приложений, для отчетночти
-        // в solar staff
-
-        $attributes = [];
-        $offers     = [];
-
-        foreach ($executions as $e) {
-
-            $offerTitle = $e->getOffer()->getTitle();
-            if (!isset($offers[$offerTitle])) {
-                $offers[$offerTitle] = 0;
-            }
-
-            $offers[$offerTitle]++;
-        }
-
-        // Должно получиться что-то вроде:
-        //
-        // Яндекс еда - 7;
-        // Телеграмм - 52;
-        // eBox - 21
-
-        foreach ($offers as $title => $count) {
-            $attributes[] = sprintf('%s – %d', $title, $count);
-        }
-
-        // Поехали выводить бабло
-
         $this->entityManager->beginTransaction();
 
         try {
 
-            // Сформируем вывод средств в ЛК solar staff
-
-            $response = $this->client->payout($employee->getProfile()->getSolarStaffId(), $amount, $attributes);
-
-            // Сохраним информацию о транзакции к себе в БД
+            // Создадим транзакцию для подтверждения вывода в админке
 
             $transaction = new Entity\PayoutTransaction();
             $transaction->setReceiver($employee);
@@ -354,9 +321,6 @@ class SolarStaffController
                         'REMOTE_ADDR'
                     ])
                 ),
-
-                // Информация об ответе от SS
-                'response' => $response
             ]);
 
             $this->entityManager->persist($transaction);

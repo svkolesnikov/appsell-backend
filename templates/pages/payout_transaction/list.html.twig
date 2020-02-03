@@ -2,21 +2,16 @@
 
 {% block javascripts %}
     {{ parent() }}
+
+    <script type="text/javascript">
+        function toggleDetails(blockId) {
+            $(blockId).toggle();
+            return false;
+        }
+    </script>
 {% endblock %}
 
 {% block top_nav_menu_buttons %}
-{#    {{ form_start(form, {'method': 'GET', 'action': path('app_followed_users_list')}) }}#}
-
-{#        <div class="form-group">#}
-{#            {{ form_errors(form) }}#}
-{#        </div>#}
-
-{#        {{ form_row(form.email) }}#}
-
-{#        <div class="well well-small form-actions">#}
-{#            <button type="submit" class="btn btn-success">Найти</button>#}
-{#        </div>#}
-{#    {{ form_end(form) }}#}
 {% endblock %}
 
 {% block page_content %}
@@ -31,7 +26,10 @@
                         <th class="column-title">Сумма</th>
                         <th class="column-title">Дата</th>
                         <th class="column-title">Информация</th>
+
+                        {% if is_granted('ROLE_PAYOUT_APPROVE') %}
                         <th class="column-title">Действия</th>
+                        {% endif %}
                     </tr>
                 </thead>
                 <tbody>
@@ -42,8 +40,34 @@
                             <td><a href="{{ path('app_settings_users_edit', {'id': item.receiver.id}) }}">{{ item.receiver.email }}</a></td>
                             <td>{{ item.amount }} руб.</td>
                             <td>{{ item.ctime|date('Y-m-d H:i') }}</td>
-                            <td></td>
-                            <td></td>
+                            <td>
+                                {% if item.isPayed %}
+                                    <strong>Оплачено!</strong><br>
+                                    <a href="#" onclick="return toggleDetails('#payout_details_{{ item.id }}')">Детальная информация...</a>
+                                    <pre style="display: none" id="payout_details_{{ item.id }}">{{ item.info|json_encode(constant('JSON_PRETTY_PRINT')) }}</pre>
+                                {% elseif item.hasPayoutError %}
+                                    <em>Ошибка</em><br>
+                                    <a href="#" onclick="return toggleDetails('#payout_details_{{ item.id }}')">Детальная информация...</a>
+                                    <pre style="display: none" id="payout_details_{{ item.id }}">{{ item.info|json_encode(constant('JSON_PRETTY_PRINT')) }}</pre>
+                                {% else %}
+                                    К оплате...
+                                {% endif %}
+                            </td>
+
+                            {% if is_granted('ROLE_PAYOUT_APPROVE') %}
+                            <td>
+                                {% if not item.isPayed %}
+                                    <form action="{{ path('app_payout_transation_approve') }}"
+                                          onsubmit="return confirm('Отправить на выплату транзакцию #{{ item.id }} на сумму {{ item.amount }} руб.?')"
+                                          method="post">
+                                        <input type="hidden" name="transaction_id" value="{{ item.id }}">
+                                        <input type="hidden" name="back_url" value="{{ app.request.requestUri }}">
+                                        <button type="submit" class="btn btn-success">Выплатить</button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                            {% endif %}
+
                         </tr>
                     {% endfor %}
 
