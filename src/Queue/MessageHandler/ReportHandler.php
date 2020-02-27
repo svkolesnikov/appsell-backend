@@ -5,7 +5,7 @@ namespace App\Queue\MessageHandler;
 use App\Entity\User;
 use App\Service\ReportService;
 use Doctrine\ORM\EntityManagerInterface;
-use Interop\Queue\PsrProcessor;
+use Interop\Queue\Processor;
 use Psr\Log\LoggerInterface;
 
 class ReportHandler implements HandlerInterface
@@ -44,7 +44,7 @@ class ReportHandler implements HandlerInterface
                 'end_date' => $endDate,
             ]);
 
-            return PsrProcessor::REJECT;
+            return Processor::REJECT;
         }
 
         try {
@@ -59,9 +59,9 @@ class ReportHandler implements HandlerInterface
                 'end_date' => $endDate,
             ]);
 
-            return PsrProcessor::REQUEUE;
+            return Processor::REQUEUE;
         }
 
-        return PsrProcessor::ACK;
+        return Processor::ACK;
     }
 }

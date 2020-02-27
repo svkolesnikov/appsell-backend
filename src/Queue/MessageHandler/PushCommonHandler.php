@@ -8,7 +8,7 @@ use App\Queue\Processor\Processor;
 use App\Queue\Producer\Producer;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query\ResultSetMapping;
-use Interop\Queue\PsrProcessor;
+use Interop\Queue\Processor as ProcessorInterface;
 use Psr\Log\LoggerInterface;
 
 class PushCommonHandler implements HandlerInterface
@@ -43,7 +43,7 @@ class PushCommonHandler implements HandlerInterface
                 'notification' => $notificationId
             ]);
 
-            return PsrProcessor::REJECT;
+            return ProcessorInterface::REJECT;
         }
 
         $notification->setStatus(PushNotificationStatusEnum::IN_PROCESS());
@@ -146,6 +146,6 @@ SQL;
         $this->em->persist($notification);
         $this->em->flush();
 
-        return PsrProcessor::ACK;
+        return ProcessorInterface::ACK;
     }
 }

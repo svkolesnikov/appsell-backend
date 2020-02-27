@@ -2,13 +2,13 @@
 
 namespace App\Queue\MessageHandler;
 
-use Interop\Queue\PsrProcessor;
+use Interop\Queue\Processor;
 
 class ExampleHandler implements HandlerInterface
 {
     public function handle(array $message): string
     {
         var_dump('example!!!', $message);
-        return PsrProcessor::ACK;
+        return Processor::ACK;
     }
 }

@@ -3,9 +3,8 @@
 namespace App\Queue\MessageHandler;
 
 use App\DCI\PushCreating;
-use App\Lib\Enum\PushNotificationStatusEnum;
 use Doctrine\ORM\EntityManagerInterface;
-use Interop\Queue\PsrProcessor;
+use Interop\Queue\Processor;
 use Psr\Log\LoggerInterface;
 
 class PushDirectHandler implements HandlerInterface
@@ -54,6 +53,6 @@ class PushDirectHandler implements HandlerInterface
             $this->logger->error('Не удалось отправить push: ' . $ex->getMessage(), ['source_message' => $message]);
         }
 
-        return PsrProcessor::ACK;
+        return Processor::ACK;
     }
 }
