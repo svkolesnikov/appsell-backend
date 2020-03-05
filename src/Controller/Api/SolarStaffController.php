@@ -297,8 +297,8 @@ class SolarStaffController
         $executions = $repository->getPayoutAvailable($employee);
         $amount     = $repository->getAmountFor($executions);
 
-        if ($amount < 2000) {
-            throw new BadRequestHttpException('Недостаточно средств для вывода. Минимальная сумма вывода – 2000 рублей.');
+        if ($amount < 500) {
+            throw new BadRequestHttpException('Недостаточно средств для вывода. Минимальная сумма вывода – 500 рублей.');
         }
 
         $this->entityManager->beginTransaction();
