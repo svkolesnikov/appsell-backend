@@ -12,6 +12,7 @@ use App\Exception\Api\EventWithoutReferrerException;
 use App\Exception\Api\FormValidationException;
 use App\Lib\Controller\FormTrait;
 use App\Lib\Enum\ActionLogItemTypeEnum;
+use App\Lib\Enum\OfferExecutionStatusEnum;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityNotFoundException;
 use Exception;
@@ -76,12 +77,18 @@ class SdkController
         $link = $this->entityManager->find('App:OfferLink', $offerLinkId);
         if (null !== $link) {
 
-            /** @var OfferExecution $execution */
-            $execution = $this->entityManager->getRepository('App:OfferExecution')->findOneBy([
-                'source_referrer_fingerprint' => $fingerprint,
-                'offer_link' => $link
-            ]);
+            /** @var OfferExecution[] $executions */
+            $executions = $this->entityManager->getRepository('App:OfferExecution')->findBy(
+                [
+                    'source_referrer_fingerprint' => $fingerprint,
+                    'offer_link' => $link,
+                    'status' => OfferExecutionStatusEnum::PROCESSING
+                ],
+                ['ctime' => 'desc'],
+                1
+            );
 
+            $execution = count($executions) === 1 ? $executions[0] : null;
             if (null !== $execution) {
                 $executionId = $execution->getId();
             }
