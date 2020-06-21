@@ -88,7 +88,7 @@ class SdkController
                 1
             );
 
-            $execution = count($executions) === 1 ? $executions[0] : null;
+            $execution = $executions[0] ?? null;
             if (null !== $execution) {
                 $executionId = $execution->getId();
             }
