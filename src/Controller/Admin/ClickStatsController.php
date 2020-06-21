@@ -15,6 +15,7 @@ use Doctrine\DBAL\DBALException;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -44,10 +45,12 @@ class ClickStatsController extends BaseController
         $form = $this->createForm(FilterClickStatsType::class);
         $form->handleRequest($request);
         $items = $this->getItems($form->getData() ?? []);
+        $downloadUrl = '/admin/clicks-statistics/csv?' . http_build_query($request->query->all());
 
         return $this->render('pages/click_stats/list.html.twig', [
             'form'  => $form->createView(),
             'items' => $items,
+            'csv_link' => $downloadUrl
         ]);
     }
 
@@ -60,7 +63,46 @@ class ClickStatsController extends BaseController
      */
     public function downloadCsvAction(Request $request)
     {
+        $form = $this->createForm(FilterClickStatsType::class);
+        $form->handleRequest($request);
+        $items = $this->getItems($form->getData() ?? []);
 
+        if (empty($items)) {
+            return new RedirectResponse('/admin/clicks-statistics');
+        }
+
+        $csvData = [
+            implode(',', [
+                'click_time',
+                'event_time',
+                'parent_email',
+                'seller_email',
+                'network_name',
+                'click_status',
+                'event_title',
+                'event_name',
+                'offer_id',
+                'offer_name',
+                'click_id',
+                'sum_fee',
+                'event_source',
+            ])
+        ];
+
+        foreach ($items as $row) {
+            $csvData[] = implode(',', array_values($row));
+        }
+
+        $response = implode(PHP_EOL, $csvData);
+        return new Response(
+            $response,
+            Response::HTTP_OK,
+            [
+                'Content-Type' => 'text/csv',
+                'Content-Disposition' => 'attachment; filename="report.csv"',
+                'Content-Length' => strlen($response)
+            ]
+        );
     }
 
     private function getItems(array $filter): array

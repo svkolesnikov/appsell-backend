@@ -11,7 +11,7 @@
     {{ form_start(form, {'method': 'GET', 'action': path('app_click_stats_list')}) }}
         <div class="form-group">
             <br>
-            <p>Для формирования отчета необходимо заполнить "Дату начала", "Дату окончания" и либо одно из либо оба поля: "Offer Id", "E-mail продавца"</p>
+            <p>Для формирования отчета необходимо заполнить "Дату начала", "Дату окончания</p>
         </div>
         <div class="form-group">
             {{ form_errors(form) }}
@@ -24,6 +24,10 @@
 
         <div class="well well-small form-actions">
             <button type="submit" class="btn btn-success">Сформировать</button>
+
+            {% if items is not empty %}
+                <a class="btn btn-default" href="{{ csv_link }}">Скачать</a>
+            {% endif %}
         </div>
     {{ form_end(form) }}
 {% endblock %}
