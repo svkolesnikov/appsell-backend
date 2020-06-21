@@ -243,7 +243,8 @@ SQL;
 
                     if ($link->getType()->equals(OfferLinkTypeEnum::GOOGLE_PLAY())) {
                         if (false === strpos($resultLink, 'referrer=utm_content%3D')) {
-                            $resultLink .= '&referrer=utm_content%3D' . sprintf('click-%s', $execution->getId());
+//                            $resultLink .= '&referrer=utm_content%3D' . sprintf('click-%s', $execution->getId());
+                            $resultLink .= '&referrer=utm_content%3D' . $execution->getId();
                         }
                     }
 
