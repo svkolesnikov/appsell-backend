@@ -1,4 +1,4 @@
-FROM php:7.3-fpm-alpine
+FROM php:7.4.7-fpm-alpine
 
 # Добавим в контейнер supervisor и nginx
 
@@ -27,6 +27,7 @@ RUN apk add --no-cache --virtual .build-deps \
     libevent-dev \
     rabbitmq-c-dev \
     libzip-dev \
+    oniguruma-dev \
  && docker-php-ext-install \
     mbstring \
     xml \

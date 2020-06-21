@@ -66,4 +66,10 @@
         </li>
     {% endif %}
 
+    {% if is_granted('ROLE_CLICK_STATS_LIST') %}
+        <li>
+            <a href="{{ path('app_click_stats_list') }}"><i class="fa fa-pie-chart"></i>Статистика по переходам</a>
+        </li>
+    {% endif %}
+
 {% endblock %}
