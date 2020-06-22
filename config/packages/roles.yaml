@@ -44,7 +44,8 @@ security:
             - ROLE_PAYOUT_LIST                     # Просмотр списка транзакций выплат
             - ROLE_PAYOUT_APPROVE                  # Отправка транзакции на вывод в SolarStaff
 
-            - ROLE_CLICK_STATS_LIST                # Отчет по исполнению офферов
+            - ROLE_CLICK_STATS_LIST                # Отчет по исполнению офферов (по умолчанию, видно своих сотрудников)
+            - ROLE_CLICK_STATS_LIST_ALL            # Отчет по исполнению офферов любыми акаунтами (видит все)
 
         ROLE_SUPER_ADMIN:
             - ROLE_ADMIN

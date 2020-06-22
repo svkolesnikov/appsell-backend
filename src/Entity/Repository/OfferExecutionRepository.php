@@ -99,6 +99,13 @@ class OfferExecutionRepository extends EntityRepository
             );
         }
 
+        if (isset($filter['network_email'])) {
+            $conditions[] = sprintf(
+                "network.email = %s",
+                $connection->getWrappedConnection()->quote($filter['network_email'])
+            );
+        }
+
         if (!empty($conditions)) {
             $condition = 'where ' . implode(' and ', $conditions);
         }

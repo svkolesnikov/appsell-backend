@@ -3,34 +3,29 @@
 namespace App\Controller\Admin;
 
 use App\Entity\OfferExecution;
-use App\Entity\PayoutTransaction;
 use App\Entity\Repository\OfferExecutionRepository;
-use App\Entity\Repository\PayoutTransactionRepository;
 use App\Entity\User;
-use App\Exception\Api\SolarStaffException;
 use App\Form\FilterClickStatsType;
-use App\Lib\Enum\PayoutDestinationEnum;
-use App\SolarStaff\Client;
-use Doctrine\DBAL\DBALException;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Security as SecurityCore;
 
 class ClickStatsController extends BaseController
 {
     private LoggerInterface $logger;
     private EntityManagerInterface $em;
+    private SecurityCore $security;
 
-    public function __construct(LoggerInterface $logger, EntityManagerInterface $em)
+    public function __construct(LoggerInterface $logger, EntityManagerInterface $em, SecurityCore $security)
     {
         $this->logger = $logger;
         $this->em = $em;
+        $this->security = $security;
     }
 
     /**
@@ -107,6 +102,14 @@ class ClickStatsController extends BaseController
 
     private function getItems(array $filter): array
     {
+        // Если у пользователя нет разрешения на получения отчета по
+        // всем пользователям, то он видит только по тем, кто в его организации
+        if (!$this->security->isGranted('ROLE_CLICK_STATS_LIST_ALL')) {
+            /** @var User $user */
+            $user = $this->security->getUser();
+            $filter['network_email'] = $user->getEmail();
+        }
+
         /** @var OfferExecutionRepository $repository */
         $repository = $this->em->getRepository(OfferExecution::class);
         return $repository->getClickStats($filter);
