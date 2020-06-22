@@ -83,10 +83,7 @@ with employer as (
       O.active_from < now() AND
       O.active_to > now() and
       O.type in ('$types') and
-      (
-        AO.seller_id = (select id from employer limit 1) or          -- Условие для простых сотрудников компаний
-        '$solarStaffEmployerId' = (select id from employer limit 1)  -- Условие для сотрудников solar-staff
-      )
+      AO.seller_id = (select id from employer limit 1) -- Условие для простых сотрудников компаний
   ),
   app_links as (
     select * from offerdata.offer_link where offer_id in (
