@@ -61,7 +61,7 @@ class StatisticController extends BaseController
         if ($userEmail = $filter->get('email')) {
 
             /** @var User $user */
-            $user = $this->em->getRepository(User::class)->findOneByEmail($userEmail);
+            $user = $this->em->getRepository(User::class)->findOneByEmail(strtolower($userEmail));
             if (null === $user) {
                 $this->addFlash('error', 'Пользователь не обнаружен');
                 $user = $this->getUser();

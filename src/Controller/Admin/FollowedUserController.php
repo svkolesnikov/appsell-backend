@@ -51,7 +51,7 @@ class FollowedUserController extends BaseController
 
             /** @var FollowedUserRepository $repository */
             $repository = $this->em->getRepository(FollowedUser::class);
-            $items = $repository->findFollowedUsers($filter['email'], $perPage, $offset);
+            $items = $repository->findFollowedUsers(strtolower($filter['email']), $perPage, $offset);
         }
 
         return $this->render('pages/followed_users/list.html.twig', [

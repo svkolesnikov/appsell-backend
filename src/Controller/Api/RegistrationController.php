@@ -92,7 +92,7 @@ class RegistrationController
         $data = $form->getData();
 
         $user = new Entity\User();
-        $user->setEmail($data['email']);
+        $user->setEmail(strtolower($data['email']));
 
         $profile = $user->getProfile();
         $profile->setPhone($data['phone']);
@@ -107,8 +107,8 @@ class RegistrationController
 
         $this->systemProducer->produce(NotificationTypeEnum::NEW_SELLER(), [
             'subject' => 'Зарегистрировался новый продавец',
-            'email'   => $data['email'],
-            'phone'   => $data['phone']
+            'email'   => $user->getEmail(),
+            'phone'   => $profile->getPhone()
         ]);
 
         return new JsonResponse(null, JsonResponse::HTTP_CREATED);
@@ -159,7 +159,7 @@ class RegistrationController
         $data = $form->getData();
 
         $user = new Entity\User();
-        $user->setEmail($data['email']);
+        $user->setEmail(strtolower($data['email']));
 
         $profile = $user->getProfile();
         $profile->setPhone($data['phone']);
@@ -174,8 +174,8 @@ class RegistrationController
 
         $this->systemProducer->produce(NotificationTypeEnum::NEW_OWNER(), [
             'subject' => 'Зарегистрировался новый заказчик',
-            'email'   => $data['email'],
-            'phone'   => $data['phone']
+            'email'   => $user->getEmail(),
+            'phone'   => $profile->getPhone()
         ]);
 
         return new JsonResponse(null, JsonResponse::HTTP_CREATED);
@@ -246,7 +246,7 @@ class RegistrationController
         // Создадим пользователя
 
         $user = new Entity\User();
-        $user->setEmail($data['email']);
+        $user->setEmail(strtolower($data['email']));
         $user->setPassword($encoder->encodePassword($user, $data['password']));
 
         try {
@@ -272,7 +272,7 @@ class RegistrationController
             // После успешного сохранения зарегистрируем в Solar-Staff
             // и запишем ID сотрудника из SS в профиль
 
-            $profile->setSolarStaffId($ssClient->createWorker($data['email']));
+            $profile->setSolarStaffId($ssClient->createWorker($user->getEmail()));
             $this->save($profile);
         }
 

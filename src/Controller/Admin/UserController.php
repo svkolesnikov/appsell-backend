@@ -67,11 +67,11 @@ class UserController extends BaseController
             }
 
             // поиск по email'у
-            $email = $filter->get('email');
+            $email = strtolower($filter->get('email'));
             if (!empty($email)) {
                 $qb->andWhere(
-                    $qb->expr()->like('u.email', $qb->expr()->literal("%$email%")
-                ));
+                    $qb->expr()->like('u.email', $qb->expr()->literal("%$email%"))
+                );
             }
 
             // поиск по работодателю

@@ -83,7 +83,7 @@ class PasswordRecoveryController
         $data = $form->getData();
 
         /** @var User $user */
-        $user = $this->entityManager->getRepository('App:User')->findOneBy(['email' => $data['email']]);
+        $user = $this->entityManager->getRepository('App:User')->findOneBy(['email' => strtolower($data['email'])]);
         if (null === $user) {
             throw new NotFoundHttpException('Указанный email не зарегистрирован в системе');
         }
@@ -157,7 +157,7 @@ class PasswordRecoveryController
         $data = $form->getData();
 
         /** @var User $user */
-        $user = $this->entityManager->getRepository('App:User')->findOneBy(['email' => $data['email']]);
+        $user = $this->entityManager->getRepository('App:User')->findOneBy(['email' => strtolower($data['email'])]);
         if (null === $user) {
             throw new NotFoundHttpException('Указанный email не зарегистрирован в системе');
         }

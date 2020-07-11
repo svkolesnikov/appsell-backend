@@ -93,7 +93,7 @@ class ConfirmationController
         $data = $form->getData();
 
         /** @var Entity\UserConfirmation $confirmation */
-        $confirmation = $this->entityManager->getRepository('App:UserConfirmation')->findOneBy(['email' => $data['email']]);
+        $confirmation = $this->entityManager->getRepository('App:UserConfirmation')->findOneBy(['email' => strtolower($data['email'])]);
         if (null === $confirmation) {
             throw new NotFoundHttpException('Не найден email для подтверждения');
         }
@@ -124,7 +124,7 @@ class ConfirmationController
 
         $this->systemProducer->produce(NotificationTypeEnum::NEW_EMPLOYEE(), [
             'subject' => 'Зарегистрировался новый сотрудник продавца',
-            'email'   => $data['email'],
+            'email'   => strtolower($data['email']),
             'company' => $employer ? $employer->getProfile()->getCompanyTitle() : null
         ]);
 

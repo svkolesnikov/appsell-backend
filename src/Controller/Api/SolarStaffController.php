@@ -145,7 +145,7 @@ class SolarStaffController
             // Создадим пользователя
 
             $user = new Entity\User();
-            $user->setEmail($data['email']);
+            $user->setEmail(strtolower($data['email']));
             $user->setPassword($encoder->encodePassword($user, $data['password']));
 
             // Пользователь будет не активирован, пока не подтвердит
@@ -178,7 +178,7 @@ class SolarStaffController
             // После успешного сохранения зарегистрируем в Solar-Staff
             // и запишем ID сотрудника из SS в профиль
 
-            $profile->setSolarStaffId($this->client->createWorker($data['email']));
+            $profile->setSolarStaffId($this->client->createWorker($user->getEmail()));
 
             $this->entityManager->persist($profile);
             $this->entityManager->flush();

@@ -95,7 +95,7 @@ class AuthController
         $data = $form->getData();
 
         /** @var User $user */
-        $user = $em->getRepository('App:User')->findOneBy(['email' => $data['email']]);
+        $user = $em->getRepository('App:User')->findOneBy(['email' => strtolower($data['email'])]);
         if (null === $user || !$encoder->isPasswordValid($user, $data['password'])) {
             throw new AuthException('Неверный email или пароль');
         }
