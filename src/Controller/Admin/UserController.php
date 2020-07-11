@@ -146,6 +146,8 @@ class UserController extends BaseController
 
             try {
 
+                $user->setEmail(strtolower($user->getEmail()));
+
                 $this->em->persist($user);
                 $this->em->flush();
 
@@ -192,6 +194,8 @@ class UserController extends BaseController
         if ($form->isSubmitted() && $form->isValid()) {
 
             try {
+
+                $user->setEmail(strtolower($user->getEmail()));
 
                 $this->em->persist($user);
                 $this->em->flush();
