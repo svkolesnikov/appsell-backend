@@ -9,6 +9,9 @@ RUN apk add --no-cache supervisor
 
 RUN apk add --no-cache \
     libpq \
+    libpng \
+    libjpeg-turbo \
+    freetype \
     git \
     nodejs \
     nodejs-npm \
@@ -18,6 +21,9 @@ RUN apk add --no-cache \
 
 RUN apk add --no-cache --virtual .build-deps \
     libxml2-dev \
+    libpng-dev \
+    libjpeg-turbo-dev \
+    freetype-dev \
     postgresql-dev \
     autoconf \
     gcc \
@@ -28,7 +34,10 @@ RUN apk add --no-cache --virtual .build-deps \
     rabbitmq-c-dev \
     libzip-dev \
     oniguruma-dev \
+ && docker-php-ext-configure gd --with-freetype --with-jpeg \
  && docker-php-ext-install \
+    gd \
+    exif \
     mbstring \
     xml \
     pdo \

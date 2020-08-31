@@ -7,6 +7,7 @@ use App\Lib\Enum\OfferLinkTypeEnum;
 use App\Lib\Enum\OfferTypeEnum;
 use App\Lib\Enum\UserGroupEnum;
 use App\Security\UserGroupManager;
+use chillerlan\QRCode\QRCode;
 use Doctrine\DBAL\DBALException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -100,8 +101,12 @@ class OfferReferralLinkController
         $this->entityManager->persist($offerLink);
         $this->entityManager->flush();
 
+        $url = 'https://apsl.me/' . $offerLink->getId();
         return new JsonResponse(
-            ['url' => 'https://apsl.me/' . $offerLink->getId()],
+            [
+                'url' => $url,
+                'qrcode' => (new QRCode())->render($url)
+            ],
             JsonResponse::HTTP_CREATED
         );
     }

@@ -15,7 +15,8 @@ class ReferralLinkSchema extends Schema
         parent::__construct(array_merge_recursive([
             'type' => 'object',
             'properties' => [
-                new Property(['property' => 'url', 'type' => 'string'])
+                new Property(['property' => 'url', 'type' => 'string']),
+                new Property(['property' => 'qrcode', 'type' => 'string', 'description' => 'URL для перехода, закодированный в QR код']),
             ]
         ], $properties));
     }
