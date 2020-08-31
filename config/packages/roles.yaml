@@ -47,6 +47,8 @@ security:
             - ROLE_CLICK_STATS_LIST                # Отчет по исполнению офферов (по умолчанию, видно своих сотрудников)
             - ROLE_CLICK_STATS_LIST_ALL            # Отчет по исполнению офферов любыми акаунтами (видит все)
 
+            - ROLE_IMPORT_EMPLOYEES_CSV            # Регистрация "сотрудников продавца" на основе списка в CSV (логин, пароль)
+
         ROLE_SUPER_ADMIN:
             - ROLE_ADMIN
 

@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 use App\Lib\Orm\UuidGenerator;
 
 /**
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="App\Entity\Repository\UserRepository")
  * @ORM\Table(name="userdata.user")
  * @ORM\HasLifecycleCallbacks
  */

@@ -1,0 +1,26 @@
+{% extends 'base.html.twig' %}
+
+{% block javascripts %}
+    {{ parent() }}
+{% endblock %}
+
+{% block top_nav_menu_buttons %}
+    {{ form_start(form, {'method': 'POST', 'action': path('app_import_employees_csv')}) }}
+
+        <div class="form-group">
+            {{ form_errors(form) }}
+        </div>
+
+        {{ form_row(form.employeer_id) }}
+        {{ form_row(form.file) }}
+
+        <div class="well well-small form-actions">
+            <button type="submit" class="btn btn-success">Импортировать</button>
+        </div>
+
+    {{ form_end(form) }}
+{% endblock %}
+
+{% block page_content %}
+
+{% endblock %}

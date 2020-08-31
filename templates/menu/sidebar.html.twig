@@ -50,7 +50,7 @@
 
     {% if is_granted('ROLE_IMPORT_CSV_LIST') %}
         <li>
-            <a href="{{ path('app_import_csv_list') }}"><i class="fa fa-bell-o"></i>Импорт из CSV</a>
+            <a href="{{ path('app_import_csv_list') }}"><i class="fa fa-bell-o"></i>Импорт событий из CSV</a>
         </li>
     {% endif %}
 
@@ -69,6 +69,12 @@
     {% if is_granted('ROLE_CLICK_STATS_LIST') %}
         <li>
             <a href="{{ path('app_click_stats_list') }}"><i class="fa fa-pie-chart"></i>Статистика по переходам</a>
+        </li>
+    {% endif %}
+
+    {% if is_granted('ROLE_IMPORT_EMPLOYEES_CSV') %}
+        <li>
+            <a href="{{ path('app_import_employees_csv') }}"><i class="fa fa-bell-o"></i>Импорт сотрудников из CSV</a>
         </li>
     {% endif %}
 
