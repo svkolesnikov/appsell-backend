@@ -5,6 +5,7 @@ namespace App\DataSource;
 use App\DataSource\Dto\ReportItem;
 use App\DataSource\Dto\StatisticItem;
 use App\DataSource\Dto\SellerOffer;
+use App\Entity\PromoCode;
 use App\Entity\User;
 use App\Exception\Api\DataSourceException;
 use App\Lib\Enum\OfferExecutionStatusEnum;
@@ -101,6 +102,13 @@ select
     order by P.type desc
   ) as r) as compensations,
   
+  (select count(*) from (
+    select
+      *
+    from promo_codes pc
+    where pc.offer_id = O.id AND pc.status = :promo_code_status AND pc.user_id is null
+  ) as p) as promo_codes,
+  
   (select json_agg(r) from (
     select
       L.type,
@@ -126,12 +134,15 @@ SQL;
             $statement->bindValue('seller_id', $seller->getId(), ParameterType::STRING);
             $statement->bindValue('limit', $limit, ParameterType::INTEGER);
             $statement->bindValue('offset', $offset, ParameterType::INTEGER);
+            $statement->bindValue('promo_code_status', PromoCode::STATUS_FRESH, ParameterType::STRING);
             $statement->execute();
 
             return array_map(function (array $item) {
 
                 $item['image'] = null;
                 $item['compensations'] = (array) json_decode($item['compensations'], true);
+
+                $item['promo_codes'] = !empty($item['promo_codes']);
                 $item['links'] = (array) json_decode($item['links'], true);
 
                 foreach ($item['links'] as $link) {

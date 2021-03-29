@@ -12,6 +12,12 @@
         </li>
     {% endif %}
 
+    {% if is_granted('ROLE_APP_PROMO_CODE_LIST') %}
+        <li>
+            <a href="{{ path('app_promo_code_list') }}"><i class="fa fa-files-o"></i>Промо-коды</a>
+        </li>
+    {% endif %}
+
     {% if is_granted('ROLE_APP_OFFER_LIST') %}
         <li>
             <a href="{{ path('app_offer_list') }}"><i class="fa fa-files-o"></i>Офферы</a>

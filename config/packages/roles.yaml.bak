@@ -57,11 +57,6 @@ security:
             - ROLE_APP_COMMISSION_CREATE
             - ROLE_APP_COMMISSION_DELETE
 
-            - ROLE_APP_PROMO_CODE_LIST
-            - ROLE_APP_PROMO_CODE_CREATE
-            - ROLE_APP_PROMO_CODE_EDIT
-            - ROLE_APP_PROMO_CODE_DELETE
-
             - ROLE_APP_USER_EDIT
             - ROLE_APP_USER_LIST
             - ROLE_APP_USER_CREATE

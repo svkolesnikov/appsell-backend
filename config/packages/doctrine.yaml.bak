@@ -14,7 +14,7 @@ doctrine:
           20: true # PDO::ATTR_EMULATE_PREPARES is 20
     types:
       bigint[]: MartinGeorgiev\Doctrine\DBAL\Types\BigIntArray
-      text[]: App\DBAL\Types\TextArray
+      text[]: MartinGeorgiev\Doctrine\DBAL\Types\TextArray
       jsonb: MartinGeorgiev\Doctrine\DBAL\Types\Jsonb
       jsonb[]: MartinGeorgiev\Doctrine\DBAL\Types\JsonbArray
 
@@ -23,9 +23,6 @@ doctrine:
     default_entity_manager: appsell
     entity_managers:
       appsell:
-        dql:
-          numeric_functions:
-            Random: Qbbr\PgsqlDoctrineRandomFunction\DQL\RandomFunction
         naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
         auto_mapping: true
         connection: appsell

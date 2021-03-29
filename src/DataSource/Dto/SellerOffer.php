@@ -16,6 +16,8 @@ class SellerOffer
     /** @var OfferCompensation[] */
     public $compensations = [];
 
+    public bool $promo_codes = false;
+
     /** @var OfferLink[] */
     public $links = [];
 
@@ -27,6 +29,7 @@ class SellerOffer
         $this->type         = $props['type'];
         $this->image        = $props['image'];
         $this->is_approved  = $props['is_approved'];
+        $this->promo_codes  = $props['promo_codes'];
 
         $this->links = array_map(function (array $comp) {
             return new OfferLink($comp);

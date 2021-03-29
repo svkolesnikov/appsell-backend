@@ -1,0 +1,85 @@
+resolver 127.0.0.11;
+
+access_log off;
+client_max_body_size 25M;
+
+server {
+    listen 80 default_server;
+
+    location / {
+        return 200 "default host (target host [$host] not found) ";
+        add_header Content-Type text/plain;
+    }
+}
+
+server {
+    listen 80;
+    server_name rabbitmq.${DOCKER_BASE_DOMAIN};
+
+    root /app;
+
+    set $backend "http://appsell-rabbitmq:15672";
+
+    error_page 502 /errors/rabbitmq.html;
+
+    location / {
+        proxy_pass $backend;
+        proxy_set_header Host $host;
+
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "Upgrade";
+    }
+
+    location /errors {
+        try_files /errors/rabbitmq.html /;
+    }
+}
+
+server {
+    listen 80;
+    server_name ${DOCKER_BASE_DOMAIN};
+
+    root /app;
+
+    set $backend "http://appsell-app-nginx:80";
+
+    error_page 502 /errors/app.html;
+
+    location / {
+        proxy_pass $backend;
+        proxy_set_header Host $host;
+
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "Upgrade";
+    }
+
+    location /errors {
+        try_files /errors/app.html /;
+    }
+}
+
+server {
+    listen 80;
+    server_name mailhog.${DOCKER_BASE_DOMAIN};
+
+    root /app;
+
+    set $backend "http://appsell-mailhog:8025";
+
+    error_page 502 /errors/mailhog.html;
+
+    location / {
+        proxy_pass $backend;
+        proxy_set_header Host $host;
+
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "Upgrade";
+    }
+
+    location /errors {
+        try_files /errors/mailhog.html /;
+    }
+}

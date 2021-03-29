@@ -1,0 +1,29 @@
+{% extends 'base.html.twig' %}
+
+{% block top_nav_menu_buttons %}
+    <ul class="nav navbar-nav navbar-right">
+        <li class="dropdown">
+            {% if is_granted('ROLE_APP_PROMO_CODE_CREATE') %}
+                <a class="" href="{{ path('app_promo_code_create') }}">
+                    <i class="fa fa-plus-circle" aria-hidden="true"></i>
+                    Добавить
+                </a>
+            {% endif %}
+        </li>
+    </ul>
+{% endblock %}
+
+{% block page_content %}
+
+    <form action="#" method="GET">
+        <div class="box box-primary">
+            <div class="box-body table-responsive no-padding">
+                {% include 'pages/promo-code/_default_list.html.twig' %}
+            </div>
+            <div class="box-footer">
+                {% include 'pager/default_pager.html.twig' %}
+            </div>
+        </div>
+    </form>
+
+{% endblock %}

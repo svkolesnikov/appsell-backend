@@ -1,0 +1,57 @@
+{% extends 'base.html.twig' %}
+
+{% set _navbar_title = 'create' == action ? 'Создание' : 'Редактирование' %}
+
+{% block top_nav_menu_buttons %}
+    <ul class="nav navbar-nav navbar-right">
+        <li>
+            <a href="{{ path('app_offer_list') }}"><i class="fa fa-list" aria-hidden="true"></i>
+                Вернуться к списку
+            </a>
+        </li>
+    </ul>
+{% endblock %}
+
+{% block page_content %}
+
+    {{ form_start(form) }}
+
+        {% if 0 != form.vars.errors|length %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="alert alert-danger alert-error">
+                    <ul>
+                    {% for error in form.vars.errors %}
+                        <li>{{ error.message }}</li>
+                    {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Общая информация</h3>
+                    </div>
+                    <div class="box-body">
+                        {{ form_row(form.offer) }}
+                        {{ form_row(form.status) }}
+                        {{ form_row(form.user) }}
+                        {{ form_row(form.promoCode) }}
+                        {{ form_row(form.description) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="well well-small form-actions">
+            <button type="submit" class="btn btn-success">
+                {% if 'create' == action %}Создать{% else %}Обновить{% endif %}
+            </button>
+        </div>
+    {{ form_end(form) }}
+
+{% endblock %}

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ac8f8f2e1ded4b50e676f49ea19fae1a",
+    "content-hash": "7e4d695e6fccf4ce08aaaee47ddd98a7",
     "packages": [
         {
             "name": "chillerlan/php-qrcode",
@@ -1259,7 +1259,6 @@
                 "reflection",
                 "static"
             ],
-            "abandoned": "roave/better-reflection",
             "time": "2020-01-08T19:53:19+00:00"
         },
         {
@@ -2626,52 +2625,6 @@
                 "psr-3"
             ],
             "time": "2019-11-01T11:05:21+00:00"
-        },
-        {
-            "name": "qbbr/pgsql-doctrine-random-function",
-            "version": "1.0.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/qbbr/PgsqlDoctrineRandomFunction.git",
-                "reference": "cf2e10ae9a9c3b7c83d586c6a3de40dfca2c89ec"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/qbbr/PgsqlDoctrineRandomFunction/zipball/cf2e10ae9a9c3b7c83d586c6a3de40dfca2c89ec",
-                "reference": "cf2e10ae9a9c3b7c83d586c6a3de40dfca2c89ec",
-                "shasum": ""
-            },
-            "require": {
-                "doctrine/orm": ">=2.2.0"
-            },
-            "type": "symfony-bundle",
-            "autoload": {
-                "psr-4": {
-                    "Qbbr\\PgsqlDoctrineRandomFunction\\": ""
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Sokolov Innokenty",
-                    "homepage": "https://github.com/qbbr"
-                }
-            ],
-            "description": "PostgreSQL RANDOM() function for Doctrine ORM",
-            "homepage": "https://github.com/qbbr/PgsqlDoctrineRandomFunction",
-            "keywords": [
-                "doctrine",
-                "function",
-                "pgsql",
-                "postgresql",
-                "qbbr",
-                "random",
-                "symfony"
-            ],
-            "time": "2016-03-12T11:10:05+00:00"
         },
         {
             "name": "queue-interop/amqp-interop",
@@ -7129,6 +7082,5 @@
         "ext-json": "*",
         "ext-libxml": "*"
     },
-    "platform-dev": [],
-    "plugin-api-version": "1.1.0"
+    "platform-dev": []
 }

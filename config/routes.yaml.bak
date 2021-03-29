@@ -1,0 +1,5 @@
+api:
+  resource: '../src/Controller/Api'
+  prefix: /api
+  type: annotation
+  trailing_slash_on_root: false

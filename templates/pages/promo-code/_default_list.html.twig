@@ -1,0 +1,41 @@
+<table class="table table-striped table-bordered">
+    <thead>
+    <tr class="headings">
+        <th class="column-title">Идентификатор</th>
+        <th class="column-title">Статус</th>
+        <th class="column-title">Оффер</th>
+        <th class="column-title">Пользователь</th>
+        <th class="column-title">Промо-код</th>
+        <th class="column-title">Описание</th>
+        <th class="column-title">Действия</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    {% for item in items %}
+        <tr class="even pointer">
+            <td>{{ item.id }}</td>
+            <td>{{ item.status }}</td>
+            <td>
+                {% if item.offer %}
+                {{ item.offer.title }}
+                {% endif %}
+            </td>
+            <td>
+                {% if item.user %}
+                {{ item.user.email }}
+                {% endif %}
+            </td>
+            <td>{{ item.promoCode }}</td>
+            <td>{{ item.description }}</td>
+            <td>
+                <div class="btn-group">
+                    {% include 'pages/promo-code/buttons/_edit.html.twig' %}
+                    {% include 'pages/promo-code/buttons/_delete.html.twig' %}
+                </div>
+            </td>
+        </tr>
+    {% endfor %}
+
+    </tbody>
+</table>

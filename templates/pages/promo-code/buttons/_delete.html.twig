@@ -1,0 +1,12 @@
+{% if is_granted('ROLE_APP_PROMO_CODE_DELETE') %}
+    <button
+            type="button"
+            class="btn btn-sm btn-default"
+            data-toggle="modal"
+            data-target="#modal-remove-record"
+            data-url="{{ path('app_promo_code_delete', { id: item.id}) }}"
+    >
+        <i class="fa fa-trash-o"></i>
+        Удалить из БД
+    </button>
+{% endif %}

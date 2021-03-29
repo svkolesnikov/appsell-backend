@@ -16,7 +16,6 @@
         "martin-georgiev/postgresql-for-doctrine": "^1.2",
         "myclabs/php-enum": "^1.7",
         "nelmio/cors-bundle": "^2.0",
-        "qbbr/pgsql-doctrine-random-function": "^1.0",
         "ramsey/uuid": "^3.9",
         "redjanym/fcm-bundle": "^1.1",
         "sensio/framework-extra-bundle": "^5.5",

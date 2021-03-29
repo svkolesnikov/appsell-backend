@@ -25,7 +25,7 @@ class OfferExecution
     /**
      * @var Offer
      * @ORM\ManyToOne(targetEntity = "Offer")
-     * @ORM\JoinColumn(name = "offer_id", referencedColumnName = "id")
+     * @ORM\JoinColumn(name = "offer_id", referencedColumnName = "id", nullable=true)
      */
     protected $offer;
 
@@ -113,12 +113,12 @@ class OfferExecution
         return $this->id;
     }
 
-    public function getOffer(): Offer
+    public function getOffer(): ?Offer
     {
         return $this->offer;
     }
 
-    public function setOffer(Offer $offer)
+    public function setOffer(?Offer $offer)
     {
         $this->offer = $offer;
         return $this;

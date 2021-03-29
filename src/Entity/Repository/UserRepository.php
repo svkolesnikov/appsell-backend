@@ -26,4 +26,20 @@ class UserRepository extends EntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * @return array|User[]
+     */
+    public function findSelers(): array
+    {
+        return $this->getEntityManager()
+            ->createQueryBuilder()
+            ->select('u')
+            ->from(User::class, 'u')
+            ->innerJoin('u.groups', 'g')
+            ->where('g.code = :code')
+            ->setParameter(':code', UserGroupEnum::SELLER)
+            ->getQuery()
+            ->getResult();
+    }
 }

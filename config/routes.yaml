@@ -3,3 +3,9 @@ api:
   prefix: /api
   type: annotation
   trailing_slash_on_root: false
+
+external:
+  resource: '../src/Controller/External'
+  prefix: /external
+  type: annotation
+  trailing_slash_on_root: false

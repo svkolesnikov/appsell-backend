@@ -165,9 +165,6 @@
     "psr/log": {
         "version": "1.0.2"
     },
-    "qbbr/pgsql-doctrine-random-function": {
-        "version": "1.0.1"
-    },
     "queue-interop/amqp-interop": {
         "version": "0.7.5"
     },
