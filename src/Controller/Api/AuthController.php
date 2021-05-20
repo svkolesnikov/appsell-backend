@@ -106,18 +106,18 @@ class AuthController
             // Если пользователь прошел регистрацию в SS
             // активируем его и впускаем
 
-//            try {
-//                $isWorkerRegSuccess = $solarStaffClient->isWorkerRegSuccess($user->getEmail());
-//            } catch (SolarStaffException $ex) {
-//                $isWorkerRegSuccess = false;
-//            }
-//
-//            if ($isWorkerRegSuccess) {
+            try {
+                $isWorkerRegSuccess = $solarStaffClient->isWorkerRegSuccess($user->getEmail());
+            } catch (SolarStaffException $ex) {
+                $isWorkerRegSuccess = false;
+            }
+
+            if ($isWorkerRegSuccess) {
                 $user->setActive(true);
-//            } else {
-//                $user->setActive(false);
-//                $userNotActiveMessage = 'Активируйте выплаты по ссылке из письма на E-mail, который использовали при регистрации';
-//            }
+            } else {
+                $user->setActive(false);
+                $userNotActiveMessage = 'Активируйте выплаты по ссылке из письма на E-mail, который использовали при регистрации';
+            }
 
             $em->persist($user);
             $em->flush();
