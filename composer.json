@@ -40,6 +40,7 @@
     },
     "require-dev": {
         "roave/security-advisories": "dev-master",
+        "symfony/maker-bundle": "^1.31",
         "symfony/profiler-pack": "^1.0"
     },
     "config": {

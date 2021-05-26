@@ -46,6 +46,7 @@ RUN apk add --no-cache --virtual .build-deps \
     zip \
     opcache \
     sockets \
+    bcmath \
  && pecl install amqp-1.9.4 && docker-php-ext-enable amqp \
  && apk del .build-deps
 
@@ -56,9 +57,7 @@ COPY ./composer.* /var/www/app/
 COPY ./symfony.lock /var/www/app/symfony.lock
 
 # Установка вендоров на основании composer.lock
-RUN curl -sS https://getcomposer.org/installer | php \
- && chmod +x composer.phar \
- && php composer.phar install --no-interaction --no-scripts --no-autoloader
+RUN php composer.phar install --no-interaction --no-scripts --no-autoloader
 
 # Копирование кода приложения
 COPY ./.bowerrc      /var/www/app/

@@ -18,7 +18,7 @@ services:
     container_name: appsell_postgres
     image: postgres:10.3-alpine
     volumes:
-      - ../postgres:/var/lib/postgresql/data
+      - ./postgres:/var/lib/postgresql/data
     ports:
       - 5432:5432
 
@@ -41,7 +41,7 @@ services:
       APP_LOCALE: ru
       APP_SECRET: 86e7b44293d50666286e7b44293d5066620c4381b619a9cfea7bf5ec20c4381b619a9cfea7bf5ec2
       DATABASE_URL: pgsql://backend:Wq2v9LV4UP@postgres:5432/appsell
-#      DATABASE_URL: pgsql://backend:Wq2v9LV4UP@11.1.1.5:5432/appsell
+      #      DATABASE_URL: pgsql://backend:Wq2v9LV4UP@11.1.1.5:5432/appsell
       MAILER_URL: gmail://noreply@appsell.me:HT6i0cyyeF18mKQs@smtp.gmail.com:465?encryption=ssl
       RABBITMQ_DSN: amqp://guest:guest@rabbitmq:5672/%2F
       FIREBASE_API_KEY: AAAAwxBBPL4:APA91bFVrKfPUiCGFpO942f0DlaIEevXADVujey_O7yTmaRE80G-GBl7c1Zj_UJzISRm8LOJ2asJBtD0e4AIoG2MlGsFX47luVtRW2fJv0Az0n7k16weHGLTW_ITt7vHr_QAmQAXQ3sBuTiDkrvOYQ74GCGUCMfGjw

@@ -28,6 +28,16 @@ class UserRepository extends EntityRepository
     }
 
     /**
+     * @param string $seller_id
+     *
+     * @return bool
+     */
+    public function checkSeller(string $seller_id): bool
+    {
+	return strlen($seller_id) === 36 && is_object($this->findOneBy(['id' => $seller_id]));
+    }
+
+    /**
      * @return array|User[]
      */
     public function findSelers(): array

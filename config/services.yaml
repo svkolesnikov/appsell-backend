@@ -6,6 +6,9 @@ parameters:
   access_token.expires_in:        2592000 # 30 дней
   system.notification_receivers:  ['we@appsell.me'] # Получатель уведомлений от системы
 
+  SBER_CLIENT_ID: 24d5ea71-7b9b-406f-a942-beb1a002f786
+  SBER_AUTHORIZATION: Basic MjRkNWVhNzEtN2I5Yi00MDZmLWE5NDItYmViMWEwMDJmNzg2Ok00aUkwaVUxeVIwZ1U1b0gweE00b1QzaUk4Zk4xY1M1aFM4aEYzb0U3bFMzeEU3ZUs3
+
   # Данные для доступа к API solar-staff.com
   solar_staff.api_url:       '%env(SOLAR_STAFF_API_URL)%'
   solar_staff.api_client_id: '%env(SOLAR_STAFF_API_CLIENT_ID)%'
@@ -38,6 +41,9 @@ services:
   App\Controller\:
     resource: '../src/Controller'
     tags: ['controller.service_arguments']
+
+  App\Service\SberbankService:
+    arguments: ['%SBER_CLIENT_ID%', '%SBER_AUTHORIZATION%']
 
   # add more service definitions when explicit configuration is needed
   # please note that last definitions always *replace* previous ones
