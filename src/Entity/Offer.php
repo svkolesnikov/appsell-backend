@@ -6,10 +6,12 @@ use App\Lib\Enum\OfferTypeEnum;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use App\Lib\Orm\UuidGenerator;
+use App\Entity\Repository\OfferRepository;
 
 /**
  * @ORM\Entity
  * @ORM\Table(name="offerdata.offer")
+ * @ORM\Entity(repositoryClass=OfferRepository::class)
  * @ORM\HasLifecycleCallbacks
  */
 class Offer
@@ -106,6 +108,17 @@ class Offer
      */
     protected $payed_amount;
 
+    /**
+     * @ORM\Column(type="bigint")
+     */
+    protected $price;
+
+    /**
+     * @ORM\Column(type="boolean" )
+     */
+    protected $pay_qr;
+
+
     public function __construct()
     {
         $this->compensations = new ArrayCollection();
@@ -118,6 +131,10 @@ class Offer
         $this->budget        = 0;
         $this->payed_amount  = 0;
         $this->type          = OfferTypeEnum::SERVICE;
+	
+	$this->price         = 0;
+        $this->pay_qr        = false;
+
     }
 
     /**
@@ -354,5 +371,28 @@ class Offer
     public function isBudgetExceeded(): bool
     {
         return $this->getBudget() <= $this->getPayedAmount();
+    }
+
+
+    public function getPrice(): string
+    {
+        return $this->price;
+    }
+
+    public function setPrice(string $price)
+    {
+        $this->price = $price;
+        return $this;
+    }
+
+    public function isPayQr(): bool
+    {
+        return (bool) $this->pay_qr;
+    }
+
+    public function setPayQr(bool $pay_qr)
+    {
+        $this->pay_qr= $pay_qr;
+        return $this;
     }
 }

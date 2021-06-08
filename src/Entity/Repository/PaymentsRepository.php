@@ -110,11 +110,11 @@ class PaymentsRepository extends EntityRepository
             ->andWhere('payments.order_id = :order_id')
             ->setParameter('seller_id', $seller_id)
             ->setParameter('order_id', $order_id)
-	    ->orderBy('payments.id', 'DESC')
+	        ->orderBy('payments.id', 'DESC')
             ->setMaxResults(1)
             ->getQuery()
             ->getResult()[0];
-	
+
         return ($payment !== null) ? $payment : false;
     }
 
@@ -145,4 +145,6 @@ class PaymentsRepository extends EntityRepository
             ->getQuery()
             ->getResult();
     }
+
+
 }

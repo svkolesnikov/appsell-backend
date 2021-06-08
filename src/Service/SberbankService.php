@@ -61,7 +61,7 @@ class SberbankService
 
         if (! is_string($createTokenResponse )) return $createTokenResponse;
 
-	$createToken = $createTokenResponse;
+	    $createToken = $createTokenResponse;
 
         $order = $this->getNewRquid($order);
 
@@ -77,16 +77,16 @@ class SberbankService
 
         $this->log->add($order['rq_uid'], 'Создание платежа', $header, $params, $response[1]);
 	
-	return $response;
+	    return $response;
     }
 
     public function statusPayment(Payments $payment): array
     {
         $statusTokenResponse = $this->getToken($this->scope['status'], $this->rquid->get());
 
-	if (! is_string($statusTokenResponse)) return $statusTokenResponse;
+        if (! is_string($statusTokenResponse)) return $statusTokenResponse;
 
-	$statusToken = $statusTokenResponse;
+        $statusToken = $statusTokenResponse;
 
         $rquid = $this->rquid->get();
 
@@ -113,9 +113,9 @@ class SberbankService
     {
         $revokeTokenResponse = $this->getToken($this->scope['revoke'], $this->rquid->get());
 	
-	if (! is_string($revokeTokenResponse)) return $revokeTokenResponse;
+        if (! is_string($revokeTokenResponse)) return $revokeTokenResponse;
 
-	$revokeToken = $revokeTokenResponse;
+        $revokeToken = $revokeTokenResponse;
 
         $rquid = $this->rquid->get();
 
@@ -213,12 +213,20 @@ class SberbankService
         curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "POST");
         curl_setopt($curl, CURLOPT_POSTFIELDS, $params);
         curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
 
         $response  = json_decode(curl_exec($curl));
-	$http_code = curl_getinfo($curl)['http_code'];
-	
-        curl_close($curl);
-	
+        $http_code = curl_getinfo($curl)['http_code'];
+
+        if ($response === NULL) {
+            var_dump(json_encode([
+                'curl'     => curl_exec($curl),
+                'response' => $response
+            ]));
+            die('ERROR');
+        }
+
+	    curl_close($curl);
 
         return [$http_code, $response];
     }

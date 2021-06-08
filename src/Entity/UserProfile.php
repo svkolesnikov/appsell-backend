@@ -2,11 +2,12 @@
 
 namespace App\Entity;
 
+use App\Entity\Repository\UserProfileRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity
  * @ORM\Table(name="userdata.profile")
+ * @ORM\Entity(repositoryClass=UserProfileRepository::class)
  * @ORM\HasLifecycleCallbacks
  */
 class UserProfile
@@ -74,6 +75,12 @@ class UserProfile
      * @ORM\JoinColumn(name = "employer_id", referencedColumnName = "id")
      */
     protected $employer;
+
+    /**
+     * @ORM\Column(type="string", length=20, nullable=true)
+     */
+    private $id_qr;
+
 
     /**
      * @ORM\PrePersist
@@ -202,4 +209,17 @@ class UserProfile
         $this->company_payout_over_solar_staff = $value;
         return $this;
     }
+
+    public function getIdQr(): ?string
+    {
+        return $this->id_qr;
+    }
+
+    public function setIdQr(string $id_qr): self
+    {
+        $this->id_qr = $id_qr;
+
+        return $this;
+    }
+
 }

@@ -101,6 +101,8 @@ class EmployeeOfferController
                 ['type' => 'Допустимые значения: ' . implode(', ', OfferTypeEnum::toArray())]
             );
         }
+
+//        return new JsonResponse(['message' => 'test']);
     }
 
     /**

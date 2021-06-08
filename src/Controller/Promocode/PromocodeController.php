@@ -25,6 +25,8 @@ class PromocodeController extends AbstractController
     /**
      * @Route("/promocode/add", name="promocode_add", methods = { "POST" })
      *
+     * @param Request $request
+     *
      * @return JsonResponse
      */
     public function index(Request $request): Response
@@ -65,6 +67,8 @@ class PromocodeController extends AbstractController
 
     /**
      * @Route("/promocode/postback", name="promocode_postback_usage", methods = { "POST" })
+     *
+     * @param Request $request
      *
      * @return JsonResponse
      */
@@ -118,6 +122,13 @@ class PromocodeController extends AbstractController
         return array_map('trim', $array);
     }
 
+    /**
+     * @param string $path
+     *
+     * @return array
+     *
+     * @throws \Exception
+     */
     private function getArrayFromXml(string $path): array
     {
         $array = new \SimpleXMLElement(file_get_contents($path));
@@ -125,6 +136,11 @@ class PromocodeController extends AbstractController
         return array_map('trim', (array) $array->code);
     }
 
+    /**
+     * @param string $company_id
+     *
+     * @return bool
+     */
     private function checkCompany (string $company_id): bool
     {
         return $this->getDoctrine()->getRepository(Companies::class)->existsCompany($company_id);

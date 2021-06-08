@@ -1,25 +1,3 @@
-# APPSELL
-### Команда для запуска контролирующего процесса
-
-Запускает процесс, который каждые 10 секунд проверяет наличие основного процесса - `sberbank:deamon`.
-Если не находит, то запускает новый.
-
-`${DOCKER_CONTAINER_NAME}` необходимо заменить на ID контейнера `appsell_app`
-```sh
-cd ../var/www/
-
-docker exec -it ${DOCKER_CONTAINER_NAME} php bin/console sberbank:deamon:controll
-```
-
-
-Если не пересобирать Docker
-```sh
-docker exec -it e51aba72afd4 php bin/console sberbank:deamon:controll
-```
-
-### Изменения в базе
-
-```sh
 CREATE SCHEMA IF NOT EXISTS payments;
 
 CREATE TABLE IF NOT EXISTS payments.payments (
@@ -116,9 +94,8 @@ CREATE SEQUENCE IF NOT EXISTS payments.order_numbers_id_seq START WITH 1 INCREME
 ALTER SEQUENCE payments.order_numbers_id_seq OWNED BY payments.order_numbers.id;
 
 
--- РР·РјРµРЅРµРЅРёСЏ РІ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёРµ С‚Р°Р±Р»РёС†С‹
+-- Изменения в существующие таблицы
 ALTER TABLE userdata.profile ADD COLUMN id_qr CHARACTER VARYING(20) DEFAULT NULL;
 
 ALTER TABLE offerdata.offer ADD COLUMN price decimal DEFAULT 0;
 ALTER TABLE offerdata.offer ADD COLUMN pay_qr boolean DEFAULT false;
-```

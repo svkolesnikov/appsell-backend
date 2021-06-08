@@ -95,6 +95,7 @@ class CurrentUserController
 
         return new JsonResponse([
             'email'                     => $user->getEmail(),
+            'seller_id'                 => $user->getId(),
             'group'                     => $baseGroup,
             'phone'                     => $profile->getPhone(),
             'lastname'                  => $profile->getLastname(),

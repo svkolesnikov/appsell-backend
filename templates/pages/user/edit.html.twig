@@ -28,6 +28,7 @@
                         {{ form_row(form.profile.firstname) }}
                         {{ form_row(form.profile.phone) }}
                         {{ form_row(form.is_active) }}
+			            {{ form_row(form.profile.id_qr) }}
 
                         <div {% if not is_granted('ROLE_ADMIN') and not is_granted('ROLE_SUPER_ADMIN') %}style="display: none"{% endif %}>
                         {{ form_row(form.groups) }}

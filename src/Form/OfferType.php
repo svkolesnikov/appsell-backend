@@ -20,6 +20,9 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Callback;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
+
 
 class OfferType extends AbstractType
 {
@@ -67,6 +70,15 @@ class OfferType extends AbstractType
                 'delete_empty'  => true,
                 'constraints'   => [new Callback([$this, 'validateOfferLink'])]
             ])
+	    ->add('pay_qr',  null, ['mapped' => false])
+            ->add('price',         MoneyType::class,       [
+                'required'      => false,
+                'label'         => 'Цена для Плати QR',
+                'currency'      => false,
+                'attr'          => ['style' => 'width:135px']
+            ])
+
+
 
             ->add('compensations',  CollectionType::class,  [
                 'label'         => false,
@@ -81,6 +93,21 @@ class OfferType extends AbstractType
                 'constraints'   => [new Callback([$this, 'validateCompensation'])]
             ])
         ;
+
+        $builder->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
+            $offer = $event->getData();
+            $form  = $event->getForm();
+
+            $form->getData()->setPayQr($offer['pay_qr'] ?? false, true);
+        });
+
+        $builder->addEventListener(FormEvents::POST_SET_DATA, function (FormEvent $event) {
+            $offer = $event->getData();
+            $form  = $event->getForm();
+
+            $form->get('pay_qr')->setData($offer->isPayQr());
+        });
+
 
         $builder->get('type')->addModelTransformer(new StringToOfferTypeDataTransformer());
     }

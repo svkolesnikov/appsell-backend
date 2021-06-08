@@ -6,6 +6,11 @@ use App\Entity\Companies;
 use App\Entity\Payments;
 use App\Entity\Promocode;
 use App\Entity\User;
+use App\Entity\UserProfile;
+use App\Entity\Offer;
+use chillerlan\QRCode\QRCode;
+use App\Entity\OrderNumbers;
+use App\Entity\Members;
 use App\Service\PaymentsLogService;
 use App\Service\PromocodeService;
 use App\Service\RquidService;
@@ -40,10 +45,35 @@ class PaymentController extends AbstractController
      */
     public function createPayment (Request $request): Response
     {
-        $newOrder = $this->getCreateData($request);
-        if (count($newOrder) !== 15) {
+        $seller_id = htmlspecialchars($request->headers->get('sellerid'));
+        $offer_id  = htmlspecialchars($request->headers->get('offerid'));
+
+        $offer = $this->getDoctrine()->getRepository(Offer::class);
+        if (! $offer->check($offer_id) || ! $offer->checkPayQr($offer_id)) {
+            return new JsonResponse(
+                ['message' => "Offer not found or don't supported Pay QR", 'data' => $offer_id],
+                JsonResponse::HTTP_BAD_REQUEST
+            );
+        }
+
+        $seller = $this->getDoctrine()->getRepository(UserProfile::class);
+        if (! $seller->check($seller_id) || ! $seller->checkIdQr($seller_id)) {
+            return new JsonResponse(
+                ['message' => "Seller doesn't exist or doesn't have a ID QR", 'data' => $seller_id],
+                JsonResponse::HTTP_BAD_REQUEST
+            );
+        }
+
+        $newOrder = $this->getCreateData($request, $this->em);
+        if (count($newOrder) !== 13) {
             return new JsonResponse(['message' => 'Not enough data...', 'data' => $newOrder], JsonResponse::HTTP_BAD_REQUEST);
         }
+
+        $order_number             = $this->em->getRepository(OrderNumbers::class)->getNewNumber();
+        $newOrder['order_number'] = $order_number->getId();
+
+        $members               = $this->em->getRepository(Members::class)->getNewMember();
+        $newOrder['member_id'] = $members->getId();
 
         if (! $this->sellerExists($newOrder['seller_id'])) {
             return new JsonResponse(['message' => "Seller doesn't exist", 'data' => $newOrder], JsonResponse::HTTP_BAD_REQUEST);
@@ -52,29 +82,38 @@ class PaymentController extends AbstractController
         if (! $this->checkCompany($newOrder['company_id'])) {
             return new JsonResponse(['message' => "Company with this ID doesn't exist", 'data' => $newOrder], JsonResponse::HTTP_BAD_REQUEST);
         }
-	
-	$repository = $this->em->getRepository(Payments::class);
-        $payment    = $repository->createNewPayment($newOrder);
 
-	$this->log->add('Платеж ' . $payment->getid() .' создан.');
+
+        $repository = $this->em->getRepository(Payments::class);
+        $payment    = $repository->createNewPayment($newOrder);
+        $this->log->add('Платеж ' . $payment->getid() .' создан.');
 
         $sber = $this->sberbank->createPayment($newOrder);
-	
+
         if ($sber[0] != 200 || ! isset($sber[1]->status->order_form_url)) {
             return new JsonResponse(
-		[
-			'message'  => 'Payment not been created!',
-			'data'     => $newOrder,
-			'response' => $sber[1],
-		], 
-		JsonResponse::HTTP_BAD_REQUEST
-	    );
+                [
+                    'message'  => 'Payment not been created!',
+                    'data'     => $newOrder,
+                    'response' => $sber[1],
+                ],
+                JsonResponse::HTTP_BAD_REQUEST
+            );
         }
-	
-	$payment = $repository->addSberbankResponse($payment, $sber[1]);
+
+        $order_number->setPaymentId($payment->getId());
+        $members->setPaymentId($payment->getId());
+
+        $payment = $repository->addSberbankResponse($payment, $sber[1]);
         $this->log->add('QR-код для платежа ' . $payment->getid() .' создан.');
 
-        return new JsonResponse(['ID payment' => $payment->getId(), $newOrder, $sber[1]->status]);
+        return new JsonResponse(
+            [
+                'qr_url'   => $sber[1]->status->order_form_url,
+//                'qr_code'  => (new QRCode())->render($sber[1]->status->order_form_url),
+                'order_id' => $sber[1]->status->order_id
+            ]
+        );
     }
 
     /**
@@ -84,7 +123,7 @@ class PaymentController extends AbstractController
      */
     public function statusPayment(): Response
     {
-        $repository = $this->getDoctrine()->getRepository(Payments::class);
+	    $repository = $this->getDoctrine()->getRepository(Payments::class);
         $payments   = $repository->findPaymentInProcess();
 
         foreach ($payments as $payment) {
@@ -93,17 +132,17 @@ class PaymentController extends AbstractController
 
             if ($status[0] == 200 && $status[1]->status->order_state === 'PAID') {
                 $promocode = $this->promocode->get($payment->getSellerId(), $payment->getCompanyId());
-            	$repository->markPaid($payment);
+                $repository->markPaid($payment);
 
-		if ($promocode) {
-                	$repository->addPromocodeToPayment($payment, $promocode->getId());
-            	}
+                if ($promocode) {
+                    $repository->addPromocodeToPayment($payment, $promocode->getId());
+                }
 
-		$this->log->add('Оплата по платежу ' . $payment->getid() .' подтверждена.');
+                $this->log->add('Оплата по платежу ' . $payment->getid() .' подтверждена.');
 
-            	$response[] = [$payment->getRquid() => 'true'];
-            }            
-	}
+                $response[] = [$payment->getRquid() => 'true'];
+            }
+        }
 
         return new JsonResponse($response ??  ['message' => 'Nothing to check']);
     }
@@ -132,7 +171,7 @@ class PaymentController extends AbstractController
 	    if ($payment->getPromocodeId() != null) {
                 $repository = $this->getDoctrine()->getRepository(Promocode::class);
                 $promocode  = $repository->find($payment->getPromocodeId());
-		
+
 		$code = $promocode->getCode();
             }
         }
@@ -160,8 +199,8 @@ class PaymentController extends AbstractController
         $repository = $this->getDoctrine()->getRepository(Payments::class);
         $payment    = $repository->findOneForRevoke($order['seller_id'], $order['order_id']);
 
-	if (! $payment)
-	   return new JsonResponse(['message' => 'Payment ' . $order['order_id'] . ' not found.']);
+	    if (! $payment)
+	        return new JsonResponse(['message' => 'Payment ' . $order['order_id'] . ' not found.']);
 
         //$revoke = $this->sberbank->revokePayment($payment);
         $repository->markRevoked($payment);
@@ -200,23 +239,26 @@ class PaymentController extends AbstractController
         return $this->checkData($order);
     }
 
-    private function getCreateData(Request $request)
+    private function getCreateData(Request $request, EntityManagerInterface $em): array
     {
-        $order['seller_id']            = htmlspecialchars($request->headers->get('sellerid'));
-        $order['id_qr']                = substr(htmlspecialchars($request->headers->get('idqr')), 0, 20);
-        $order['company_id']           = htmlspecialchars($request->request->get('company_id'));
+        $order['seller_id'] = htmlspecialchars($request->headers->get('sellerid'));
+        $offer_id           = htmlspecialchars($request->headers->get('offerid'));
+
+        $offer  = $this->getDoctrine()->getRepository(Offer::class)->find($offer_id);
+        $seller = $this->getDoctrine()->getRepository(UserProfile::class)->find($order['seller_id']);
+
         $order['rq_uid']               = $this->getRquid();
         $order['rq_tm']                = gmdate('Y-m-d\TH:i:s') . 'Z';
-        $order['member_id']            = substr(htmlspecialchars($request->request->get('member_id')), 0, 32);
-        $order['order_create_date']    = $order['rq_tm'];
-        $order['order_number']         = substr(htmlspecialchars($request->request->get('order_number')), 0, 36);
-        $order['position_name']        = substr(htmlspecialchars($request->request->get('position_name')), 0, 256);
-        $order['position_count']       = substr(htmlspecialchars($request->request->get('position_count')), 0, 6);
-        $order['position_sum']         = substr(htmlspecialchars($request->request->get('position_sum')), 0, 15);
-        $order['position_description'] = substr(htmlspecialchars($request->request->get('position_description')), 0, 1024);
+        $order['id_qr']                = $seller->getIdQr();
+        $order['company_id']           = $seller->getCompanyId();
         $order['currency']             = "810"; //Russian RUB
+        $order['position_count']       = 1;
+        $order['position_sum']         = substr($offer->getPrice(), 0, 15);
+        $order['position_name']        = substr(htmlspecialchars($offer->getTitle()), 0, 256);
+        $order['position_description'] = substr(htmlspecialchars($offer->getDescription()), 0, 1024);
+        $order['order_description']    = substr(htmlspecialchars($offer->getDescription()), 0, 256);
         $order['order_sum']            = $this->getOrderSum($order, $request);
-        $order['order_description']    = substr(htmlspecialchars($request->request->get('description')), 0, 256);
+        $order['order_create_date']    = $order['rq_tm'];
 
         return $this->checkData($order);
     }
@@ -238,7 +280,7 @@ class PaymentController extends AbstractController
     {
         $sum 	    = $request->request->get('order_sum');
 	$checkedSum = bcmul($order['position_count'], $order['position_sum']);
-	
+
         return ($sum === $checkedSum) ? $sum : $checkedSum;
     }
 

@@ -102,13 +102,19 @@ class OfferReferralLinkController
         $this->entityManager->flush();
 
         $url = 'https://apsl.me/' . $offerLink->getId();
-        return new JsonResponse(
-            [
-                'url' => $url,
-                'qrcode' => (new QRCode())->render($url)
-            ],
-            JsonResponse::HTTP_CREATED
-        );
+
+        $response = [
+            'url'    => $url,
+            'qrcode' => (new QRCode())->render($url),
+        ];
+
+        if ($offer->isPayQr()) {
+            $response = array_merge($response, [
+                'qr_pay' => '/payments/create'
+            ]);
+        }
+
+        return new JsonResponse($response, JsonResponse::HTTP_CREATED);
     }
 
     /**
